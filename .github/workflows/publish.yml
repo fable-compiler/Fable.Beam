@@ -29,6 +29,7 @@ jobs:
         run: |
           MESSAGE="${{ github.event.head_commit.message }}"
           VERSION="${MESSAGE#chore: release }"
+          VERSION="${VERSION%% *}"
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
           echo "tag=v$VERSION" >> "$GITHUB_OUTPUT"
 
