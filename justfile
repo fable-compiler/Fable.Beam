@@ -54,14 +54,16 @@ test-dotnet:
     dotnet build {{test_path}}
     dotnet run --project {{test_path}}
 
-# Create NuGet package
+# Create NuGet packages
 pack:
     dotnet build {{src_path}}
     dotnet pack {{src_path}} -c Release
+    dotnet pack {{src_path}}/cowboy -c Release
 
-# Create NuGet package with specific version (used in CI)
+# Create NuGet packages with specific version (used in CI)
 pack-version version:
     dotnet pack {{src_path}} -c Release -p:PackageVersion={{version}} -p:InformationalVersion={{version}}
+    dotnet pack {{src_path}}/cowboy -c Release -p:PackageVersion={{version}} -p:InformationalVersion={{version}}
 
 # Format code with Fantomas
 format:

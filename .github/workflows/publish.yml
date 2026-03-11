@@ -34,5 +34,5 @@ jobs:
         run: just pack-version ${TAG_NAME#v}
 
       - name: Push NuGet
-        run: dotnet nuget push src/bin/Release/*.nupkg -s https://api.nuget.org/v3/index.json -k ${{ secrets.NUGET_API_KEY }}
+        run: dotnet nuget push 'src/**/Release/*.nupkg' -s https://api.nuget.org/v3/index.json -k ${{ secrets.NUGET_API_KEY }}
         continue-on-error: false
