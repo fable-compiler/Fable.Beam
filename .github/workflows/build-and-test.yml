@@ -1,0 +1,42 @@
+name: Build and Test
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET Core
+        uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: 10.x
+
+      - name: Setup Erlang/OTP
+        uses: erlef/setup-beam@v1
+        with:
+          otp-version: '27'
+          rebar3-version: '3'
+
+      - name: Install just
+        uses: extractions/setup-just@v3
+
+      - name: Restore dependencies
+        run: |
+          just setup
+          just restore
+
+      #- name: Check formatting
+      #  run: just format-check
+
+      - name: Build
+        run: just build
+
+      - name: Test
+        run: just test

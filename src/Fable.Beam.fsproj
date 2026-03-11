@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <Author>Dag Brattli</Author>
+    <Copyright>Dag Brattli</Copyright>
+    <PackageLicenseFile>LICENSE</PackageLicenseFile>
+    <WarnOn>3390;$(WarnOn)</WarnOn>
+    <PackageTags>fsharp;fable;fable-binding;fable-beam;erlang;otp</PackageTags>
+    <Description>Fable bindings for Erlang and BEAM/OTP</Description>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="otp/Erlang.fs" />
+    <Compile Include="otp/GenServer.fs" />
+    <Compile Include="otp/Supervisor.fs" />
+    <Compile Include="otp/Timer.fs" />
+    <Compile Include="otp/Io.fs" />
+    <Compile Include="otp/Logger.fs" />
+    <Compile Include="otp/Ets.fs" />
+    <Compile Include="otp/Maps.fs" />
+    <Compile Include="otp/Lists.fs" />
+    <Compile Include="otp/File.fs" />
+    <Compile Include="otp/Testing.fs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="*.fsproj; **\*.fs; **\*.fsi" PackagePath="fable\" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\LICENSE" Pack="true" Visible="false" PackagePath="\" />
+    <None Include="..\README.md" Pack="true" PackagePath="\" />
+  </ItemGroup>
+  <Import Project="..\.paket\Paket.Restore.targets" />
+</Project>

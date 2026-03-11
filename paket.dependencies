@@ -1,0 +1,19 @@
+# https://fsprojects.github.io/Paket/nuget-dependencies.html
+
+source https://api.nuget.org/v3/index.json
+storage: none
+framework: net10.0
+
+nuget FSharp.Core >= 5.0.0 lowest_matching: true
+nuget Fable.Core 5.0.0-rc.1
+
+group Test
+    source https://api.nuget.org/v3/index.json
+    storage: none
+    framework: net10.0
+
+    nuget FSharp.Core
+    nuget Fable.Core 5.0.0-rc.1
+    nuget Microsoft.NET.Test.Sdk ~> 16
+    nuget xunit ~> 2
+    nuget xunit.runner.visualstudio ~> 2

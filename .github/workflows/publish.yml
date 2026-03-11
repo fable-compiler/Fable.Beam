@@ -1,0 +1,38 @@
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: read
+
+name: Publish NuGet
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup .NET Core
+        uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: 10.x
+
+      - name: Install just
+        uses: extractions/setup-just@v3
+
+      - name: Restore dependencies
+        run: |
+          dotnet tool restore
+          dotnet restore src
+
+      - name: Pack NuGet
+        env:
+          TAG_NAME: ${{ github.event.release.tag_name }}
+        run: just pack-version ${TAG_NAME#v}
+
+      - name: Push NuGet
+        run: dotnet nuget push 'src/**/Release/*.nupkg' -s https://api.nuget.org/v3/index.json -k ${{ secrets.NUGET_API_KEY }}
+        continue-on-error: false

@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <IsPackable>false</IsPackable>
+    <GenerateProgramFile>false</GenerateProgramFile>
+    <DisableImplicitFSharpCoreReference>true</DisableImplicitFSharpCoreReference>
+    <LangVersion>preview</LangVersion>
+    <OutputType>Exe</OutputType>
+    <NoWarn>NU1510</NoWarn>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="../src/Fable.Beam.fsproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="TestErlang.fs" />
+    <Compile Include="TestGenServer.fs" />
+    <Compile Include="TestSupervisor.fs" />
+    <Compile Include="TestTimer.fs" />
+    <Compile Include="TestEts.fs" />
+    <Compile Include="TestIo.fs" />
+    <Compile Include="TestLists.fs" />
+    <Compile Include="TestMaps.fs" />
+    <Compile Include="TestFile.fs" />
+    <Compile Include="TestLogger.fs" />
+    <Compile Include="Main.fs" />
+  </ItemGroup>
+  <Import Project="..\.paket\Paket.Restore.targets" />
+</Project>
