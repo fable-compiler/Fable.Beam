@@ -1,0 +1,42 @@
+STORAGE: NONE
+RESTRICTION: || (== net10.0) (== net6.0) (== net8.0) (== net9.0) (== netstandard2.0) (== netstandard2.1)
+NUGET
+  remote: https://api.nuget.org/v3/index.json
+    Fable.Core (5.0.0-rc.1)
+      FSharp.Core (>= 4.7.2)
+    FSharp.Core (5.0)
+
+GROUP Test
+STORAGE: NONE
+RESTRICTION: == net10.0
+NUGET
+  remote: https://api.nuget.org/v3/index.json
+    Fable.Core (5.0.0-rc.1)
+      FSharp.Core (>= 4.7.2)
+    FSharp.Core (11.0.100)
+    Microsoft.CodeCoverage (18.3)
+    Microsoft.NET.Test.Sdk (16.11)
+      Microsoft.CodeCoverage (>= 16.11)
+      Microsoft.TestPlatform.TestHost (>= 16.11)
+    Microsoft.TestPlatform.ObjectModel (18.3)
+      System.Reflection.Metadata (>= 8.0)
+    Microsoft.TestPlatform.TestHost (18.3)
+      Microsoft.TestPlatform.ObjectModel (>= 18.3)
+      Newtonsoft.Json (>= 13.0.3)
+    Newtonsoft.Json (13.0.4)
+    System.Reflection.Metadata (10.0.4)
+    xunit (2.9.3)
+      xunit.analyzers (>= 1.18)
+      xunit.assert (>= 2.9.3)
+      xunit.core (2.9.3)
+    xunit.abstractions (2.0.3)
+    xunit.analyzers (1.27)
+    xunit.assert (2.9.3)
+    xunit.core (2.9.3)
+      xunit.extensibility.core (2.9.3)
+      xunit.extensibility.execution (2.9.3)
+    xunit.extensibility.core (2.9.3)
+      xunit.abstractions (>= 2.0.3)
+    xunit.extensibility.execution (2.9.3)
+      xunit.extensibility.core (2.9.3)
+    xunit.runner.visualstudio (2.8.2)
