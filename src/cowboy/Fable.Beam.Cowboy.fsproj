@@ -12,8 +12,10 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Cowboy.fs" />
+    <Compile Include="CowboyHandler.fs" />
     <Compile Include="CowboyReq.fs" />
     <Compile Include="CowboyRouter.fs" />
+    <Compile Include="CowboyWebsocket.fs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="*.fsproj; **\*.fs; **\*.fsi" PackagePath="fable\" />
