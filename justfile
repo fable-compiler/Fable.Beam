@@ -90,5 +90,5 @@ watch:
     {{fable}} watch {{src_path}} --lang Erlang --outDir {{build_path}}
 
 # Run EasyBuild.ShipIt for release management
-shipit:
-    dotnet shipit
+shipit *args:
+    dotnet shipit --pre-release rc {{args}}
