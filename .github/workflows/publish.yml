@@ -1,16 +1,17 @@
+name: Publish NuGet
+
 on:
-  release:
-    types: [published]
+  push:
+    branches: [main]
 
 permissions:
-  contents: read
-
-name: Publish NuGet
+  contents: write
 
 jobs:
   publish:
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    if: "startsWith(github.event.head_commit.message, 'chore: release ')"
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -23,16 +24,26 @@ jobs:
       - name: Install just
         uses: extractions/setup-just@v3
 
+      - name: Extract version
+        id: version
+        run: |
+          MESSAGE="${{ github.event.head_commit.message }}"
+          VERSION="${MESSAGE#chore: release }"
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "tag=v$VERSION" >> "$GITHUB_OUTPUT"
+
       - name: Restore dependencies
         run: |
           dotnet tool restore
           dotnet restore src
 
       - name: Pack NuGet
-        env:
-          TAG_NAME: ${{ github.event.release.tag_name }}
-        run: just pack-version ${TAG_NAME#v}
+        run: just pack-version ${{ steps.version.outputs.version }}
 
       - name: Push NuGet
         run: dotnet nuget push 'src/**/Release/*.nupkg' -s https://api.nuget.org/v3/index.json -k ${{ secrets.NUGET_API_KEY }}
-        continue-on-error: false
+
+      - name: Create GitHub Release
+        run: gh release create ${{ steps.version.outputs.tag }} --title "${{ steps.version.outputs.version }}" --generate-notes
+        env:
+          GH_TOKEN: ${{ github.token }}
