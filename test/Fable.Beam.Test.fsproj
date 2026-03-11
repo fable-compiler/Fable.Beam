@@ -7,6 +7,7 @@
     <DisableImplicitFSharpCoreReference>true</DisableImplicitFSharpCoreReference>
     <LangVersion>preview</LangVersion>
     <OutputType>Exe</OutputType>
+    <NoWarn>NU1510</NoWarn>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="../src/Fable.Beam.fsproj" />
