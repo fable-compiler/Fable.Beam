@@ -1,30 +1,34 @@
 # Fable.Beam
 
-F# bindings for Erlang/OTP on the BEAM virtual machine, powered by [Fable](https://fable.io/).
+F# bindings for Erlang/OTP on the BEAM virtual machine,
+powered by [Fable](https://fable.io/).
 
-Write idiomatic F# and compile to Erlang using Fable's BEAM backend. This package provides typed bindings for Erlang/OTP standard modules so you can call them directly from F#.
+Write idiomatic F# and compile to Erlang using Fable's
+BEAM backend. This package provides typed bindings for
+Erlang/OTP standard modules so you can call them directly
+from F#.
 
 ## Available Modules
 
 | Module | Binding | Description |
-|--------|---------|-------------|
-| `Fable.Beam.Erlang` | `erlang` | BIFs: processes, references, send/receive, monitors, timers, process dictionary |
+| --- | --- | --- |
+| `Fable.Beam.Erlang` | `erlang` | BIFs: processes, send/receive, monitors |
 | `Fable.Beam.GenServer` | `gen_server` | Generic server behaviour |
 | `Fable.Beam.Supervisor` | `supervisor` | Supervisor behaviour |
-| `Fable.Beam.Timer` | `timer` | Timer functions, sleep, time unit conversions |
+| `Fable.Beam.Timer` | `timer` | Timer functions, sleep, conversions |
 | `Fable.Beam.Ets` | `ets` | Erlang Term Storage |
 | `Fable.Beam.Maps` | `maps` | Erlang map operations |
 | `Fable.Beam.Lists` | `lists` | Erlang list operations |
 | `Fable.Beam.Io` | `io` | I/O functions |
 | `Fable.Beam.Logger` | `logger` | OTP logger |
 | `Fable.Beam.File` | `file` | File system operations |
-| `Fable.Beam.Testing` | - | Test helpers (Fact attribute, assertions) |
+| `Fable.Beam.Testing` | - | Test helpers (Fact, assertions) |
 
 ## Usage
 
 Add the NuGet package to your project:
 
-```
+```text
 paket add Fable.Beam
 ```
 
@@ -44,7 +48,8 @@ let child = spawn (fun () ->
     timer.sleep 1000
 )
 
-// Send and receive messages (Erlang.receive is from Fable.Core.BeamInterop)
+// Send and receive messages
+// Erlang.receive is from Fable.Core.BeamInterop
 type Msg =
     | [<CompiledName("hello")>] Hello of name: string
     | [<CompiledName("stop")>] Stop
@@ -121,7 +126,7 @@ just pack
 
 ## Project Structure
 
-```
+```text
 src/
   otp/
     Erlang.fs        # Erlang BIFs (Emit-based bindings)
@@ -147,7 +152,8 @@ test/
 
 The bindings use two Fable interop patterns:
 
-**`[<Emit>]`** for Erlang BIFs and operators (direct Erlang code generation):
+**`[<Emit>]`** for Erlang BIFs and operators
+(direct Erlang code generation):
 
 ```fsharp
 [<Emit("erlang:self()")>]
@@ -157,7 +163,8 @@ let self () : obj = nativeOnly
 let send (pid: obj) (msg: obj) : unit = nativeOnly
 ```
 
-**`[<Erase>]` + `[<ImportAll>]`** for Erlang module bindings:
+**`[<Erase>]` + `[<ImportAll>]`** for Erlang module
+bindings:
 
 ```fsharp
 [<Erase>]
@@ -171,13 +178,22 @@ let timer: IExports = nativeOnly
 
 ## Interop Notes
 
-**Erlang lists vs F# arrays:** Fable on BEAM represents F# arrays as ref-wrapped values in the process dictionary. Raw Erlang lists returned from OTP calls (e.g., `ets:tab2list/1`, `maps:keys/1`) are *not* ref-wrapped, so F# `.Length` will not work on them. Use `Erlang.length` instead:
+**Erlang lists vs F# arrays:** Fable on BEAM represents
+F# arrays as ref-wrapped values in the process dictionary.
+Raw Erlang lists returned from OTP calls (e.g.,
+`ets:tab2list/1`, `maps:keys/1`) are *not* ref-wrapped,
+so F# `.Length` will not work on them. Use
+`Erlang.length` instead:
 
 ```fsharp
 open Fable.Beam.Erlang
 open Fable.Beam.Ets
 
-let table = ets.new_ (binaryToAtom "my_table", [ box (binaryToAtom "set") ])
+let table =
+    ets.new_ (
+        binaryToAtom "my_table",
+        [ box (binaryToAtom "set") ]
+    )
 let all = ets.tab2list table
 
 // Don't use: all.Length (will fail at runtime)
@@ -185,9 +201,14 @@ let all = ets.tab2list table
 let count = Erlang.length (box all)
 ```
 
-Similarly, use `Erlang.element` and `Erlang.tupleSize` for raw Erlang tuples, and `Erlang.byteSize` for binaries.
+Similarly, use `Erlang.element` and `Erlang.tupleSize`
+for raw Erlang tuples, and `Erlang.byteSize` for binaries.
 
-**Atoms from strings:** Fable compiles F# strings to Erlang binaries (`<<"hello">>`), not charlists. Use `binaryToAtom`/`atomToBinary` rather than `listToAtom`/`atomToList` when converting between F# strings and atoms.
+**Atoms from strings:** Fable compiles F# strings to
+Erlang binaries (`<<"hello">>`), not charlists. Use
+`binaryToAtom`/`atomToBinary` rather than
+`listToAtom`/`atomToList` when converting between F#
+strings and atoms.
 
 ## License
 
