@@ -8,13 +8,23 @@ NUGET
 
 GROUP Test
 STORAGE: NONE
-RESTRICTION: == netstandard2.0
+RESTRICTION: == net10.0
 NUGET
   remote: https://api.nuget.org/v3/index.json
     Fable.Core (5.0.0-rc.1)
       FSharp.Core (>= 4.7.2)
     FSharp.Core (11.0.100)
+    Microsoft.CodeCoverage (18.3)
     Microsoft.NET.Test.Sdk (16.11)
+      Microsoft.CodeCoverage (>= 16.11)
+      Microsoft.TestPlatform.TestHost (>= 16.11)
+    Microsoft.TestPlatform.ObjectModel (18.3)
+      System.Reflection.Metadata (>= 8.0)
+    Microsoft.TestPlatform.TestHost (18.3)
+      Microsoft.TestPlatform.ObjectModel (>= 18.3)
+      Newtonsoft.Json (>= 13.0.3)
+    Newtonsoft.Json (13.0.4)
+    System.Reflection.Metadata (10.0.5)
     xunit (2.9.3)
       xunit.analyzers (>= 1.18)
       xunit.assert (>= 2.9.3)
