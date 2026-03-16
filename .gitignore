@@ -55,3 +55,6 @@ build/
 
 # Paket
 paket-files/
+
+# Claude
+.claude/worktrees
