@@ -1,10 +1,23 @@
 ---
-last_commit_released: ece4354234833a2a14951721fe5fc778512a5dea
+last_commit_released: 77534b38864338ba1121828b3a3c13117fab759a
 ---
 
 # Changelog
 
 All notable changes to this project will be documented in this file.
+
+## 5.0.0-rc.5 - 2026-03-16
+
+### 🚀 Features
+
+* Add erased opaque types for Erlang Pid, Ref, Atom, TimerRef and TableId (#11) ([f88329a](https://github.com/fable-compiler/Fable.Beam/commit/f88329a2d320d5e822e0cafe48a2ef0a09d3cbaa))
+
+### 🐞 Bug Fixes
+
+* Strip PR reference from version in publish workflow ([ad150cf](https://github.com/fable-compiler/Fable.Beam/commit/ad150cf784130e200a7a3603c600427066742bb5))
+* Target netstandard2.0 instead of net10.0 (#9) ([0506adb](https://github.com/fable-compiler/Fable.Beam/commit/0506adbd16a8707cfd5618c4f29029e60d12c7ef))
+
+<strong><small>[View changes on Github](https://github.com/fable-compiler/Fable.Beam/compare/ece4354234833a2a14951721fe5fc778512a5dea..77534b38864338ba1121828b3a3c13117fab759a)</small></strong>
 
 ## 5.0.0-rc.4 - 2026-03-11
 
