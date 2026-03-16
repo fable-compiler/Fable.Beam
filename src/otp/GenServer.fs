@@ -3,15 +3,16 @@
 module Fable.Beam.GenServer
 
 open Fable.Core
+open Fable.Beam.Erlang
 
 // fsharplint:disable MemberNames
 
 [<Erase>]
 type IExports =
     /// Starts a gen_server process.
-    abstract start_link: ``module``: obj * args: obj * options: obj -> obj
+    abstract start_link: ``module``: Atom * args: obj * options: obj -> obj
     /// Starts a gen_server without linking.
-    abstract start: ``module``: obj * args: obj * options: obj -> obj
+    abstract start: ``module``: Atom * args: obj * options: obj -> obj
     /// Makes a synchronous call to a gen_server.
     abstract call: serverRef: obj * request: obj -> obj
     /// Makes a synchronous call with timeout.

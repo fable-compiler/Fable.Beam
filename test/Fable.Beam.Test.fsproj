@@ -8,6 +8,7 @@
     <LangVersion>preview</LangVersion>
     <OutputType>Exe</OutputType>
     <NoWarn>NU1510</NoWarn>
+    <DefineConstants>FABLE_COMPILER</DefineConstants>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="../src/Fable.Beam.fsproj" />

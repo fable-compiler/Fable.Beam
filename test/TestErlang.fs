@@ -45,7 +45,7 @@ let ``test exactEquals on same ref`` () =
 let ``test spawn creates a process`` () =
 #if FABLE_COMPILER
     let pid = spawn (fun () -> ())
-    pid |> notEqual null
+    isProcessAlive pid |> equal true
 #else
     ()
 #endif
@@ -54,7 +54,7 @@ let ``test spawn creates a process`` () =
 let ``test spawnLink creates a linked process`` () =
 #if FABLE_COMPILER
     let pid = spawnLink (fun () -> ())
-    pid |> notEqual null
+    isProcessAlive pid |> equal true
 #else
     ()
 #endif
