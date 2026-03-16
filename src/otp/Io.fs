@@ -3,6 +3,7 @@
 module Fable.Beam.Io
 
 open Fable.Core
+open Fable.Beam.Erlang
 
 // fsharplint:disable MemberNames
 
@@ -11,7 +12,7 @@ type IExports =
     /// Writes a formatted string to standard output.
     abstract format: format: string * args: obj list -> unit
     /// Writes a formatted string to a device.
-    abstract format: device: obj * format: string * args: obj list -> unit
+    abstract format: device: Pid * format: string * args: obj list -> unit
     /// Reads a line from standard input.
     abstract get_line: prompt: string -> string
     /// Writes output to standard output.

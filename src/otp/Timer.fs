@@ -3,21 +3,22 @@
 module Fable.Beam.Timer
 
 open Fable.Core
+open Fable.Beam.Erlang
 
 // fsharplint:disable MemberNames
 
 [<Erase>]
 type IExports =
     /// Sends Msg to Dest after Time milliseconds.
-    abstract send_after: time: int * dest: obj * msg: obj -> obj
+    abstract send_after: time: int * dest: Pid * msg: obj -> TimerRef
     /// Sends Msg to Dest repeatedly every Time milliseconds.
-    abstract send_interval: time: int * dest: obj * msg: obj -> obj
+    abstract send_interval: time: int * dest: Pid * msg: obj -> TimerRef
     /// Evaluates Fun after Time milliseconds.
-    abstract apply_after: time: int * ``module``: obj * ``function``: obj * args: obj list -> obj
+    abstract apply_after: time: int * ``module``: Atom * ``function``: Atom * args: obj list -> TimerRef
     /// Evaluates Fun repeatedly every Time milliseconds.
-    abstract apply_interval: time: int * ``module``: obj * ``function``: obj * args: obj list -> obj
+    abstract apply_interval: time: int * ``module``: Atom * ``function``: Atom * args: obj list -> TimerRef
     /// Cancels a previously started timer.
-    abstract cancel: timerRef: obj -> obj
+    abstract cancel: timerRef: TimerRef -> obj
     /// Suspends the process for Time milliseconds.
     abstract sleep: time: int -> unit
     /// Converts hours to milliseconds.

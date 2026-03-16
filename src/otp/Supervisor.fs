@@ -3,15 +3,16 @@
 module Fable.Beam.Supervisor
 
 open Fable.Core
+open Fable.Beam.Erlang
 
 // fsharplint:disable MemberNames
 
 [<Erase>]
 type IExports =
     /// Starts a supervisor process.
-    abstract start_link: ``module``: obj * args: obj -> obj
+    abstract start_link: ``module``: Atom * args: obj -> obj
     /// Starts a named supervisor process.
-    abstract start_link: name: obj * ``module``: obj * args: obj -> obj
+    abstract start_link: name: obj * ``module``: Atom * args: obj -> obj
     /// Dynamically adds a child specification to a supervisor.
     abstract start_child: supRef: obj * childSpec: obj -> obj
     /// Terminates a child process.
