@@ -13,3 +13,19 @@ let ``test io.put_chars works`` () =
 #else
     ()
 #endif
+
+[<Fact>]
+let ``test putChars does not crash`` () =
+#if FABLE_COMPILER
+    putChars "typed putChars test\n"
+#else
+    ()
+#endif
+
+[<Fact>]
+let ``test format does not crash`` () =
+#if FABLE_COMPILER
+    format "hello ~s~n" [box "beam"]
+#else
+    ()
+#endif

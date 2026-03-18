@@ -21,7 +21,9 @@
     <Compile Include="otp/Maps.fs" />
     <Compile Include="otp/Lists.fs" />
     <Compile Include="otp/Application.fs" />
+    <Compile Include="otp/Os.fs" />
     <Compile Include="otp/File.fs" />
+    <Compile Include="otp/Httpc.fs" />
     <Compile Include="otp/Testing.fs" />
   </ItemGroup>
   <ItemGroup>
