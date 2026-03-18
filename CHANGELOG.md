@@ -1,11 +1,19 @@
 ---
-last_commit_released: b9fcd1ae4555ee7e071250fa15182443c1fc818f
+last_commit_released: 85efdcf8ad96af8a1b1406ccf275a8be41e39098
 name: Fable.Beam
 ---
 
 # Changelog
 
 All notable changes to this project will be documented in this file.
+
+## 5.0.0-rc.8 - 2026-03-18
+
+### 🐞 Bug Fixes
+
+* Strip package name prefix from version in publish workflow (#16) ([85efdcf](https://github.com/fable-compiler/Fable.Beam/commit/85efdcf8ad96af8a1b1406ccf275a8be41e39098))
+
+<strong><small>[View changes on Github](https://github.com/fable-compiler/Fable.Beam/compare/b9fcd1ae4555ee7e071250fa15182443c1fc818f..85efdcf8ad96af8a1b1406ccf275a8be41e39098)</small></strong>
 
 ## 5.0.0-rc.7 - 2026-03-18
 
