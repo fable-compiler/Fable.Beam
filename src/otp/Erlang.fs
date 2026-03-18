@@ -144,6 +144,38 @@ let put (key: obj) (value: obj) : obj = nativeOnly
 let erase (key: obj) : obj = nativeOnly
 
 // ============================================================================
+// Date and time
+// ============================================================================
+
+/// Returns the current date as {Year, Month, Day}.
+[<Emit("erlang:date()")>]
+let date () : int * int * int = nativeOnly
+
+/// Returns the current year.
+[<Emit("element(1, erlang:date())")>]
+let dateYear () : int = nativeOnly
+
+/// Returns the current month (1-12).
+[<Emit("element(2, erlang:date())")>]
+let dateMonth () : int = nativeOnly
+
+/// Returns the current day of month (1-31).
+[<Emit("element(3, erlang:date())")>]
+let dateDay () : int = nativeOnly
+
+/// Returns the current time as {Hour, Minute, Second}.
+[<Emit("erlang:time()")>]
+let time () : int * int * int = nativeOnly
+
+/// Returns the current local date and time as {{Year,Month,Day},{Hour,Minute,Second}}.
+[<Emit("erlang:localtime()")>]
+let localtime () : (int * int * int) * (int * int * int) = nativeOnly
+
+/// Returns the current UTC date and time as {{Year,Month,Day},{Hour,Minute,Second}}.
+[<Emit("erlang:universaltime()")>]
+let universaltime () : (int * int * int) * (int * int * int) = nativeOnly
+
+// ============================================================================
 // Guards and BIFs for raw Erlang types
 // ============================================================================
 

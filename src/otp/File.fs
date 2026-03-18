@@ -6,6 +6,10 @@ open Fable.Core
 
 // fsharplint:disable MemberNames
 
+// ============================================================================
+// Raw bindings (returns obj, caller must handle tuples)
+// ============================================================================
+
 [<Erase>]
 type IExports =
     /// Reads the contents of a file.
@@ -29,6 +33,52 @@ type IExports =
     /// Sets the current working directory.
     abstract set_cwd: dir: string -> obj
 
-/// file module
+/// file module (raw, no charlist conversion — prefer typed functions below)
 [<ImportAll("file")>]
 let file: IExports = nativeOnly
+
+// ============================================================================
+// Typed API with charlist conversion and Result returns
+// ============================================================================
+// WORKAROUND: All Emit expressions below are wrapped in (fun() -> ... end)()
+// to prevent Erlang "unsafe variable" errors when multiple Emit calls appear
+// in the same function. This is a Fable BEAM backend bug — Emit inlines case
+// expressions without scoping variables. Remove IIFEs once fixed in Fable.
+
+/// Reads the contents of a file. Handles binary_to_list conversion for path.
+/// Returns Ok with file contents as binary, or Error with reason as string.
+[<Emit("(fun() -> case file:read_file(binary_to_list($0)) of {ok, Data} -> {ok, Data}; {error, Reason} -> {error, erlang:atom_to_binary(Reason)} end end)()")>]
+let readFile (path: string) : Result<string, string> = nativeOnly
+
+/// Writes data to a file. Handles binary_to_list conversion for path.
+/// Returns Ok unit or Error with reason as string.
+[<Emit("(fun() -> case file:write_file(binary_to_list($0), $1) of ok -> {ok, ok}; {error, Reason} -> {error, erlang:atom_to_binary(Reason)} end end)()")>]
+let writeFile (path: string) (data: string) : Result<unit, string> = nativeOnly
+
+/// Deletes a file. Handles binary_to_list conversion for path.
+[<Emit("(fun() -> case file:delete(binary_to_list($0)) of ok -> {ok, ok}; {error, Reason} -> {error, erlang:atom_to_binary(Reason)} end end)()")>]
+let delete (path: string) : Result<unit, string> = nativeOnly
+
+/// Creates a directory. Handles binary_to_list conversion for path.
+[<Emit("(fun() -> case file:make_dir(binary_to_list($0)) of ok -> {ok, ok}; {error, Reason} -> {error, erlang:atom_to_binary(Reason)} end end)()")>]
+let makeDir (path: string) : Result<unit, string> = nativeOnly
+
+/// Deletes a directory. Handles binary_to_list conversion for path.
+[<Emit("(fun() -> case file:del_dir(binary_to_list($0)) of ok -> {ok, ok}; {error, Reason} -> {error, erlang:atom_to_binary(Reason)} end end)()")>]
+let delDir (path: string) : Result<unit, string> = nativeOnly
+
+/// Lists files in a directory. Converts charlist filenames to binaries.
+[<Emit("(fun() -> case file:list_dir(binary_to_list($0)) of {ok, Files} -> {ok, [erlang:list_to_binary(F) || F <- Files]}; {error, Reason} -> {error, erlang:atom_to_binary(Reason)} end end)()")>]
+let listDir (path: string) : Result<string list, string> = nativeOnly
+
+/// Renames (moves) a file. Handles binary_to_list conversion for both paths.
+[<Emit("(fun() -> case file:rename(binary_to_list($0), binary_to_list($1)) of ok -> {ok, ok}; {error, Reason} -> {error, erlang:atom_to_binary(Reason)} end end)()")>]
+let rename (source: string) (destination: string) : Result<unit, string> = nativeOnly
+
+/// Returns the current working directory as a binary string.
+[<Emit("(fun() -> case file:get_cwd() of {ok, Dir} -> {ok, erlang:list_to_binary(Dir)}; {error, Reason} -> {error, erlang:atom_to_binary(Reason)} end end)()")>]
+let getCwd () : Result<string, string> = nativeOnly
+
+/// Checks if a file or directory exists at the given path.
+[<Emit("(fun() -> case file:read_file_info(binary_to_list($0)) of {ok, _} -> true; {error, _} -> false end end)()")>]
+let exists (path: string) : bool = nativeOnly

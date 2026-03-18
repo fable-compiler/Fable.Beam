@@ -22,6 +22,7 @@
     <Compile Include="TestIo.fs" />
     <Compile Include="TestLists.fs" />
     <Compile Include="TestMaps.fs" />
+    <Compile Include="TestOs.fs" />
     <Compile Include="TestFile.fs" />
     <Compile Include="TestLogger.fs" />
     <Compile Include="Main.fs" />

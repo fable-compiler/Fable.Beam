@@ -154,3 +154,74 @@ let ``test register and whereis`` () =
 #else
     ()
 #endif
+
+[<Fact>]
+let ``test date returns valid year month day`` () =
+#if FABLE_COMPILER
+    let (year, month, day) = date ()
+    (year >= 2025) |> equal true
+    (month >= 1 && month <= 12) |> equal true
+    (day >= 1 && day <= 31) |> equal true
+#else
+    ()
+#endif
+
+[<Fact>]
+let ``test dateYear dateMonth dateDay match date`` () =
+#if FABLE_COMPILER
+    let (year, month, day) = date ()
+    dateYear () |> equal year
+    dateMonth () |> equal month
+    dateDay () |> equal day
+#else
+    ()
+#endif
+
+[<Fact>]
+let ``test time returns valid hour minute second`` () =
+#if FABLE_COMPILER
+    let (hour, minute, second) = time ()
+    (hour >= 0 && hour <= 23) |> equal true
+    (minute >= 0 && minute <= 59) |> equal true
+    (second >= 0 && second <= 59) |> equal true
+#else
+    ()
+#endif
+
+[<Fact>]
+let ``test localtime returns valid date and time`` () =
+#if FABLE_COMPILER
+    let ((year, month, day), (hour, minute, second)) = localtime ()
+    (year >= 2025) |> equal true
+    (month >= 1 && month <= 12) |> equal true
+    (day >= 1 && day <= 31) |> equal true
+    (hour >= 0 && hour <= 23) |> equal true
+    (minute >= 0 && minute <= 59) |> equal true
+    (second >= 0 && second <= 59) |> equal true
+#else
+    ()
+#endif
+
+[<Fact>]
+let ``test universaltime returns valid date and time`` () =
+#if FABLE_COMPILER
+    let ((year, month, day), (hour, minute, second)) = universaltime ()
+    (year >= 2025) |> equal true
+    (month >= 1 && month <= 12) |> equal true
+    (day >= 1 && day <= 31) |> equal true
+    (hour >= 0 && hour <= 23) |> equal true
+    (minute >= 0 && minute <= 59) |> equal true
+    (second >= 0 && second <= 59) |> equal true
+#else
+    ()
+#endif
+
+[<Fact>]
+let ``test monotonicTimeMs returns positive`` () =
+#if FABLE_COMPILER
+    let t1 = monotonicTimeMs ()
+    let t2 = monotonicTimeMs ()
+    (t2 >= t1) |> equal true
+#else
+    ()
+#endif
