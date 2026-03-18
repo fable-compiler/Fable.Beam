@@ -1,10 +1,18 @@
 ---
-last_commit_released: 77534b38864338ba1121828b3a3c13117fab759a
+last_commit_released: ba5ac9b61599a9342212aa2cdc16e5444b566dd5
 ---
 
 # Changelog
 
 All notable changes to this project will be documented in this file.
+
+## 5.0.0-rc.6 - 2026-03-18
+
+### 🚀 Features
+
+* Add typed bindings for File, Io, Os, Httpc and Erlang date/time (#12) ([ba5ac9b](https://github.com/fable-compiler/Fable.Beam/commit/ba5ac9b61599a9342212aa2cdc16e5444b566dd5))
+
+<strong><small>[View changes on Github](https://github.com/fable-compiler/Fable.Beam/compare/77534b38864338ba1121828b3a3c13117fab759a..ba5ac9b61599a9342212aa2cdc16e5444b566dd5)</small></strong>
 
 ## 5.0.0-rc.5 - 2026-03-16
 
