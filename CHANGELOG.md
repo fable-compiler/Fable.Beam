@@ -1,4 +1,5 @@
 ---
+name: Fable.Beam
 last_commit_released: ba5ac9b61599a9342212aa2cdc16e5444b566dd5
 ---
 
