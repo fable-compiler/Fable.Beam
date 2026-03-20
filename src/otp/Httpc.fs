@@ -52,7 +52,7 @@ let verifyPeerCaFile (caFile: string) : SslOptions = nativeOnly
     Headers = [{binary_to_list(K), binary_to_list(V)} || {K, V} <- $1],
     case httpc:request(get, {Url, Headers}, $2, []) of
         {ok, {{_, StatusCode, _}, _RespHeaders, Body}} ->
-            {ok, #{statusCode => StatusCode, body => erlang:list_to_binary(Body)}};
+            {ok, #{status_code => StatusCode, body => erlang:list_to_binary(Body)}};
         {error, Reason} ->
             {error, erlang:list_to_binary(io_lib:format(<<"~p">>, [Reason]))}
     end
@@ -69,7 +69,7 @@ let get (url: string) (headers: (string * string) list) (ssl: SslOptions) : Resu
     ReqBody = $3,
     case httpc:request(post, {Url, Headers, ContentType, ReqBody}, $4, []) of
         {ok, {{_, StatusCode, _}, _RespHeaders, Body}} ->
-            {ok, #{statusCode => StatusCode, body => erlang:list_to_binary(Body)}};
+            {ok, #{status_code => StatusCode, body => erlang:list_to_binary(Body)}};
         {error, Reason} ->
             {error, erlang:list_to_binary(io_lib:format(<<"~p">>, [Reason]))}
     end
@@ -86,7 +86,7 @@ let post (url: string) (headers: (string * string) list) (contentType: string) (
     ReqBody = $3,
     case httpc:request(put, {Url, Headers, ContentType, ReqBody}, $4, []) of
         {ok, {{_, StatusCode, _}, _RespHeaders, Body}} ->
-            {ok, #{statusCode => StatusCode, body => erlang:list_to_binary(Body)}};
+            {ok, #{status_code => StatusCode, body => erlang:list_to_binary(Body)}};
         {error, Reason} ->
             {error, erlang:list_to_binary(io_lib:format(<<"~p">>, [Reason]))}
     end
@@ -101,7 +101,7 @@ let put (url: string) (headers: (string * string) list) (contentType: string) (b
     Headers = [{binary_to_list(K), binary_to_list(V)} || {K, V} <- $1],
     case httpc:request(delete, {Url, Headers}, $2, []) of
         {ok, {{_, StatusCode, _}, _RespHeaders, Body}} ->
-            {ok, #{statusCode => StatusCode, body => erlang:list_to_binary(Body)}};
+            {ok, #{status_code => StatusCode, body => erlang:list_to_binary(Body)}};
         {error, Reason} ->
             {error, erlang:list_to_binary(io_lib:format(<<"~p">>, [Reason]))}
     end
