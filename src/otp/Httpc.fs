@@ -38,8 +38,9 @@ let verifyPeerCaFile (caFile: string) : SslOptions = nativeOnly
 // ============================================================================
 // Public API
 // ============================================================================
-// WORKAROUND: Emit expressions wrapped in (fun() -> ... end)() to prevent
-// Erlang "unsafe variable" errors. Remove IIFEs once fixed in Fable.
+// Emit expressions are wrapped in (fun() -> ... end)() to scope internal
+// variables. Internal variables use __0 suffix to avoid collisions with
+// caller-scope variables (Erlang's = is pattern matching, not rebinding).
 //
 // All public functions are direct Emit bindings (not wrappers around private
 // functions) because Fable compiles cross-module non-Emit calls as Erlang
@@ -48,13 +49,13 @@ let verifyPeerCaFile (caFile: string) : SslOptions = nativeOnly
 /// Performs an HTTP GET request.
 [<Emit("""
 (fun() ->
-    Url = binary_to_list($0),
-    Headers = [{binary_to_list(K), binary_to_list(V)} || {K, V} <- $1],
-    case httpc:request(get, {Url, Headers}, $2, []) of
-        {ok, {{_, StatusCode, _}, _RespHeaders, Body}} ->
-            {ok, #{status_code => StatusCode, body => erlang:list_to_binary(Body)}};
-        {error, Reason} ->
-            {error, erlang:list_to_binary(io_lib:format(<<"~p">>, [Reason]))}
+    Url__0 = binary_to_list($0),
+    Headers__0 = [{binary_to_list(K__0), binary_to_list(V__0)} || {K__0, V__0} <- $1],
+    case httpc:request(get, {Url__0, Headers__0}, $2, []) of
+        {ok, {{_, StatusCode__0, _}, _RespHeaders__0, Body__0}} ->
+            {ok, #{status_code => StatusCode__0, body => erlang:list_to_binary(Body__0)}};
+        {error, Reason__0} ->
+            {error, erlang:list_to_binary(io_lib:format(<<"~p">>, [Reason__0]))}
     end
 end)()
 """)>]
@@ -63,15 +64,15 @@ let get (url: string) (headers: (string * string) list) (ssl: SslOptions) : Resu
 /// Performs an HTTP POST request with a content type and body.
 [<Emit("""
 (fun() ->
-    Url = binary_to_list($0),
-    Headers = [{binary_to_list(K), binary_to_list(V)} || {K, V} <- $1],
-    ContentType = binary_to_list($2),
-    ReqBody = $3,
-    case httpc:request(post, {Url, Headers, ContentType, ReqBody}, $4, []) of
-        {ok, {{_, StatusCode, _}, _RespHeaders, Body}} ->
-            {ok, #{status_code => StatusCode, body => erlang:list_to_binary(Body)}};
-        {error, Reason} ->
-            {error, erlang:list_to_binary(io_lib:format(<<"~p">>, [Reason]))}
+    Url__0 = binary_to_list($0),
+    Headers__0 = [{binary_to_list(K__0), binary_to_list(V__0)} || {K__0, V__0} <- $1],
+    ContentType__0 = binary_to_list($2),
+    ReqBody__0 = $3,
+    case httpc:request(post, {Url__0, Headers__0, ContentType__0, ReqBody__0}, $4, []) of
+        {ok, {{_, StatusCode__0, _}, _RespHeaders__0, Body__0}} ->
+            {ok, #{status_code => StatusCode__0, body => erlang:list_to_binary(Body__0)}};
+        {error, Reason__0} ->
+            {error, erlang:list_to_binary(io_lib:format(<<"~p">>, [Reason__0]))}
     end
 end)()
 """)>]
@@ -80,15 +81,15 @@ let post (url: string) (headers: (string * string) list) (contentType: string) (
 /// Performs an HTTP PUT request with a content type and body.
 [<Emit("""
 (fun() ->
-    Url = binary_to_list($0),
-    Headers = [{binary_to_list(K), binary_to_list(V)} || {K, V} <- $1],
-    ContentType = binary_to_list($2),
-    ReqBody = $3,
-    case httpc:request(put, {Url, Headers, ContentType, ReqBody}, $4, []) of
-        {ok, {{_, StatusCode, _}, _RespHeaders, Body}} ->
-            {ok, #{status_code => StatusCode, body => erlang:list_to_binary(Body)}};
-        {error, Reason} ->
-            {error, erlang:list_to_binary(io_lib:format(<<"~p">>, [Reason]))}
+    Url__0 = binary_to_list($0),
+    Headers__0 = [{binary_to_list(K__0), binary_to_list(V__0)} || {K__0, V__0} <- $1],
+    ContentType__0 = binary_to_list($2),
+    ReqBody__0 = $3,
+    case httpc:request(put, {Url__0, Headers__0, ContentType__0, ReqBody__0}, $4, []) of
+        {ok, {{_, StatusCode__0, _}, _RespHeaders__0, Body__0}} ->
+            {ok, #{status_code => StatusCode__0, body => erlang:list_to_binary(Body__0)}};
+        {error, Reason__0} ->
+            {error, erlang:list_to_binary(io_lib:format(<<"~p">>, [Reason__0]))}
     end
 end)()
 """)>]
@@ -97,13 +98,13 @@ let put (url: string) (headers: (string * string) list) (contentType: string) (b
 /// Performs an HTTP DELETE request.
 [<Emit("""
 (fun() ->
-    Url = binary_to_list($0),
-    Headers = [{binary_to_list(K), binary_to_list(V)} || {K, V} <- $1],
-    case httpc:request(delete, {Url, Headers}, $2, []) of
-        {ok, {{_, StatusCode, _}, _RespHeaders, Body}} ->
-            {ok, #{status_code => StatusCode, body => erlang:list_to_binary(Body)}};
-        {error, Reason} ->
-            {error, erlang:list_to_binary(io_lib:format(<<"~p">>, [Reason]))}
+    Url__0 = binary_to_list($0),
+    Headers__0 = [{binary_to_list(K__0), binary_to_list(V__0)} || {K__0, V__0} <- $1],
+    case httpc:request(delete, {Url__0, Headers__0}, $2, []) of
+        {ok, {{_, StatusCode__0, _}, _RespHeaders__0, Body__0}} ->
+            {ok, #{status_code => StatusCode__0, body => erlang:list_to_binary(Body__0)}};
+        {error, Reason__0} ->
+            {error, erlang:list_to_binary(io_lib:format(<<"~p">>, [Reason__0]))}
     end
 end)()
 """)>]
