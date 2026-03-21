@@ -1,11 +1,23 @@
 ---
-last_commit_released: 032a984964a06351267b2ef5308e61ff5dcfaae5
+last_commit_released: ffc2eba8a1d50257608b9456e928bdf199392d40
 name: Fable.Beam
 ---
 
 # Changelog
 
 All notable changes to this project will be documented in this file.
+
+## 5.0.0-rc.10 - 2026-03-21
+
+### 🚀 Features
+
+* Align Cowboy bindings with cowboy 2.14 module structure (#21) ([ffc2eba](https://github.com/fable-compiler/Fable.Beam/commit/ffc2eba8a1d50257608b9456e928bdf199392d40))
+
+### 🐞 Bug Fixes
+
+* Suffix Httpc Emit variables to avoid Erlang scope collisions (#20) ([c050d67](https://github.com/fable-compiler/Fable.Beam/commit/c050d67123d7823971d541b8022d34d3b05fcf2e))
+
+<strong><small>[View changes on Github](https://github.com/fable-compiler/Fable.Beam/compare/032a984964a06351267b2ef5308e61ff5dcfaae5..ffc2eba8a1d50257608b9456e928bdf199392d40)</small></strong>
 
 ## 5.0.0-rc.9 - 2026-03-20
 
