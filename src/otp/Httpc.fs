@@ -109,3 +109,78 @@ let put (url: string) (headers: (string * string) list) (contentType: string) (b
 end)()
 """)>]
 let delete (url: string) (headers: (string * string) list) (ssl: SslOptions) : Result<HttpResponse, string> = nativeOnly
+
+// ============================================================================
+// Timeout-aware API
+// ============================================================================
+// Same as above but with an explicit timeout in milliseconds.
+// Maps to httpc:request HttpOptions [{timeout, Ms} | SslOpts].
+// On timeout, httpc returns {error, timeout} which we format as an error string.
+
+/// Performs an HTTP GET request with a timeout in milliseconds.
+[<Emit("""
+(fun() ->
+    Url__0 = binary_to_list($0),
+    Headers__0 = [{binary_to_list(K__0), binary_to_list(V__0)} || {K__0, V__0} <- $1],
+    HttpOpts__0 = [{timeout, $2} | $3],
+    case httpc:request(get, {Url__0, Headers__0}, HttpOpts__0, []) of
+        {ok, {{_, StatusCode__0, _}, _RespHeaders__0, Body__0}} ->
+            {ok, #{status_code => StatusCode__0, body => erlang:list_to_binary(Body__0)}};
+        {error, Reason__0} ->
+            {error, erlang:list_to_binary(io_lib:format(<<"~p">>, [Reason__0]))}
+    end
+end)()
+""")>]
+let getWithTimeout (url: string) (headers: (string * string) list) (timeoutMs: int) (ssl: SslOptions) : Result<HttpResponse, string> = nativeOnly
+
+/// Performs an HTTP POST request with a timeout in milliseconds.
+[<Emit("""
+(fun() ->
+    Url__0 = binary_to_list($0),
+    Headers__0 = [{binary_to_list(K__0), binary_to_list(V__0)} || {K__0, V__0} <- $1],
+    ContentType__0 = binary_to_list($2),
+    ReqBody__0 = $3,
+    HttpOpts__0 = [{timeout, $4} | $5],
+    case httpc:request(post, {Url__0, Headers__0, ContentType__0, ReqBody__0}, HttpOpts__0, []) of
+        {ok, {{_, StatusCode__0, _}, _RespHeaders__0, Body__0}} ->
+            {ok, #{status_code => StatusCode__0, body => erlang:list_to_binary(Body__0)}};
+        {error, Reason__0} ->
+            {error, erlang:list_to_binary(io_lib:format(<<"~p">>, [Reason__0]))}
+    end
+end)()
+""")>]
+let postWithTimeout (url: string) (headers: (string * string) list) (contentType: string) (body: string) (timeoutMs: int) (ssl: SslOptions) : Result<HttpResponse, string> = nativeOnly
+
+/// Performs an HTTP PUT request with a timeout in milliseconds.
+[<Emit("""
+(fun() ->
+    Url__0 = binary_to_list($0),
+    Headers__0 = [{binary_to_list(K__0), binary_to_list(V__0)} || {K__0, V__0} <- $1],
+    ContentType__0 = binary_to_list($2),
+    ReqBody__0 = $3,
+    HttpOpts__0 = [{timeout, $4} | $5],
+    case httpc:request(put, {Url__0, Headers__0, ContentType__0, ReqBody__0}, HttpOpts__0, []) of
+        {ok, {{_, StatusCode__0, _}, _RespHeaders__0, Body__0}} ->
+            {ok, #{status_code => StatusCode__0, body => erlang:list_to_binary(Body__0)}};
+        {error, Reason__0} ->
+            {error, erlang:list_to_binary(io_lib:format(<<"~p">>, [Reason__0]))}
+    end
+end)()
+""")>]
+let putWithTimeout (url: string) (headers: (string * string) list) (contentType: string) (body: string) (timeoutMs: int) (ssl: SslOptions) : Result<HttpResponse, string> = nativeOnly
+
+/// Performs an HTTP DELETE request with a timeout in milliseconds.
+[<Emit("""
+(fun() ->
+    Url__0 = binary_to_list($0),
+    Headers__0 = [{binary_to_list(K__0), binary_to_list(V__0)} || {K__0, V__0} <- $1],
+    HttpOpts__0 = [{timeout, $2} | $3],
+    case httpc:request(delete, {Url__0, Headers__0}, HttpOpts__0, []) of
+        {ok, {{_, StatusCode__0, _}, _RespHeaders__0, Body__0}} ->
+            {ok, #{status_code => StatusCode__0, body => erlang:list_to_binary(Body__0)}};
+        {error, Reason__0} ->
+            {error, erlang:list_to_binary(io_lib:format(<<"~p">>, [Reason__0]))}
+    end
+end)()
+""")>]
+let deleteWithTimeout (url: string) (headers: (string * string) list) (timeoutMs: int) (ssl: SslOptions) : Result<HttpResponse, string> = nativeOnly
