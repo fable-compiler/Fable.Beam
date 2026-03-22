@@ -1,11 +1,19 @@
 ---
-last_commit_released: ffc2eba8a1d50257608b9456e928bdf199392d40
+last_commit_released: 9ffbf316f02f53915d99b7455d0fb8e6ecf0e849
 name: Fable.Beam
 ---
 
 # Changelog
 
 All notable changes to this project will be documented in this file.
+
+## 5.0.0-rc.11 - 2026-03-22
+
+### 🚀 Features
+
+* Add timeout-aware Httpc request functions (#23) ([9ffbf31](https://github.com/fable-compiler/Fable.Beam/commit/9ffbf316f02f53915d99b7455d0fb8e6ecf0e849))
+
+<strong><small>[View changes on Github](https://github.com/fable-compiler/Fable.Beam/compare/ffc2eba8a1d50257608b9456e928bdf199392d40..9ffbf316f02f53915d99b7455d0fb8e6ecf0e849)</small></strong>
 
 ## 5.0.0-rc.10 - 2026-03-21
 
