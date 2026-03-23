@@ -1,11 +1,19 @@
 ---
-last_commit_released: 50706af6e2c600861f7da54a7623fb2b59040e78
+last_commit_released: 044459bf06a880c519859a559c6999f2e6686aaf
 name: Fable.Beam
 ---
 
 # Changelog
 
 All notable changes to this project will be documented in this file.
+
+## 5.0.0-rc.13 - 2026-03-23
+
+### 🐞 Bug Fixes
+
+* Rename generic Erlang variables in Emit expressions to avoid scope clashes (#27) ([044459b](https://github.com/fable-compiler/Fable.Beam/commit/044459bf06a880c519859a559c6999f2e6686aaf))
+
+<strong><small>[View changes on Github](https://github.com/fable-compiler/Fable.Beam/compare/50706af6e2c600861f7da54a7623fb2b59040e78..044459bf06a880c519859a559c6999f2e6686aaf)</small></strong>
 
 ## 5.0.0-rc.12 - 2026-03-23
 
