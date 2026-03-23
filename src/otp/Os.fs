@@ -15,7 +15,7 @@ open Fable.Core
 /// Gets an environment variable. Returns None if not set
 /// (os:getenv returns the atom `false` when unset).
 /// Handles binary_to_list/list_to_binary conversion.
-[<Emit("(fun() -> case os:getenv(binary_to_list($0)) of false -> undefined; Value -> erlang:list_to_binary(Value) end end)()")>]
+[<Emit("(fun() -> case os:getenv(binary_to_list($0)) of false -> undefined; OsGetEnv__ -> erlang:list_to_binary(OsGetEnv__) end end)()")>]
 let getenv (name: string) : string option = nativeOnly
 
 /// Sets an environment variable.
