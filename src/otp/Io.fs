@@ -31,7 +31,7 @@ let io: IExports = nativeOnly
 /// Reads a line from standard input. Returns None on EOF (Ctrl+D),
 /// Some with the line (including trailing newline) otherwise.
 /// Handles the eof atom that io:get_line returns on end-of-input.
-[<Emit("(fun() -> case io:get_line($0) of eof -> undefined; Line -> erlang:list_to_binary(Line) end end)()")>]
+[<Emit("(fun() -> case io:get_line($0) of eof -> undefined; IoGetLine__ -> erlang:list_to_binary(IoGetLine__) end end)()")>]
 let getLine (prompt: string) : string option = nativeOnly
 
 /// Writes a string to standard output.
