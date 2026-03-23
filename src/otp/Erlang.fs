@@ -119,6 +119,10 @@ let monotonicTimeMs () : int = nativeOnly
 [<Emit("erlang:system_time($0)")>]
 let systemTime (unit: Atom) : int = nativeOnly
 
+/// Get system time in seconds (Unix epoch).
+[<Emit("erlang:system_time(second)")>]
+let systemTimeSec () : int = nativeOnly
+
 /// Schedule a message to be sent after Ms milliseconds.
 [<Emit("erlang:send_after($0, erlang:self(), $1)")>]
 let sendAfter (ms: int) (msg: obj) : TimerRef = nativeOnly

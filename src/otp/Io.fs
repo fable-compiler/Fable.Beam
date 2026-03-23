@@ -42,3 +42,11 @@ let putChars (s: string) : unit = nativeOnly
 /// The format string uses Erlang io:format syntax (e.g., "~s ~p~n").
 [<Emit("io:format($0, $1)")>]
 let format (fmt: string) (args: obj list) : unit = nativeOnly
+
+/// Set IO options (e.g., encoding).
+[<Emit("io:setopts($0)")>]
+let setopts (opts: obj) : unit = nativeOnly
+
+/// Enable Unicode encoding on standard IO.
+[<Emit("io:setopts([{encoding, unicode}])")>]
+let setUnicodeEncoding () : unit = nativeOnly
