@@ -1,11 +1,19 @@
 ---
-last_commit_released: 9ffbf316f02f53915d99b7455d0fb8e6ecf0e849
+last_commit_released: 50706af6e2c600861f7da54a7623fb2b59040e78
 name: Fable.Beam
 ---
 
 # Changelog
 
 All notable changes to this project will be documented in this file.
+
+## 5.0.0-rc.12 - 2026-03-23
+
+### 🚀 Features
+
+* Add new OTP bindings and tighten return types (#25) ([50706af](https://github.com/fable-compiler/Fable.Beam/commit/50706af6e2c600861f7da54a7623fb2b59040e78))
+
+<strong><small>[View changes on Github](https://github.com/fable-compiler/Fable.Beam/compare/9ffbf316f02f53915d99b7455d0fb8e6ecf0e849..50706af6e2c600861f7da54a7623fb2b59040e78)</small></strong>
 
 ## 5.0.0-rc.11 - 2026-03-22
 
