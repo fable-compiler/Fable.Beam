@@ -1,12 +1,24 @@
 /// Type bindings for Erlang httpc module (inets application)
 /// See https://www.erlang.org/doc/apps/inets/httpc
 ///
-/// Note: You must start the inets application before using httpc:
-///   application.ensure_all_started (Erlang.binaryToAtom "inets")
-///   application.ensure_all_started (Erlang.binaryToAtom "ssl")
+/// Note: You must start the inets and ssl applications before using httpc:
+///   Httpc.startInets ()
+///   Httpc.startSsl ()
 module Fable.Beam.Httpc
 
 open Fable.Core
+
+// ============================================================================
+// Application setup
+// ============================================================================
+
+/// Start the inets application. Must be called before any httpc request.
+[<Emit("inets:start()")>]
+let startInets () : unit = nativeOnly
+
+/// Start the ssl application. Must be called before HTTPS requests.
+[<Emit("ssl:start()")>]
+let startSsl () : unit = nativeOnly
 
 // fsharplint:disable MemberNames
 

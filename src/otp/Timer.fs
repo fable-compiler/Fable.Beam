@@ -31,3 +31,7 @@ type IExports =
 /// timer module
 [<ImportAll("timer")>]
 let timer: IExports = nativeOnly
+
+/// Suspends the process for the given number of milliseconds.
+[<Emit("timer:sleep($0)")>]
+let sleep (ms: int) : unit = nativeOnly
