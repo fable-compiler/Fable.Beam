@@ -1,11 +1,19 @@
 ---
-last_commit_released: 044459bf06a880c519859a559c6999f2e6686aaf
+last_commit_released: 2d34d597b29ed9f3f35b9ace0266323c72ad45e4
 name: Fable.Beam
 ---
 
 # Changelog
 
 All notable changes to this project will be documented in this file.
+
+## 5.0.0-rc.14 - 2026-03-24
+
+### 🐞 Bug Fixes
+
+* Tighten binding return types to match Erlang typespecs (#29) ([2d34d59](https://github.com/fable-compiler/Fable.Beam/commit/2d34d597b29ed9f3f35b9ace0266323c72ad45e4))
+
+<strong><small>[View changes on Github](https://github.com/fable-compiler/Fable.Beam/compare/044459bf06a880c519859a559c6999f2e6686aaf..2d34d597b29ed9f3f35b9ace0266323c72ad45e4)</small></strong>
 
 ## 5.0.0-rc.13 - 2026-03-23
 
