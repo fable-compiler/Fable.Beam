@@ -38,10 +38,10 @@ type IExports =
     abstract foreach: f: obj * list: obj -> unit
     /// Zips two lists into a list of tuples.
     abstract zip: list1: obj * list2: obj -> obj
-    /// Unzips a list of tuples into two lists.
-    abstract unzip: list: obj -> obj
-    /// Returns elements matching a predicate and those that don't.
-    abstract partition: pred: obj * list: obj -> obj
+    /// Unzips a list of tuples into a tuple of two lists.
+    abstract unzip: list: obj -> obj * obj
+    /// Returns a tuple of {Satisfying, NotSatisfying} elements.
+    abstract partition: pred: obj * list: obj -> obj * obj
     /// Removes duplicate elements.
     abstract usort: list: obj -> obj
     /// Returns a sublist (first N elements).

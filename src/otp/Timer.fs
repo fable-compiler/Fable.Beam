@@ -9,15 +9,15 @@ open Fable.Beam.Erlang
 
 [<Erase>]
 type IExports =
-    /// Sends Msg to Dest after Time milliseconds.
-    abstract send_after: time: int * dest: Pid * msg: obj -> TimerRef
-    /// Sends Msg to Dest repeatedly every Time milliseconds.
-    abstract send_interval: time: int * dest: Pid * msg: obj -> TimerRef
-    /// Evaluates Fun after Time milliseconds.
-    abstract apply_after: time: int * ``module``: Atom * ``function``: Atom * args: obj list -> TimerRef
-    /// Evaluates Fun repeatedly every Time milliseconds.
-    abstract apply_interval: time: int * ``module``: Atom * ``function``: Atom * args: obj list -> TimerRef
-    /// Cancels a previously started timer.
+    /// Sends Msg to Dest after Time milliseconds. Returns {ok, TRef} | {error, Reason}.
+    abstract send_after: time: int * dest: Pid * msg: obj -> obj
+    /// Sends Msg to Dest repeatedly every Time milliseconds. Returns {ok, TRef} | {error, Reason}.
+    abstract send_interval: time: int * dest: Pid * msg: obj -> obj
+    /// Evaluates Fun after Time milliseconds. Returns {ok, TRef} | {error, Reason}.
+    abstract apply_after: time: int * ``module``: Atom * ``function``: Atom * args: obj list -> obj
+    /// Evaluates Fun repeatedly every Time milliseconds. Returns {ok, TRef} | {error, Reason}.
+    abstract apply_interval: time: int * ``module``: Atom * ``function``: Atom * args: obj list -> obj
+    /// Cancels a previously started timer. Returns {ok, cancel} | {error, Reason}.
     abstract cancel: timerRef: TimerRef -> obj
     /// Suspends the process for Time milliseconds.
     abstract sleep: time: int -> unit

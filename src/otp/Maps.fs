@@ -38,7 +38,7 @@ type IExports =
     abstract map: f: obj * map: obj -> obj
     /// Filters key-value pairs by a predicate.
     abstract filter: pred: obj * map: obj -> obj
-    /// Returns the value for key, or calls fun if not found.
+    /// Returns {ok, Value} if key is in the map, or the atom error if not.
     abstract find: key: obj * map: obj -> obj
 
 /// maps module

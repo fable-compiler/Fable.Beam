@@ -34,26 +34,26 @@ let unsetenv (name: string) : unit = nativeOnly
 [<Emit("erlang:list_to_binary(os:cmd(binary_to_list($0)))")>]
 let cmd (command: string) : string = nativeOnly
 
-/// Returns the OS type as a tuple {Family, Name}.
-[<Emit("os:type()")>]
-let osType () : obj = nativeOnly
+/// Returns the OS type as a tuple {Family, Name} where Family is unix or win32.
+[<Emit("(fun() -> {OsTypeF__, OsTypeN__} = os:type(), {erlang:atom_to_binary(OsTypeF__), erlang:atom_to_binary(OsTypeN__)} end)()")>]
+let osType () : string * string = nativeOnly
 
 /// Returns the OS version as a tuple {Major, Minor, Release}.
 [<Emit("os:version()")>]
-let version () : obj = nativeOnly
+let version () : int * int * int = nativeOnly
 
 // ============================================================================
 // Time
 // ============================================================================
 
-/// Returns the current OS system time in the given unit.
+/// Returns the current OS system time in the given unit (e.g., second, millisecond).
 [<Emit("os:system_time($0)")>]
-let systemTime (unit: obj) : int = nativeOnly
+let systemTime (unit: Erlang.Atom) : int64 = nativeOnly
 
 /// Returns the current OS system time in seconds.
 [<Emit("os:system_time(second)")>]
-let systemTimeSeconds () : int = nativeOnly
+let systemTimeSeconds () : int64 = nativeOnly
 
 /// Returns the current OS system time in milliseconds.
 [<Emit("os:system_time(millisecond)")>]
-let systemTimeMs () : int = nativeOnly
+let systemTimeMs () : int64 = nativeOnly

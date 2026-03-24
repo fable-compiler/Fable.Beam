@@ -90,3 +90,26 @@ let ``test lists.usort removes duplicates`` () =
 #else
     ()
 #endif
+
+[<Fact>]
+let ``test lists.unzip returns tuple of two lists`` () =
+#if FABLE_COMPILER
+    let xs: obj = emitErlExpr () "[{1, a}, {2, b}, {3, c}]"
+    let (list1, list2) = lists.unzip xs
+    erlLength list1 |> equal 3
+    erlLength list2 |> equal 3
+#else
+    ()
+#endif
+
+[<Fact>]
+let ``test lists.partition returns tuple of two lists`` () =
+#if FABLE_COMPILER
+    let xs: obj = emitErlExpr () "[1, 2, 3, 4, 5]"
+    let pred: obj = emitErlExpr () "fun(X) -> X > 3 end"
+    let (matching, notMatching) = lists.partition (pred, xs)
+    erlLength matching |> equal 2
+    erlLength notMatching |> equal 3
+#else
+    ()
+#endif

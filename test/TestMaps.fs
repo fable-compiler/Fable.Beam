@@ -68,3 +68,17 @@ let ``test maps.merge works`` () =
 #else
     ()
 #endif
+
+[<Fact>]
+let ``test maps.find returns tagged result`` () =
+#if FABLE_COMPILER
+    let m = maps.put (box "key", box 42, maps.new_ ())
+    // maps.find returns {ok, Value} or the atom error
+    let result = maps.find (box "key", m)
+    let notFound = maps.find (box "missing", m)
+    // result should be {ok, 42}, notFound should be the atom error
+    Fable.Beam.Erlang.exactEquals notFound (box (Fable.Beam.Erlang.binaryToAtom "error")) |> equal true
+    Fable.Beam.Erlang.exactEquals result (box (Fable.Beam.Erlang.binaryToAtom "error")) |> equal false
+#else
+    ()
+#endif
