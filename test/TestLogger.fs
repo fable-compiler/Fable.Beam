@@ -29,3 +29,12 @@ let ``test logger.debug works`` () =
 #else
     ()
 #endif
+
+[<Fact>]
+let ``test logger.info with format args`` () =
+#if FABLE_COMPILER
+    // The 2-arg overload accepts both metadata maps and format args lists
+    logger.info ("test ~p message", box [ box 42 ])
+#else
+    ()
+#endif

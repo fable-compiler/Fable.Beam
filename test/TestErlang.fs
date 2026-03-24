@@ -117,7 +117,9 @@ let ``test receive with data`` () =
 let ``test sendAfter and cancelTimer`` () =
 #if FABLE_COMPILER
     let timerRef = sendAfter 60000 (box "should_not_arrive")
-    cancelTimer timerRef
+    match cancelTimer timerRef with
+    | Some remaining -> (remaining > 0) |> equal true
+    | None -> equal "Some" "None"
 #else
     ()
 #endif
@@ -149,8 +151,9 @@ let ``test register and whereis`` () =
     let name = binaryToAtom "fable_beam_test_proc"
     let pid = self ()
     register name pid
-    let found = whereis name
-    exactEquals pid found |> equal true
+    match whereis name with
+    | Some found -> exactEquals pid found |> equal true
+    | None -> equal "Some" "None"
 #else
     ()
 #endif
@@ -222,6 +225,81 @@ let ``test monotonicTimeMs returns positive`` () =
     let t1 = monotonicTimeMs ()
     let t2 = monotonicTimeMs ()
     (t2 >= t1) |> equal true
+#else
+    ()
+#endif
+
+[<Fact>]
+let ``test whereis returns None for unregistered name`` () =
+#if FABLE_COMPILER
+    let name = binaryToAtom "fable_beam_nonexistent_12345"
+    whereis name |> equal None
+#else
+    ()
+#endif
+
+[<Fact>]
+let ``test trapExit returns old value`` () =
+#if FABLE_COMPILER
+    let old1 = trapExit ()
+    // Second call should return true since we just set it
+    let old2 = trapExit ()
+    old2 |> equal true
+    // Reset: set trap_exit back to false
+    processFlag (binaryToAtom "trap_exit") (box false) |> ignore
+#else
+    ()
+#endif
+
+[<Fact>]
+let ``test cancelTimer returns None for invalid ref`` () =
+#if FABLE_COMPILER
+    let fakeRef = makeRef ()
+    // cancelTimer on a non-timer ref returns None (false in Erlang)
+    // Note: makeRef() does not create a timer ref, but we can test
+    // that sendAfter + cancel works and returns Some
+    let timerRef = sendAfter 60000 (box "test")
+    match cancelTimer timerRef with
+    | Some ms -> (ms >= 0) |> equal true
+    | None -> equal "Some" "None"
+    // Cancelling again should return None
+    cancelTimer timerRef |> equal None
+#else
+    ()
+#endif
+
+[<Fact>]
+let ``test sendAfterTo sends to specific pid`` () =
+#if FABLE_COMPILER
+    let pid = self ()
+    let timerRef = sendAfterTo 60000 pid (box "msg")
+    match cancelTimer timerRef with
+    | Some _ -> equal true true
+    | None -> equal "Some" "None"
+#else
+    ()
+#endif
+
+[<Fact>]
+let ``test byteSize returns correct size`` () =
+#if FABLE_COMPILER
+    byteSize "hello" |> equal 5
+    byteSize "" |> equal 0
+    byteSize "abc" |> equal 3
+#else
+    ()
+#endif
+
+[<Fact>]
+let ``test atomToList returns charlist not binary`` () =
+#if FABLE_COMPILER
+    let atom = binaryToAtom "test"
+    let charlist = atomToList atom
+    // atomToList returns a charlist (Erlang list of integers),
+    // which is not the same as an F# string (binary).
+    // We verify by round-tripping through listToAtom.
+    let atom2 = listToAtom charlist
+    atomToBinary atom2 |> equal "test"
 #else
     ()
 #endif

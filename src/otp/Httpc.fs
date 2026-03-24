@@ -13,12 +13,14 @@ open Fable.Core
 // ============================================================================
 
 /// Start the inets application. Must be called before any httpc request.
-[<Emit("inets:start()")>]
-let startInets () : unit = nativeOnly
+/// Returns ok on success, or {error, Reason} on failure (mapped to Result).
+[<Emit("(fun() -> case inets:start() of ok -> {ok, ok}; {error, StartInetsR__} -> {error, erlang:atom_to_binary(StartInetsR__)} end end)()")>]
+let startInets () : Result<unit, string> = nativeOnly
 
 /// Start the ssl application. Must be called before HTTPS requests.
-[<Emit("ssl:start()")>]
-let startSsl () : unit = nativeOnly
+/// Returns ok on success, or {error, Reason} on failure (mapped to Result).
+[<Emit("(fun() -> case ssl:start() of ok -> {ok, ok}; {error, StartSslR__} -> {error, erlang:atom_to_binary(StartSslR__)} end end)()")>]
+let startSsl () : Result<unit, string> = nativeOnly
 
 // fsharplint:disable MemberNames
 

@@ -47,9 +47,9 @@ let spawnLink (f: unit -> unit) : Pid = nativeOnly
 [<Emit("$0 ! $1")>]
 let send (pid: Pid) (msg: obj) : unit = nativeOnly
 
-/// Enable trap_exit so EXIT signals become messages.
+/// Enable trap_exit so EXIT signals become messages. Returns the old value.
 [<Emit("erlang:process_flag(trap_exit, true)")>]
-let trapExit () : unit = nativeOnly
+let trapExit () : bool = nativeOnly
 
 /// Set a process flag.
 [<Emit("erlang:process_flag($0, $1)")>]
@@ -87,9 +87,9 @@ let demonitorFlush (ref: Ref) : unit = nativeOnly
 [<Emit("erlang:register($0, $1)")>]
 let register (name: Atom) (pid: Pid) : unit = nativeOnly
 
-/// Look up a registered process name.
-[<Emit("erlang:whereis($0)")>]
-let whereis (name: Atom) : Pid = nativeOnly
+/// Look up a registered process name. Returns None if not registered.
+[<Emit("(fun() -> case erlang:whereis($0) of undefined -> undefined; WhereIsPid__ -> WhereIsPid__ end end)()")>]
+let whereis (name: Atom) : Pid option = nativeOnly
 
 /// Check if a process is alive.
 [<Emit("erlang:is_process_alive($0)")>]
@@ -123,13 +123,17 @@ let systemTime (unit: Atom) : int = nativeOnly
 [<Emit("erlang:system_time(second)")>]
 let systemTimeSec () : int = nativeOnly
 
-/// Schedule a message to be sent after Ms milliseconds.
+/// Schedule a message to be sent to self after Ms milliseconds.
 [<Emit("erlang:send_after($0, erlang:self(), $1)")>]
 let sendAfter (ms: int) (msg: obj) : TimerRef = nativeOnly
 
-/// Cancel a timer.
-[<Emit("erlang:cancel_timer($0)")>]
-let cancelTimer (timerRef: TimerRef) : unit = nativeOnly
+/// Schedule a message to be sent to the given process after Ms milliseconds.
+[<Emit("erlang:send_after($0, $1, $2)")>]
+let sendAfterTo (ms: int) (dest: Pid) (msg: obj) : TimerRef = nativeOnly
+
+/// Cancel a timer. Returns the remaining time in ms, or None if the timer was not found.
+[<Emit("(fun() -> case erlang:cancel_timer($0) of false -> undefined; CancelTimerMs__ -> CancelTimerMs__ end end)()")>]
+let cancelTimer (timerRef: TimerRef) : int option = nativeOnly
 
 // ============================================================================
 // Process dictionary
@@ -193,9 +197,9 @@ let length (list: obj) : int = nativeOnly
 [<Emit("erlang:tuple_size($0)")>]
 let tupleSize (tuple: obj) : int = nativeOnly
 
-/// Returns the size of a binary.
+/// Returns the size of a binary (string).
 [<Emit("erlang:byte_size($0)")>]
-let byteSize (bin: obj) : int = nativeOnly
+let byteSize (bin: string) : int = nativeOnly
 
 /// Returns the element at position N (1-based) in a tuple.
 [<Emit("erlang:element($0, $1)")>]
@@ -225,13 +229,15 @@ let atomToBinary (atom: Atom) : string = nativeOnly
 [<Emit("erlang:binary_to_atom($0)")>]
 let binaryToAtom (s: string) : Atom = nativeOnly
 
-/// Convert an atom to a list (charlist).
+/// Convert an atom to a charlist. Note: returns a charlist (Erlang string()),
+/// not an F# string (binary). Use atomToBinary for F# string conversion.
 [<Emit("erlang:atom_to_list($0)")>]
-let atomToList (atom: Atom) : string = nativeOnly
+let atomToList (atom: Atom) : obj = nativeOnly
 
-/// Convert a list (charlist) to an atom.
+/// Convert a charlist to an atom. Note: expects a charlist (Erlang string()),
+/// not an F# string (binary). Use binaryToAtom for F# string conversion.
 [<Emit("erlang:list_to_atom($0)")>]
-let listToAtom (s: string) : Atom = nativeOnly
+let listToAtom (charlist: obj) : Atom = nativeOnly
 
 /// Format a term as a readable string.
 [<Emit("erlang:list_to_binary(io_lib:format(<<\"~p\">>, [$0]))")>]

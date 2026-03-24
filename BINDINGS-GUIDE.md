@@ -2,6 +2,20 @@
 
 How to write F# bindings for Erlang/OTP modules using Fable's BEAM backend.
 
+## Cross-Reference with Erlang Docs
+
+Always verify your bindings against the official Erlang documentation at
+<https://www.erlang.org/doc/readme.html>. Each binding module should link to
+its corresponding Erlang doc page in a top-level `///` comment (e.g.,
+`/// See https://www.erlang.org/doc/apps/erts/erlang`).
+
+When writing or reviewing a binding, check:
+
+- **Parameter types** — match the Erlang typespec (e.g., if the doc says `atom()`, use `Atom` not `obj`)
+- **Return types** — match the Erlang typespec (e.g., `{ok, pid()}` → `Result<Pid, string>`)
+- **Arity** — ensure all arities of a function are covered or the most common ones are bound
+- **Charlist vs binary** — the docs say `string()` for charlists; F# strings are binaries, so convert
+
 ## Quick Reference
 
 |           Pattern           |                        When to use                         |          Example           |

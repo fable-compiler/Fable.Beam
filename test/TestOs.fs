@@ -74,3 +74,44 @@ let ``test systemTimeMs is monotonically increasing`` () =
 #else
     ()
 #endif
+
+[<Fact>]
+let ``test systemTimeMs returns int64 value above 32-bit range`` () =
+#if FABLE_COMPILER
+    let t = systemTimeMs ()
+    // Millisecond timestamps are around 1.7 * 10^12, well above int32 max (~2.1 * 10^9)
+    (t > 1_000_000_000_000L) |> equal true
+#else
+    ()
+#endif
+
+[<Fact>]
+let ``test systemTimeSeconds returns int64`` () =
+#if FABLE_COMPILER
+    let t = systemTimeSeconds ()
+    // Unix epoch seconds are around 1.7 * 10^9
+    (t > 1_000_000_000L) |> equal true
+#else
+    ()
+#endif
+
+[<Fact>]
+let ``test osType returns a string tuple`` () =
+#if FABLE_COMPILER
+    let (family, _name) = osType ()
+    // Should be "unix" on Linux/macOS or "win32" on Windows
+    (family = "unix" || family = "win32") |> equal true
+#else
+    ()
+#endif
+
+[<Fact>]
+let ``test version returns an int tuple`` () =
+#if FABLE_COMPILER
+    let (major, minor, release) = version ()
+    (major >= 0) |> equal true
+    (minor >= 0) |> equal true
+    (release >= 0) |> equal true
+#else
+    ()
+#endif
