@@ -6,40 +6,48 @@ open Fable.Core
 
 // fsharplint:disable MemberNames
 
+/// Erlang map with typed keys and values.
+[<Erase>]
+type BeamMap<'K, 'V> = BeamMap of obj
+
 [<Erase>]
 type IExports =
     /// Returns a new empty map.
-    abstract new_: unit -> obj
+    abstract new_: unit -> BeamMap<'K, 'V>
     /// Gets the value associated with key.
-    abstract get: key: obj * map: obj -> obj
+    abstract get: key: 'K * map: BeamMap<'K, 'V> -> 'V
     /// Returns the value associated with key, or default if not found.
-    abstract get: key: obj * map: obj * ``default``: obj -> obj
+    abstract get: key: 'K * map: BeamMap<'K, 'V> * ``default``: 'V -> 'V
     /// Associates key with value in the map.
-    abstract put: key: obj * value: obj * map: obj -> obj
+    abstract put: key: 'K * value: 'V * map: BeamMap<'K, 'V> -> BeamMap<'K, 'V>
     /// Removes a key from the map.
-    abstract remove: key: obj * map: obj -> obj
+    abstract remove: key: 'K * map: BeamMap<'K, 'V> -> BeamMap<'K, 'V>
     /// Returns true if the map contains key.
-    abstract is_key: key: obj * map: obj -> bool
+    abstract is_key: key: 'K * map: BeamMap<'K, 'V> -> bool
     /// Returns a list of all keys in the map.
-    abstract keys: map: obj -> obj array
+    [<Emit("fable_utils:new_ref(maps:keys($0))")>]
+    abstract keys: map: BeamMap<'K, 'V> -> 'K array
     /// Returns a list of all values in the map.
-    abstract values: map: obj -> obj array
+    [<Emit("fable_utils:new_ref(maps:values($0))")>]
+    abstract values: map: BeamMap<'K, 'V> -> 'V array
     /// Returns the number of key-value pairs in the map.
-    abstract size: map: obj -> int
+    abstract size: map: BeamMap<'K, 'V> -> int
     /// Converts a list of key-value pairs to a map.
-    abstract from_list: list: obj -> obj
+    [<Emit("maps:from_list(erlang:get($0))")>]
+    abstract from_list: list: ('K * 'V) array -> BeamMap<'K, 'V>
     /// Converts a map to a list of key-value pairs.
-    abstract to_list: map: obj -> obj array
+    [<Emit("fable_utils:new_ref(maps:to_list($0))")>]
+    abstract to_list: map: BeamMap<'K, 'V> -> ('K * 'V) array
     /// Merges two maps.
-    abstract merge: map1: obj * map2: obj -> obj
+    abstract merge: map1: BeamMap<'K, 'V> * map2: BeamMap<'K, 'V> -> BeamMap<'K, 'V>
     /// Applies a function to each key-value pair.
-    abstract fold: f: obj * init: obj * map: obj -> obj
+    abstract fold: f: System.Func<'K, 'V, 'Acc, 'Acc> * init: 'Acc * map: BeamMap<'K, 'V> -> 'Acc
     /// Applies a function to each value, returning a new map.
-    abstract map: f: obj * map: obj -> obj
+    abstract map: f: System.Func<'K, 'V, 'V2> * map: BeamMap<'K, 'V> -> BeamMap<'K, 'V2>
     /// Filters key-value pairs by a predicate.
-    abstract filter: pred: obj * map: obj -> obj
+    abstract filter: pred: System.Func<'K, 'V, bool> * map: BeamMap<'K, 'V> -> BeamMap<'K, 'V>
     /// Returns {ok, Value} if key is in the map, or the atom error if not.
-    abstract find: key: obj * map: obj -> obj
+    abstract find: key: 'K * map: BeamMap<'K, 'V> -> obj
 
 /// maps module
 [<ImportAll("maps")>]
