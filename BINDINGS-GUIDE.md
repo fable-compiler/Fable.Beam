@@ -18,11 +18,15 @@ When writing or reviewing a binding, check:
 
 ## Quick Reference
 
-|           Pattern           |                        When to use                         |          Example           |
-| --------------------------- | ---------------------------------------------------------- | -------------------------- |
-| `[<Emit>]`                  | BIFs, operators, inline Erlang code                        | `erlang:self()`, `$0 ! $1` |
-| `[<Erase>] + [<ImportAll>]` | Binding an Erlang module with multiple functions           | `timer`, `gen_server`      |
-| `[<Erase>]` on DU           | Opaque Erlang types (compile-time safety, no runtime cost) | `Pid`, `Ref`, `TableId`    |
+| Pattern | When to use | Example |
+| --- | --- | --- |
+| `[<Emit>]` | BIFs, operators, inline Erlang code | `erlang:self()`, `$0 ! $1` |
+| `[<Erase>] + [<ImportAll>]` | Binding an Erlang module with multiple functions | `timer`, `gen_server` |
+| `[<Erase>]` on DU | Opaque Erlang types (compile-time safety, no runtime cost) | `Pid`, `Ref`, `TableId` |
+| `[<Erase>]` on generic DU | Typed Erlang containers (maps, lists) | `BeamMap<'K,'V>`, `BeamList<'T>` |
+| `[<Emit>]` on abstract member | Override `ImportAll` codegen for specific methods | `fable_utils:new_ref(...)` wrapping |
+| `System.Func<>` / `System.Action` | Typed callbacks in `ImportAll` interfaces | `fold`, `filter`, `foreach` |
+| `U2<>` / `U3<>` / erased union | Parameters or returns that accept multiple types | timeout: `int` or `infinity` |
 
 ## Type Mappings: F# to Erlang
 
@@ -32,10 +36,10 @@ When writing or reviewing a binding, check:
 | `string`         | `binary()`                  | `<<"hello">>` — **not** charlists          |
 | `bool`           | `true` \| `false`           | Atoms                                      |
 | `unit`           | `ok`                        | Atom                                       |
-| `tuple`          | `tuple`                     | `{A, B, C}` — direct mapping              |
+| `tuple`          | `tuple`                     | `{A, B, C}` — direct mapping               |
 | `list<T>`        | `list()`                    | Both are linked lists                      |
 | `option<T>`      | value or `undefined`        | Erased wrapper                             |
-| `Result<T,E>`    | `{ok, V}` \| `{error, E}`  | Matches Erlang idiom                       |
+| `Result<T,E>`    | `{ok, V}` \| `{error, E}`   | Matches Erlang idiom                       |
 | `record`         | `map`                       | `#{field_name => Value}`                   |
 | DU (with fields) | tagged tuple                | `{tag, Field1, Field2}`                    |
 | DU (no fields)   | atom                        | `tag`                                      |
@@ -185,7 +189,9 @@ let monitor (pid: obj) : obj = nativeOnly
 
 ### Functions: use F# function types for callbacks
 
-When an Erlang function takes a fun/callback, use the appropriate F# function type:
+When an Erlang function takes a fun/callback, use the appropriate F# function type.
+
+For `[<Emit>]` bindings, use curried F# function types:
 
 ```fsharp
 /// Spawn a new process that executes the given function.
@@ -194,6 +200,72 @@ let spawn (f: unit -> unit) : Pid = nativeOnly
 ```
 
 Note: `unit` compiles to the atom `ok`, so `$0(ok)` calls the F# function with unit.
+
+For `[<ImportAll>]` interfaces, use `System.Func<>` and `System.Action<>`
+to type callback parameters. Fable compiles these to Erlang funs:
+
+```fsharp
+[<Erase>]
+type IExports =
+    /// Filters elements by a predicate.
+    abstract filter: pred: System.Func<'T, bool> * list: BeamList<'T> -> BeamList<'T>
+    /// Left fold over a list.
+    abstract foldl: f: System.Func<'T, 'Acc, 'Acc> * acc: 'Acc * list: BeamList<'T> -> 'Acc
+    /// Applies a function to each element for side effects.
+    abstract foreach: f: System.Action<'T> * list: BeamList<'T> -> unit
+    /// Applies a function to each key-value pair in a map.
+    abstract fold: f: System.Func<'K, 'V, 'Acc, 'Acc> * init: 'Acc * map: BeamMap<'K, 'V> -> 'Acc
+```
+
+Usage — pass an F# lambda wrapped in `System.Func`:
+
+```fsharp
+lists.filter (System.Func<_, _>(fun x -> x > 3), xs)
+lists.foldl (System.Func<_, _, _>(fun x acc -> acc + x), 0, xs)
+```
+
+### Erased unions: use for parameters or results with multiple types
+
+Erlang APIs sometimes accept or return values of different types. For
+example, a timeout might be an integer or the atom `infinity`, or a
+server ref might be a `Pid`, an `Atom`, or a `{global, Name}` tuple.
+
+Use `Fable.Core`'s erased union types (`U2`, `U3`, etc.) to express
+this without losing type safety:
+
+```fsharp
+open Fable.Core
+
+/// A gen_server timeout: either milliseconds or the atom 'infinity'.
+[<Erase>]
+type Timeout =
+    | Milliseconds of int
+    | Infinity of Atom
+
+    static member op_ErasedCast(x: int) = Milliseconds x
+    static member op_ErasedCast(x: Atom) = Infinity x
+```
+
+Or use the built-in `U2<'A, 'B>` / `U3<'A, 'B, 'C>` types directly:
+
+```fsharp
+[<Erase>]
+type IExports =
+    /// Call with a timeout that is either an int or the atom 'infinity'.
+    abstract call: serverRef: obj * request: obj * timeout: U2<int, Atom> -> obj
+```
+
+The `op_ErasedCast` static members enable implicit conversion, so
+callers can pass either type directly:
+
+```fsharp
+// Both work — the erased union accepts either type
+gen_server.call (ref, msg, !^ 5000)
+gen_server.call (ref, msg, !^ (Erlang.binaryToAtom "infinity"))
+```
+
+The `!^` operator triggers the erased cast. At the Erlang level,
+the value is passed through unchanged — no wrapping or tagging.
 
 ### When `obj` is acceptable
 
@@ -216,11 +288,14 @@ Is the Erlang type...
 ├── the atom 'ok'?         → unit
 ├── a fixed-size tuple?    → T1 * T2 * ...
 ├── a list of known type?  → T list (Emit) or T array (ImportAll)
+├── an Erlang list handle? → BeamList<T> (stays in Erlang list land)
+├── an Erlang map?         → BeamMap<K, V> (generic erased type)
 ├── {ok, V} | {error, R}? → Result<T, E>
 ├── value | sentinel?      → T option (return undefined for None)
 ├── a map with known keys? → F# record
 ├── an opaque handle?      → [<Erase>] type Foo = Foo of obj
-├── a callback fun?        → F# function type
+├── a callback fun?        → System.Func (ImportAll) or F# function (Emit)
+├── one of N known types?  → U2<A,B> / U3<A,B,C> or custom erased union
 └── genuinely dynamic?     → obj (last resort)
 ```
 
@@ -439,16 +514,55 @@ simple type alias:
 type Req = obj
 ```
 
+### Generic erased types
+
+For Erlang containers like maps and lists, use **generic** erased types
+to get compile-time type safety on keys, values, and elements:
+
+```fsharp
+/// Erlang map with typed keys and values.
+[<Erase>]
+type BeamMap<'K, 'V> = BeamMap of obj
+
+/// Erlang list with typed elements.
+[<Erase>]
+type BeamList<'T> = BeamList of obj
+```
+
+Use a `Beam` prefix to avoid confusion with F#'s built-in `Map` and
+`list` types. The generics exist only at compile time — at the Erlang
+level these are plain maps and lists with zero overhead.
+
+Then use the generic types throughout the interface:
+
+```fsharp
+[<Erase>]
+type IExports =
+    abstract new_: unit -> BeamMap<'K, 'V>
+    abstract get: key: 'K * map: BeamMap<'K, 'V> -> 'V
+    abstract put: key: 'K * value: 'V * map: BeamMap<'K, 'V> -> BeamMap<'K, 'V>
+    abstract is_key: key: 'K * map: BeamMap<'K, 'V> -> bool
+    abstract size: map: BeamMap<'K, 'V> -> int
+```
+
+Usage becomes fully typed — no `box` needed:
+
+```fsharp
+let m: BeamMap<string, int> = maps.new_ ()
+let m = maps.put ("key", 42, m)
+maps.get ("key", m) |> equal 42  // returns int, not obj
+```
+
 ## String and Atom Conversions
 
 F# strings compile to Erlang binaries (`<<"hello">>`), **not** charlists.
 Many OTP functions expect charlists, so you need to convert:
 
-|       Direction       |                      Emit code                      |
+|       Direction       |                      Emit code                       |
 | --------------------- | ---------------------------------------------------- |
 | F# string → charlist  | `binary_to_list($0)`                                 |
 | charlist → F# string  | `erlang:list_to_binary(...)`                         |
-| F# string → atom      | `binary_to_atom($0)` or `erlang:binary_to_atom($0)` |
+| F# string → atom      | `binary_to_atom($0)` or `erlang:binary_to_atom($0)`  |
 | atom → F# string      | `erlang:atom_to_binary($0)`                          |
 
 Example — an Erlang function that takes a charlist path and returns a
@@ -535,17 +649,46 @@ Erlang.
 
 ### Erlang lists vs F# arrays
 
-F# arrays on BEAM are ref-wrapped values in the process dictionary. Raw
-Erlang lists returned from OTP calls (e.g., `ets:tab2list/1`,
-`maps:keys/1`) are **not** ref-wrapped. This means F# `.Length` will
-not work on them. Use `Erlang.length` instead:
+F# arrays on BEAM are ref-wrapped values in the process dictionary
+(via `fable_utils:new_ref/1`). Raw Erlang lists returned from OTP calls
+(e.g., `ets:tab2list/1`, `maps:keys/1`) are **not** ref-wrapped. This
+means `Array.length` and other F# array operations will fail on raw
+Erlang lists.
+
+**Solution:** Use `[<Emit>]` on abstract members to wrap the return
+value with `fable_utils:new_ref()`, converting the Erlang list into a
+proper F# array. For the reverse direction, unwrap with `erlang:get()`:
 
 ```fsharp
-let all = ets.tab2list table
-// Don't: all.Length (fails at runtime)
-// Do:
-let count = Erlang.length (box all)
+[<Erase>]
+type IExports =
+    /// Returns keys as an F# array (wraps Erlang list with new_ref).
+    [<Emit("fable_utils:new_ref(maps:keys($0))")>]
+    abstract keys: map: BeamMap<'K, 'V> -> 'K array
+
+    /// Converts a map to key-value pairs as an F# array.
+    [<Emit("fable_utils:new_ref(maps:to_list($0))")>]
+    abstract to_list: map: BeamMap<'K, 'V> -> ('K * 'V) array
+
+    /// Converts an F# array of key-value pairs to a map (unwraps ref).
+    [<Emit("maps:from_list(erlang:get($0))")>]
+    abstract from_list: list: ('K * 'V) array -> BeamMap<'K, 'V>
 ```
+
+This allows standard F# array operations to work naturally:
+
+```fsharp
+maps.keys m |> Array.length |> equal 2       // works
+maps.to_list m |> Array.map fst              // works
+```
+
+Note: `[<Emit>]` on an abstract member overrides the `[<ImportAll>]`
+code generation for that specific method — other members still get the
+automatic `module:function(...)` calls.
+
+If you don't need F# array interop (e.g., the result stays in Erlang
+list land), use `BeamList<'T>` as the return type instead and skip the
+wrapping.
 
 ### ImportAll functions use tupled arguments
 
