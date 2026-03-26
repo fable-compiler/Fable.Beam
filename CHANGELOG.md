@@ -1,11 +1,19 @@
 ---
-last_commit_released: 2d34d597b29ed9f3f35b9ace0266323c72ad45e4
+last_commit_released: ba9dd6e0f03a5b2a5461bcc7b8ea23880bab8eaa
 name: Fable.Beam
 ---
 
 # Changelog
 
 All notable changes to this project will be documented in this file.
+
+## 5.0.0-rc.15 - 2026-03-26
+
+### 🚀 Features
+
+* Add generic erased types and improve type safety across bindings (#31) ([ba9dd6e](https://github.com/fable-compiler/Fable.Beam/commit/ba9dd6e0f03a5b2a5461bcc7b8ea23880bab8eaa))
+
+<strong><small>[View changes on Github](https://github.com/fable-compiler/Fable.Beam/compare/2d34d597b29ed9f3f35b9ace0266323c72ad45e4..ba9dd6e0f03a5b2a5461bcc7b8ea23880bab8eaa)</small></strong>
 
 ## 5.0.0-rc.14 - 2026-03-24
 
