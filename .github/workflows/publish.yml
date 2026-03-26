@@ -78,6 +78,12 @@ jobs:
           dotnet pack src/cowboy -c Release -p:PackageVersion=${{ steps.release.outputs.version }} -p:InformationalVersion=${{ steps.release.outputs.version }}
           dotnet nuget push 'src/cowboy/bin/Release/*.nupkg' -s https://api.nuget.org/v3/index.json -k ${{ secrets.NUGET_API_KEY }}
 
+      - name: Pack and push Fable.Beam.Jsx
+        if: steps.release.outputs.package == 'Fable.Beam.Jsx'
+        run: |
+          dotnet pack src/jsx -c Release -p:PackageVersion=${{ steps.release.outputs.version }} -p:InformationalVersion=${{ steps.release.outputs.version }}
+          dotnet nuget push 'src/jsx/bin/Release/*.nupkg' -s https://api.nuget.org/v3/index.json -k ${{ secrets.NUGET_API_KEY }}
+
       - name: Create GitHub Release
         run: gh release create "${{ steps.release.outputs.tag }}" --title "${{ steps.release.outputs.tag }}" --generate-notes || echo "Release already exists"
         env:

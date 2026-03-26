@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <Author>Dag Brattli</Author>
+    <Copyright>Dag Brattli</Copyright>
+    <PackageLicenseFile>LICENSE</PackageLicenseFile>
+    <WarnOn>3390;$(WarnOn)</WarnOn>
+    <PackageTags>fsharp;fable;fable-binding;fable-beam;erlang;jsx;json</PackageTags>
+    <Description>Fable bindings for jsx JSON library on BEAM</Description>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="Jsx.fs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="*.fsproj; **\*.fs; **\*.fsi" PackagePath="fable\" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\LICENSE" Pack="true" Visible="false" PackagePath="\" />
+    <None Include="..\..\README.md" Pack="true" PackagePath="\" />
+  </ItemGroup>
+  <Import Project="..\..\.paket\Paket.Restore.targets" />
+</Project>

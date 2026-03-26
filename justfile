@@ -38,6 +38,7 @@ build-beam:
     dotnet build {{test_path}}
     {{fable}} {{test_path}} --lang Erlang --outDir {{build_path}}/tests
     cp {{test_path}}/test_runner.erl {{test_path}}/test_counter_server.erl {{build_path}}/tests/src/
+    cp {{test_path}}/rebar.config {{build_path}}/tests/rebar.config
     cd {{build_path}}/tests && rebar3 compile
 
 # Run BEAM tests (transpile F# to Erlang, compile, run on BEAM)
@@ -46,6 +47,7 @@ test: build-beam
     cd {{build_path}}/tests && erl -noshell \
         -pa _build/default/lib/fable_beam_test/ebin \
         -pa _build/default/lib/fable_library_beam/ebin \
+        -pa _build/default/lib/jsx/ebin \
         -eval 'test_runner:main(["_build/default/lib/fable_beam_test/ebin"])' \
         -s init stop
 
@@ -59,11 +61,13 @@ pack:
     dotnet build {{src_path}}
     dotnet pack {{src_path}} -c Release
     dotnet pack {{src_path}}/cowboy -c Release
+    dotnet pack {{src_path}}/jsx -c Release
 
 # Create NuGet packages with specific version (used in CI)
 pack-version version:
     dotnet pack {{src_path}} -c Release -p:PackageVersion={{version}} -p:InformationalVersion={{version}}
     dotnet pack {{src_path}}/cowboy -c Release -p:PackageVersion={{version}} -p:InformationalVersion={{version}}
+    dotnet pack {{src_path}}/jsx -c Release -p:PackageVersion={{version}} -p:InformationalVersion={{version}}
 
 # Format code with Fantomas
 format:
