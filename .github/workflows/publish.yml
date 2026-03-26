@@ -6,47 +6,79 @@ on:
 
 permissions:
   contents: write
+  pull-requests: write
 
 jobs:
-  publish:
+  shipit-pr:
+    name: ShipIt - Pull Request
     runs-on: ubuntu-latest
     timeout-minutes: 10
-    if: "startsWith(github.event.head_commit.message, 'chore: release ')"
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Setup .NET Core
         uses: actions/setup-dotnet@v5
         with:
           dotnet-version: 10.x
 
-      - name: Install just
-        uses: extractions/setup-just@v3
+      - name: Install tools
+        run: dotnet tool restore
 
-      - name: Extract version
-        id: version
-        run: |
-          MESSAGE="${{ github.event.head_commit.message }}"
-          VERSION="${MESSAGE#chore: release }"
-          VERSION="${VERSION%% *}"
-          # Strip package name prefix (e.g. Fable.Beam@1.0.0-rc.7 -> 1.0.0-rc.7)
-          VERSION="${VERSION##*@}"
-          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
-          echo "tag=v$VERSION" >> "$GITHUB_OUTPUT"
+      - name: ShipIt (Pull Request)
+        run: dotnet shipit --pre-release rc
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Restore dependencies
+  release:
+    name: Release
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    if: "startsWith(github.event.head_commit.message, 'chore: release ')"
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup .NET Core
+        uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: 10.x
+
+      - name: Install tools
         run: |
           dotnet tool restore
           dotnet restore src
 
-      - name: Pack NuGet
-        run: just pack-version ${{ steps.version.outputs.version }}
+      - name: Extract package and version
+        id: release
+        run: |
+          MESSAGE="${{ github.event.head_commit.message }}"
+          # Extract "Fable.Beam@1.0.0-rc.7" or "Fable.Beam.Cowboy@1.0.0-rc.7"
+          PACKAGE_VERSION="${MESSAGE#chore: release }"
+          PACKAGE_VERSION="${PACKAGE_VERSION%% *}"
+          PACKAGE="${PACKAGE_VERSION%%@*}"
+          VERSION="${PACKAGE_VERSION##*@}"
+          echo "package=$PACKAGE" >> "$GITHUB_OUTPUT"
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "tag=${PACKAGE}@${VERSION}" >> "$GITHUB_OUTPUT"
 
-      - name: Push NuGet
-        run: dotnet nuget push 'src/**/Release/*.nupkg' -s https://api.nuget.org/v3/index.json -k ${{ secrets.NUGET_API_KEY }}
+      - name: Pack and push Fable.Beam
+        if: steps.release.outputs.package == 'Fable.Beam'
+        run: |
+          dotnet pack src -c Release -p:PackageVersion=${{ steps.release.outputs.version }} -p:InformationalVersion=${{ steps.release.outputs.version }}
+          dotnet nuget push 'src/bin/Release/*.nupkg' -s https://api.nuget.org/v3/index.json -k ${{ secrets.NUGET_API_KEY }}
+
+      - name: Pack and push Fable.Beam.Cowboy
+        if: steps.release.outputs.package == 'Fable.Beam.Cowboy'
+        run: |
+          dotnet pack src/cowboy -c Release -p:PackageVersion=${{ steps.release.outputs.version }} -p:InformationalVersion=${{ steps.release.outputs.version }}
+          dotnet nuget push 'src/cowboy/bin/Release/*.nupkg' -s https://api.nuget.org/v3/index.json -k ${{ secrets.NUGET_API_KEY }}
 
       - name: Create GitHub Release
-        run: gh release create ${{ steps.version.outputs.tag }} --title "${{ steps.version.outputs.version }}" --generate-notes || echo "Release already exists"
+        run: gh release create "${{ steps.release.outputs.tag }}" --title "${{ steps.release.outputs.tag }}" --generate-notes || echo "Release already exists"
         env:
           GH_TOKEN: ${{ github.token }}
