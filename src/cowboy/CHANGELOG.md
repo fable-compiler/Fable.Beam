@@ -1,11 +1,19 @@
 ---
-last_commit_released: ba9dd6e0f03a5b2a5461bcc7b8ea23880bab8eaa
+last_commit_released: 6b2df6241a6ec423cdfc1c48e14595c7365e646e
 name: Fable.Beam.Cowboy
 ---
 
 # Changelog
 
 All notable changes to this project will be documented in this file.
+
+## 5.0.0-rc.16 - 2026-03-26
+
+### 🚀 Features
+
+* Add monorepo support for independent package releases (#33) ([9e6b5ec](https://github.com/fable-compiler/Fable.Beam/commit/9e6b5ece17e4993079fe4c20044f27980b7ed74a))
+
+<strong><small>[View changes on Github](https://github.com/fable-compiler/Fable.Beam/compare/ba9dd6e0f03a5b2a5461bcc7b8ea23880bab8eaa..6b2df6241a6ec423cdfc1c48e14595c7365e646e)</small></strong>
 
 ## 5.0.0-rc.15 - 2026-03-26
 
