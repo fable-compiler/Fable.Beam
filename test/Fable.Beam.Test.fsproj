@@ -12,6 +12,7 @@
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="../src/Fable.Beam.fsproj" />
+    <ProjectReference Include="../src/jsx/Fable.Beam.Jsx.fsproj" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="TestErlang.fs" />
@@ -25,6 +26,7 @@
     <Compile Include="TestOs.fs" />
     <Compile Include="TestFile.fs" />
     <Compile Include="TestLogger.fs" />
+    <Compile Include="TestJsx.fs" />
     <Compile Include="Main.fs" />
   </ItemGroup>
   <Import Project="..\.paket\Paket.Restore.targets" />

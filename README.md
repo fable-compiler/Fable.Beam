@@ -8,13 +8,22 @@ BEAM backend. This package provides typed bindings for
 Erlang/OTP standard modules so you can call them directly
 from F#.
 
-## Available Modules
+## Packages
+
+| Package | Description |
+| --- | --- |
+| `Fable.Beam` | Core Erlang/OTP bindings |
+| `Fable.Beam.Cowboy` | Cowboy HTTP server bindings |
+| `Fable.Beam.Jsx` | jsx JSON library bindings |
+
+### Fable.Beam — OTP Modules
 
 | Module | Binding | Description |
 | --- | --- | --- |
 | `Fable.Beam.Erlang` | `erlang` | BIFs: processes, send/receive, monitors |
 | `Fable.Beam.GenServer` | `gen_server` | Generic server behaviour |
 | `Fable.Beam.Supervisor` | `supervisor` | Supervisor behaviour |
+| `Fable.Beam.Application` | `application` | OTP application management |
 | `Fable.Beam.Timer` | `timer` | Timer functions, sleep, conversions |
 | `Fable.Beam.Ets` | `ets` | Erlang Term Storage |
 | `Fable.Beam.Maps` | `maps` | Erlang map operations |
@@ -22,14 +31,35 @@ from F#.
 | `Fable.Beam.Io` | `io` | I/O functions |
 | `Fable.Beam.Logger` | `logger` | OTP logger |
 | `Fable.Beam.File` | `file` | File system operations |
+| `Fable.Beam.Os` | `os` | OS interaction, env vars, system time |
+| `Fable.Beam.Httpc` | `httpc` | HTTP client (inets) |
+| `Fable.Beam.Init` | `init` | Runtime system control |
 | `Fable.Beam.Testing` | - | Test helpers (Fact, assertions) |
+
+### Fable.Beam.Cowboy
+
+| Module | Binding | Description |
+| --- | --- | --- |
+| `Fable.Beam.Cowboy.Cowboy` | `cowboy` | Listener start/stop |
+| `Fable.Beam.Cowboy.CowboyReq` | `cowboy_req` | Request/response handling |
+| `Fable.Beam.Cowboy.CowboyRouter` | `cowboy_router` | Route compilation |
+| `Fable.Beam.Cowboy.CowboyHandler` | `cowboy_handler` | Handler callbacks |
+| `Fable.Beam.Cowboy.CowboyWebsocket` | `cowboy_websocket` | WebSocket support |
+
+### Fable.Beam.Jsx
+
+| Module | Binding | Description |
+| --- | --- | --- |
+| `Fable.Beam.Jsx.Jsx` | `jsx` | JSON encode, decode, format, validate |
 
 ## Usage
 
-Add the NuGet package to your project:
+Add the NuGet packages to your project:
 
 ```text
 paket add Fable.Beam
+paket add Fable.Beam.Cowboy   # optional: HTTP server
+paket add Fable.Beam.Jsx      # optional: JSON
 ```
 
 Then use the bindings in your F# code:
@@ -61,10 +91,10 @@ match Erlang.receive<Msg> 5000 with
 | Some Stop -> exit (box "normal")
 | None -> printfn "Timeout"
 
-// Erlang maps
-let m = maps.new_ ()
-let m = maps.put (box "key", box "value", m)
-let v = maps.get (box "key", m)
+// Typed Erlang maps (generic — no box needed)
+let m: BeamMap<string, int> = maps.new_ ()
+let m = maps.put ("key", 42, m)
+let v = maps.get ("key", m)  // returns int
 
 // Timers
 timer.sleep 100
@@ -77,6 +107,16 @@ demonitorFlush monRef
 // Process dictionary
 put (box "my_key") (box 42) |> ignore
 let value = get (box "my_key")
+```
+
+### JSON with jsx
+
+```fsharp
+open Fable.Beam.Jsx.Jsx
+
+let json = jsx.encode {| name = "world" |}
+let valid = jsx.is_json (json, [strict])
+let mini = jsx.minify """{ "key" : "value" }"""
 ```
 
 ## Prerequisites
@@ -128,24 +168,20 @@ just pack
 
 ```text
 src/
-  otp/
-    Erlang.fs        # Erlang BIFs (Emit-based bindings)
-    GenServer.fs     # gen_server module (ImportAll binding)
-    Supervisor.fs    # supervisor module
-    Timer.fs         # timer module
-    Ets.fs           # ets module
-    Maps.fs          # maps module
-    Lists.fs         # lists module
-    Io.fs            # io module
-    Logger.fs        # logger module
-    File.fs          # file module
-    Testing.fs       # Test utilities
+  otp/             # Fable.Beam — OTP stdlib bindings
+    Erlang.fs, GenServer.fs, Supervisor.fs, Timer.fs,
+    Ets.fs, Maps.fs, Lists.fs, Io.fs, Logger.fs,
+    File.fs, Os.fs, Httpc.fs, Application.fs, Init.fs,
+    Testing.fs
+  cowboy/          # Fable.Beam.Cowboy — HTTP server bindings
+    Cowboy.fs, CowboyReq.fs, CowboyRouter.fs,
+    CowboyHandler.fs, CowboyWebsocket.fs
+  jsx/             # Fable.Beam.Jsx — JSON library bindings
+    Jsx.fs
 test/
-  TestErlang.fs      # Erlang BIF tests
-  TestEts.fs         # ETS tests
-  TestMaps.fs        # Maps tests
-  ...
+  Test*.fs           # Test files
   test_runner.erl    # BEAM test runner
+  rebar.config       # Erlang test dependencies
 ```
 
 ## Binding Patterns
@@ -157,10 +193,10 @@ The bindings use two Fable interop patterns:
 
 ```fsharp
 [<Emit("erlang:self()")>]
-let self () : obj = nativeOnly
+let self () : Pid = nativeOnly
 
 [<Emit("$0 ! $1")>]
-let send (pid: obj) (msg: obj) : unit = nativeOnly
+let send (pid: Pid) (msg: obj) : unit = nativeOnly
 ```
 
 **`[<Erase>]` + `[<ImportAll>]`** for Erlang module
@@ -179,30 +215,13 @@ let timer: IExports = nativeOnly
 ## Interop Notes
 
 **Erlang lists vs F# arrays:** Fable on BEAM represents
-F# arrays as ref-wrapped values in the process dictionary.
-Raw Erlang lists returned from OTP calls (e.g.,
-`ets:tab2list/1`, `maps:keys/1`) are *not* ref-wrapped,
-so F# `.Length` will not work on them. Use
-`Erlang.length` instead:
-
-```fsharp
-open Fable.Beam.Erlang
-open Fable.Beam.Ets
-
-let table =
-    ets.new_ (
-        binaryToAtom "my_table",
-        [ box (binaryToAtom "set") ]
-    )
-let all = ets.tab2list table
-
-// Don't use: all.Length (will fail at runtime)
-// Use instead:
-let count = Erlang.length (box all)
-```
-
-Similarly, use `Erlang.element` and `Erlang.tupleSize`
-for raw Erlang tuples, and `Erlang.byteSize` for binaries.
+F# arrays as ref-wrapped values (via `fable_utils:new_ref`).
+Raw Erlang lists returned from some OTP calls (e.g.,
+`ets:tab2list/1`) are *not* ref-wrapped, so F#
+`Array.length` will not work on them directly. Bindings
+that return F# arrays (e.g., `maps.keys`, `maps.to_list`)
+wrap the result automatically so standard array operations
+work.
 
 **Atoms from strings:** Fable compiles F# strings to
 Erlang binaries (`<<"hello">>`), not charlists. Use
