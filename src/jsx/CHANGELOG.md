@@ -1,11 +1,15 @@
 ---
-last_commit_released: f2f7f958ddef775c1efcd616c15df6a58733e6f5
+last_commit_released: 7ee590e06d36b1b5ad4bc6130392da414611839c
 name: Fable.Beam.Jsx
 ---
 
 # Changelog
 
 All notable changes to this project will be documented in this file.
+
+## 5.0.0-rc.3 - 2026-03-28
+
+<strong><small>[View changes on Github](https://github.com/fable-compiler/Fable.Beam/compare/f2f7f958ddef775c1efcd616c15df6a58733e6f5..7ee590e06d36b1b5ad4bc6130392da414611839c)</small></strong>
 
 ## 5.0.0-rc.2 - 2026-03-28
 

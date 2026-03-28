@@ -1,11 +1,19 @@
 ---
-last_commit_released: f2f7f958ddef775c1efcd616c15df6a58733e6f5
+last_commit_released: 7ee590e06d36b1b5ad4bc6130392da414611839c
 name: Fable.Beam
 ---
 
 # Changelog
 
 All notable changes to this project will be documented in this file.
+
+## 5.0.0-rc.18 - 2026-03-28
+
+### 🚀 Features
+
+* Add set_primary_config and add_primary_filter bindings to Logger (#42) ([7ee590e](https://github.com/fable-compiler/Fable.Beam/commit/7ee590e06d36b1b5ad4bc6130392da414611839c))
+
+<strong><small>[View changes on Github](https://github.com/fable-compiler/Fable.Beam/compare/f2f7f958ddef775c1efcd616c15df6a58733e6f5..7ee590e06d36b1b5ad4bc6130392da414611839c)</small></strong>
 
 ## 5.0.0-rc.17 - 2026-03-28
 
