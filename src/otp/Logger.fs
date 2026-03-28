@@ -3,6 +3,7 @@
 module Fable.Beam.Logger
 
 open Fable.Core
+open Fable.Beam.Erlang
 
 // fsharplint:disable MemberNames
 
@@ -40,6 +41,11 @@ type IExports =
     abstract debug: msg: string -> unit
     /// Log a debug message with metadata or format args.
     abstract debug: msg: string * metadataOrArgs: obj -> unit
+    /// Set the primary logger configuration. Common use: set_primary_config("level", atom)
+    abstract set_primary_config: key: string * value: Atom -> unit
+    /// Add a primary filter. Filters run before handler filters and can stop or modify events.
+    /// The filter is a tuple {FilterFun, Extra} where FilterFun is fun(LogEvent, Extra) -> stop | ignore | LogEvent.
+    abstract add_primary_filter: id: Atom * filter: (System.Func<obj, obj, obj> * obj) -> unit
 
 /// logger module
 [<ImportAll("logger")>]
