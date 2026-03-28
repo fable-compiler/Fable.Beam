@@ -56,21 +56,8 @@ test-dotnet:
     dotnet build {{test_path}}
     dotnet run --project {{test_path}}
 
-# Create NuGet packages
+# Create NuGet packages with versions from changelogs
 pack:
-    dotnet build {{src_path}}
-    dotnet pack {{src_path}} -c Release
-    dotnet pack {{src_path}}/cowboy -c Release
-    dotnet pack {{src_path}}/jsx -c Release
-
-# Create NuGet packages with specific version (used in CI)
-pack-version version:
-    dotnet pack {{src_path}} -c Release -p:PackageVersion={{version}} -p:InformationalVersion={{version}}
-    dotnet pack {{src_path}}/cowboy -c Release -p:PackageVersion={{version}} -p:InformationalVersion={{version}}
-    dotnet pack {{src_path}}/jsx -c Release -p:PackageVersion={{version}} -p:InformationalVersion={{version}}
-
-# Pack all packages with versions from changelogs and push to NuGet (used in CI)
-release:
     #!/usr/bin/env bash
     set -euo pipefail
     get_version() { grep -m1 '^## ' "$1" | sed 's/^## \([^ ]*\).*/\1/'; }
@@ -80,6 +67,9 @@ release:
     dotnet pack src -c Release -o ./nupkgs -p:PackageVersion=$BEAM_VERSION -p:InformationalVersion=$BEAM_VERSION
     dotnet pack src/cowboy -c Release -o ./nupkgs -p:PackageVersion=$COWBOY_VERSION -p:InformationalVersion=$COWBOY_VERSION
     dotnet pack src/jsx -c Release -o ./nupkgs -p:PackageVersion=$JSX_VERSION -p:InformationalVersion=$JSX_VERSION
+
+# Pack and push all packages to NuGet (used in CI)
+release: pack
     dotnet nuget push './nupkgs/*.nupkg' -s https://api.nuget.org/v3/index.json -k $NUGET_KEY
 
 # Format code with Fantomas
