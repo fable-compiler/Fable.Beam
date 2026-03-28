@@ -12,6 +12,7 @@ jobs:
   shipit-pr:
     name: ShipIt - Pull Request
     runs-on: ubuntu-latest
+    if: "!startsWith(github.event.head_commit.message, 'chore: release ')"
     timeout-minutes: 10
     steps:
       - name: Checkout code
