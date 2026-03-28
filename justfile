@@ -69,6 +69,19 @@ pack-version version:
     dotnet pack {{src_path}}/cowboy -c Release -p:PackageVersion={{version}} -p:InformationalVersion={{version}}
     dotnet pack {{src_path}}/jsx -c Release -p:PackageVersion={{version}} -p:InformationalVersion={{version}}
 
+# Pack all packages with versions from changelogs and push to NuGet (used in CI)
+release:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    get_version() { grep -m1 '^## ' "$1" | sed 's/^## \([^ ]*\).*/\1/'; }
+    BEAM_VERSION=$(get_version src/otp/CHANGELOG.md)
+    COWBOY_VERSION=$(get_version src/cowboy/CHANGELOG.md)
+    JSX_VERSION=$(get_version src/jsx/CHANGELOG.md)
+    dotnet pack src -c Release -o ./nupkgs -p:PackageVersion=$BEAM_VERSION -p:InformationalVersion=$BEAM_VERSION
+    dotnet pack src/cowboy -c Release -o ./nupkgs -p:PackageVersion=$COWBOY_VERSION -p:InformationalVersion=$COWBOY_VERSION
+    dotnet pack src/jsx -c Release -o ./nupkgs -p:PackageVersion=$JSX_VERSION -p:InformationalVersion=$JSX_VERSION
+    dotnet nuget push './nupkgs/*.nupkg' -s https://api.nuget.org/v3/index.json -k $NUGET_KEY
+
 # Format code with Fantomas
 format:
     dotnet fantomas {{src_path}} -r
