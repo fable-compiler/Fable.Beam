@@ -1,31 +1,13 @@
 /// Type bindings for Erlang BIFs (Built-in Functions)
 /// See https://www.erlang.org/doc/apps/erts/erlang
+[<RequireQualifiedAccess>]
 module Fable.Beam.Erlang
 
 open Fable.Core
+open Fable.Beam
 
 // Note: For selective receive, use Fable.Core.BeamInterop.Erlang.receive<'T>
 // which is provided by Fable.Core and handled by the compiler.
-
-// ============================================================================
-// Opaque Erlang types
-// ============================================================================
-
-/// Erlang process identifier.
-[<Erase>]
-type Pid = Pid of obj
-
-/// Erlang reference (from make_ref, monitor, etc.).
-[<Erase>]
-type Ref = Ref of obj
-
-/// Erlang atom.
-[<Erase>]
-type Atom = Atom of obj
-
-/// Erlang timer reference (from send_after, etc.).
-[<Erase>]
-type TimerRef = TimerRef of obj
 
 // ============================================================================
 // Process management

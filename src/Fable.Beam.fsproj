@@ -11,6 +11,7 @@
     <Description>Fable bindings for Erlang and BEAM/OTP</Description>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="otp/Types.fs" />
     <Compile Include="otp/Erlang.fs" />
     <Compile Include="otp/GenServer.fs" />
     <Compile Include="otp/Supervisor.fs" />

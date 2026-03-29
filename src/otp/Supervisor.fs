@@ -3,7 +3,7 @@
 module Fable.Beam.Supervisor
 
 open Fable.Core
-open Fable.Beam.Erlang
+open Fable.Beam
 
 // fsharplint:disable MemberNames
 
