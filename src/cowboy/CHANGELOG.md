@@ -1,11 +1,15 @@
 ---
-last_commit_released: 6093d4f95d0060d76792387de9a56cef1110394e
+last_commit_released: 80f7f1906fb52f139c5d7064c105c7ecc8452682
 name: Fable.Beam.Cowboy
 ---
 
 # Changelog
 
 All notable changes to this project will be documented in this file.
+
+## 5.0.0-rc.22 - 2026-03-29
+
+<strong><small>[View changes on Github](https://github.com/fable-compiler/Fable.Beam/compare/6093d4f95d0060d76792387de9a56cef1110394e..80f7f1906fb52f139c5d7064c105c7ecc8452682)</small></strong>
 
 ## 5.0.0-rc.21 - 2026-03-29
 
