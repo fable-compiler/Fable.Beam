@@ -123,6 +123,10 @@ let systemTime (unit: Atom) : int = nativeOnly
 [<Emit("erlang:system_time(second)")>]
 let systemTimeSec () : int = nativeOnly
 
+/// Hash a term to a value in [0, Range). Useful for partitioning or load balancing.
+[<Emit("erlang:phash2($0, $1)")>]
+let phash2 (term: obj) (range: int) : int = nativeOnly
+
 /// Schedule a message to be sent to self after Ms milliseconds.
 [<Emit("erlang:send_after($0, erlang:self(), $1)")>]
 let sendAfter (ms: int) (msg: obj) : TimerRef = nativeOnly
