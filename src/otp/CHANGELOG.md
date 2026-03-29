@@ -1,11 +1,19 @@
 ---
-last_commit_released: 627e3bc0aa59775753dc9d61c6d2f1465c1aa291
+last_commit_released: 6093d4f95d0060d76792387de9a56cef1110394e
 name: Fable.Beam
 ---
 
 # Changelog
 
 All notable changes to this project will be documented in this file.
+
+## 5.0.0-rc.21 - 2026-03-29
+
+### 🚀 Features
+
+* Add Logger handler config, simplify filter, and add phash2 binding (#49) ([6093d4f](https://github.com/fable-compiler/Fable.Beam/commit/6093d4f95d0060d76792387de9a56cef1110394e))
+
+<strong><small>[View changes on Github](https://github.com/fable-compiler/Fable.Beam/compare/627e3bc0aa59775753dc9d61c6d2f1465c1aa291..6093d4f95d0060d76792387de9a56cef1110394e)</small></strong>
 
 ## 5.0.0-rc.20 - 2026-03-28
 
