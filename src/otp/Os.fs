@@ -3,6 +3,7 @@
 module Fable.Beam.Os
 
 open Fable.Core
+open Fable.Beam
 
 // fsharplint:disable MemberNames
 
@@ -48,7 +49,7 @@ let version () : int * int * int = nativeOnly
 
 /// Returns the current OS system time in the given unit (e.g., second, millisecond).
 [<Emit("os:system_time($0)")>]
-let systemTime (unit: Erlang.Atom) : int64 = nativeOnly
+let systemTime (unit: Atom) : int64 = nativeOnly
 
 /// Returns the current OS system time in seconds.
 [<Emit("os:system_time(second)")>]
