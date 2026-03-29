@@ -43,9 +43,10 @@ type IExports =
     abstract debug: msg: string * metadataOrArgs: obj -> unit
     /// Set the primary logger configuration. Common use: set_primary_config(atom "level", atom "debug")
     abstract set_primary_config: key: Atom * value: Atom -> unit
-    /// Add a primary filter. Filters run before handler filters and can stop or modify events.
-    /// The filter is a tuple {FilterFun, Extra} where FilterFun is fun(LogEvent, Extra) -> stop | ignore | LogEvent.
-    abstract add_primary_filter: id: Atom * filter: (System.Func<obj, obj, obj> * obj) -> unit
+    /// Update a handler's configuration. Common use: change formatter template.
+    abstract update_handler_config: handler: Atom * key: Atom * value: obj -> unit
+    /// Add a primary filter. The filter is an opaque {FilterFun, Extra} tuple.
+    abstract add_primary_filter: id: Atom * filter: obj -> unit
 
 /// logger module
 [<ImportAll("logger")>]
