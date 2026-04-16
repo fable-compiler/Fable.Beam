@@ -70,7 +70,7 @@ pack:
 
 # Pack and push all packages to NuGet (used in CI)
 release: pack
-    dotnet nuget push './nupkgs/*.nupkg' -s https://api.nuget.org/v3/index.json -k $NUGET_KEY
+    dotnet nuget push './nupkgs/*.nupkg' -s https://api.nuget.org/v3/index.json -k $NUGET_KEY --skip-duplicate
 
 # Format code with Fantomas
 format:
