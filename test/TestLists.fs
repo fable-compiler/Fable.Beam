@@ -106,7 +106,10 @@ let ``test lists.unzip returns tuple of two lists`` () =
 let ``test lists.partition returns tuple of two lists`` () =
 #if FABLE_COMPILER
     let xs: BeamList<int> = emitErlExpr () "[1, 2, 3, 4, 5]"
-    let (matching, notMatching) = lists.partition (System.Func<_, _>(fun x -> x > 3), xs)
+
+    let (matching, notMatching) =
+        lists.partition (System.Func<_, _>(fun x -> x > 3), xs)
+
     erlLength matching |> equal 2
     erlLength notMatching |> equal 3
 #else
@@ -118,6 +121,15 @@ let ``test lists.sum returns sum`` () =
 #if FABLE_COMPILER
     let xs: BeamList<int> = emitErlExpr () "[1, 2, 3, 4]"
     lists.sum xs |> equal 10
+#else
+    ()
+#endif
+
+[<Fact>]
+let ``test lists.sum returns float sum`` () =
+#if FABLE_COMPILER
+    let xs: BeamList<float> = emitErlExpr () "[1.5, 2.5, 3.0]"
+    lists.sum xs |> equal 7.0
 #else
     ()
 #endif
@@ -243,7 +255,9 @@ let ``test lists.keysort sorts by Nth element`` () =
 [<Fact>]
 let ``test lists.keydelete removes first matching tuple`` () =
 #if FABLE_COMPILER
-    let xs: BeamList<obj> = emitErlExpr () "[{a, 1}, {b, 2}, {a, 3}]"
+    let xs: BeamList<string * int> =
+        emitErlExpr () "[{<<\"a\">>, 1}, {<<\"b\">>, 2}, {<<\"a\">>, 3}]"
+
     let result = lists.keydelete ("a", 1, xs)
     erlLength result |> equal 2
 #else
@@ -253,7 +267,7 @@ let ``test lists.keydelete removes first matching tuple`` () =
 [<Fact>]
 let ``test lists.keymember checks for key`` () =
 #if FABLE_COMPILER
-    let xs: BeamList<obj> = emitErlExpr () "[{a, 1}, {b, 2}]"
+    let xs: BeamList<string * int> = emitErlExpr () "[{<<\"a\">>, 1}, {<<\"b\">>, 2}]"
     lists.keymember ("a", 1, xs) |> equal true
     lists.keymember ("c", 1, xs) |> equal false
 #else
@@ -263,8 +277,10 @@ let ``test lists.keymember checks for key`` () =
 [<Fact>]
 let ``test keyFind returns Some for existing key`` () =
 #if FABLE_COMPILER
-    let xs: BeamList<string * int> = emitErlExpr () "[{a, 1}, {b, 2}, {c, 3}]"
-    keyFind "b" 1 xs |> equal (Some ("b", 2))
+    let xs: BeamList<string * int> =
+        emitErlExpr () "[{<<\"a\">>, 1}, {<<\"b\">>, 2}, {<<\"c\">>, 3}]"
+
+    keyFind "b" 1 xs |> equal (Some("b", 2))
 #else
     ()
 #endif
@@ -272,8 +288,49 @@ let ``test keyFind returns Some for existing key`` () =
 [<Fact>]
 let ``test keyFind returns None for missing key`` () =
 #if FABLE_COMPILER
-    let xs: BeamList<string * int> = emitErlExpr () "[{a, 1}, {b, 2}]"
+    let xs: BeamList<string * int> = emitErlExpr () "[{<<\"a\">>, 1}, {<<\"b\">>, 2}]"
     keyFind "z" 1 xs |> equal None
+#else
+    ()
+#endif
+
+[<Fact>]
+let ``test lists.keyreplace replaces first matching tuple`` () =
+#if FABLE_COMPILER
+    let xs: BeamList<string * int> =
+        emitErlExpr () "[{<<\"a\">>, 1}, {<<\"b\">>, 2}, {<<\"a\">>, 3}]"
+
+    let result = lists.keyreplace ("a", 1, xs, ("a", 99))
+    lists.nth (1, result) |> equal ("a", 99)
+    erlLength result |> equal 3
+#else
+    ()
+#endif
+
+[<Fact>]
+let ``test lists.mapfoldl maps and folds left`` () =
+#if FABLE_COMPILER
+    let xs: BeamList<int> = emitErlExpr () "[1, 2, 3]"
+
+    let (mapped, acc) =
+        lists.mapfoldl (System.Func<_, _, _>(fun x s -> (x * 2, s + x)), 0, xs)
+
+    mapped |> equal (emitErlExpr () "[2, 4, 6]")
+    acc |> equal 6
+#else
+    ()
+#endif
+
+[<Fact>]
+let ``test lists.mapfoldr maps and folds right`` () =
+#if FABLE_COMPILER
+    let xs: BeamList<int> = emitErlExpr () "[1, 2, 3]"
+
+    let (mapped, acc) =
+        lists.mapfoldr (System.Func<_, _, _>(fun x s -> (x * 2, s + x)), 0, xs)
+
+    mapped |> equal (emitErlExpr () "[2, 4, 6]")
+    acc |> equal 6
 #else
     ()
 #endif
