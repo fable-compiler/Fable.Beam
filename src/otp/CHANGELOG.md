@@ -1,11 +1,20 @@
 ---
-last_commit_released: 80f7f1906fb52f139c5d7064c105c7ecc8452682
+last_commit_released: b2afe21b087eaea3cbfbef70b58eaeff908316b2
 name: Fable.Beam
 ---
 
 # Changelog
 
 All notable changes to this project will be documented in this file.
+
+## 5.0.0-rc.23 - 2026-04-16
+
+### 🚀 Features
+
+* [Repo Assist] add binary module bindings (#60) ([968563f](https://github.com/fable-compiler/Fable.Beam/commit/968563fa3dba461021181cb2a75504db0bf3999b))
+* [Repo Assist] expand lists module with key-based ops and utility functions (#61) ([00d0090](https://github.com/fable-compiler/Fable.Beam/commit/00d009041f76f9153d47a8f6bc981f1a3571e2cf))
+
+<strong><small>[View changes on Github](https://github.com/fable-compiler/Fable.Beam/compare/80f7f1906fb52f139c5d7064c105c7ecc8452682..b2afe21b087eaea3cbfbef70b58eaeff908316b2)</small></strong>
 
 ## 5.0.0-rc.22 - 2026-03-29
 
