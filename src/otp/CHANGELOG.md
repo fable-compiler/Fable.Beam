@@ -1,11 +1,15 @@
 ---
-last_commit_released: 80f7f1906fb52f139c5d7064c105c7ecc8452682
+last_commit_released: 4b2bf42d4096a34c9d8bf2cb1c4f803f93c5b785
 name: Fable.Beam
 ---
 
 # Changelog
 
 All notable changes to this project will be documented in this file.
+
+## 5.0.0-rc.23 - 2026-04-16
+
+<strong><small>[View changes on Github](https://github.com/fable-compiler/Fable.Beam/compare/80f7f1906fb52f139c5d7064c105c7ecc8452682..4b2bf42d4096a34c9d8bf2cb1c4f803f93c5b785)</small></strong>
 
 ## 5.0.0-rc.22 - 2026-03-29
 
