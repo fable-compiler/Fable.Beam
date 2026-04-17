@@ -1,11 +1,20 @@
 ---
-last_commit_released: b2afe21b087eaea3cbfbef70b58eaeff908316b2
+last_commit_released: fed1ee24a0b0ce0453c28871c6dd9e7d612e597c
 name: Fable.Beam
 ---
 
 # Changelog
 
 All notable changes to this project will be documented in this file.
+
+## 5.0.0-rc.24 - 2026-04-17
+
+### 🚀 Features
+
+* Add math module bindings and tests (#68) ([b04bddb](https://github.com/fable-compiler/Fable.Beam/commit/b04bddb9231dc4e51eb73a1d15bc0a362e15e1dd))
+* Add proplists module bindings and tests (#66) ([fed1ee2](https://github.com/fable-compiler/Fable.Beam/commit/fed1ee24a0b0ce0453c28871c6dd9e7d612e597c))
+
+<strong><small>[View changes on Github](https://github.com/fable-compiler/Fable.Beam/compare/b2afe21b087eaea3cbfbef70b58eaeff908316b2..fed1ee24a0b0ce0453c28871c6dd9e7d612e597c)</small></strong>
 
 ## 5.0.0-rc.23 - 2026-04-16
 
