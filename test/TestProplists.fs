@@ -27,7 +27,8 @@ let ``test proplists.get_value returns None when key missing`` () =
 #if FABLE_COMPILER
     let pl: BeamList<obj> = emitErlExpr () "[{name, <<\"alice\">>}]"
     let key = Erlang.binaryToAtom "missing"
-    proplists.get_value<obj, obj> (key, pl) |> equal None
+    let result: string option = proplists.get_value (key, pl)
+    result |> equal None
 #else
     ()
 #endif
@@ -90,6 +91,62 @@ let ``test proplists.to_map converts proplist to map`` () =
     let bKey = Erlang.binaryToAtom "b"
     maps.get (aKey, m) |> equal 1
     maps.get (bKey, m) |> equal 2
+#else
+    ()
+#endif
+
+[<Fact>]
+let ``test proplists.unfold expands bare atoms to {Atom, true}`` () =
+#if FABLE_COMPILER
+    // [ssl, {port, 443}] -> [{ssl, true}, {port, 443}]
+    let pl: BeamList<obj> = emitErlExpr () "[ssl, {port, 443}]"
+    let result = proplists.unfold pl
+    let expected: BeamList<obj> = emitErlExpr () "[{ssl, true}, {port, 443}]"
+    result |> equal expected
+#else
+    ()
+#endif
+
+[<Fact>]
+let ``test proplists.compact collapses {Atom, true} to bare atoms`` () =
+#if FABLE_COMPILER
+    // [{ssl, true}, {port, 443}] -> [ssl, {port, 443}]
+    let pl: BeamList<obj> = emitErlExpr () "[{ssl, true}, {port, 443}]"
+    let result = proplists.compact pl
+    let expected: BeamList<obj> = emitErlExpr () "[ssl, {port, 443}]"
+    result |> equal expected
+#else
+    ()
+#endif
+
+[<Fact>]
+let ``test proplists.get_keys returns deduplicated keys`` () =
+#if FABLE_COMPILER
+    // [{a, 1}, {b, 2}, {a, 3}] -> [a, b] (unordered, no duplicates)
+    let pl: BeamList<obj> = emitErlExpr () "[{a, 1}, {b, 2}, {a, 3}]"
+    let ks: Atom array = proplists.get_keys pl
+    ks |> Array.length |> equal 2
+    let aKey = Erlang.binaryToAtom "a"
+    let bKey = Erlang.binaryToAtom "b"
+    ks |> Array.contains aKey |> equal true
+    ks |> Array.contains bKey |> equal true
+#else
+    ()
+#endif
+
+[<Fact>]
+let ``test proplists.from_map converts map to proplist`` () =
+#if FABLE_COMPILER
+    let m: BeamMap<Atom, int> = maps.new_ ()
+    let aKey = Erlang.binaryToAtom "a"
+    let bKey = Erlang.binaryToAtom "b"
+    let m = maps.put (aKey, 1, m)
+    let m = maps.put (bKey, 2, m)
+    let pl: BeamList<obj> = proplists.from_map m
+    proplists.is_defined (aKey, pl) |> equal true
+    proplists.is_defined (bKey, pl) |> equal true
+    let aVal: int option = proplists.get_value (aKey, pl)
+    aVal |> equal (Some 1)
 #else
     ()
 #endif
