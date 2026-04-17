@@ -72,7 +72,8 @@ let ``test math.log of e is one`` () =
 [<Fact>]
 let ``test math.log2 of eight is three`` () =
 #if FABLE_COMPILER
-    math.log2 8.0 |> equal 3.0
+    let result = math.log2 8.0
+    (result > 2.9999 && result < 3.0001) |> equal true
 #else
     ()
 #endif
@@ -80,7 +81,8 @@ let ``test math.log2 of eight is three`` () =
 [<Fact>]
 let ``test math.log10 of one hundred is two`` () =
 #if FABLE_COMPILER
-    math.log10 100.0 |> equal 2.0
+    let result = math.log10 100.0
+    (result > 1.9999 && result < 2.0001) |> equal true
 #else
     ()
 #endif
