@@ -26,6 +26,7 @@
     <Compile Include="TestBinary.fs" />
     <Compile Include="TestMath.fs" />
     <Compile Include="TestProplists.fs" />
+    <Compile Include="TestString.fs" />
     <Compile Include="TestOs.fs" />
     <Compile Include="TestFile.fs" />
     <Compile Include="TestLogger.fs" />
