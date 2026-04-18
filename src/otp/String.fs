@@ -35,8 +35,11 @@ type IExports =
     /// Reverses grapheme clusters in String (Unicode-aware, unlike binary:reverse).
     abstract reverse: s: string -> string
 
-    /// Concatenates two strings. Equivalent to S1 ++ S2 in Erlang.
-    abstract concat: s1: string * s2: string -> string
+    // NOTE: `string:concat/2` is bound to Erlang's `++` operator, which expects
+    // charlists — it raises `badarg` when called with binaries. Since F# strings
+    // compile to binaries on BEAM, this binding cannot be used. Concatenate
+    // F# strings directly (e.g., `s1 + s2`) instead.
+    // abstract concat: s1: string * s2: string -> string
 
     /// Returns a string slice from grapheme position Start to end of String.
     abstract slice: s: string * start: int -> string
@@ -51,9 +54,11 @@ type IExports =
     /// Dir must be the atom leading, trailing, or both (use erlang.binaryToAtom).
     abstract trim: s: string * dir: Atom -> string
 
-    /// Strips Characters from the direction Dir of String.
-    /// Dir must be the atom leading, trailing, or both. Characters is a string of chars to strip.
-    abstract trim: s: string * dir: Atom * characters: string -> string
+    // NOTE: `string:trim/3` requires `Characters` to be a list of grapheme
+    // clusters (`[char() | [char()]]`), not a binary. Passing an F# string
+    // directly raises `function_clause`. A typed Emit helper that converts
+    // the chars via `binary_to_list` would be needed — left unbound for now.
+    // abstract trim: s: string * dir: Atom * characters: string -> string
 
     /// Pads String on the trailing side to at least Length grapheme clusters.
     abstract pad: s: string * length: int -> string
@@ -72,9 +77,9 @@ type IExports =
     /// normalised to NFC before comparing (Unicode case-insensitive).
     abstract equal: s1: string * s2: string * ignoreCase: bool -> bool
 
-/// string module
+/// string module (named `str` to avoid shadowing F#'s built-in `string` conversion function)
 [<ImportAll("string")>]
-let string: IExports = nativeOnly
+let str: IExports = nativeOnly
 
 // ============================================================================
 // Typed API — functions with non-trivial Erlang return values
