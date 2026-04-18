@@ -26,6 +26,7 @@
     <Compile Include="otp/Binary.fs" />
     <Compile Include="otp/Math.fs" />
     <Compile Include="otp/Proplists.fs" />
+    <Compile Include="otp/String.fs" />
     <Compile Include="otp/Os.fs" />
     <Compile Include="otp/File.fs" />
     <Compile Include="otp/Httpc.fs" />
