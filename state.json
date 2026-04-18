@@ -1,30 +1,24 @@
 {
-  "last_run": "2026-04-17T03:48:00Z",
-  "last_run_id": "24546605957",
+  "last_run": "2026-04-18T03:32:43Z",
+  "last_run_id": "24595953899",
   "monthly_summary_issue": "open #62 (April 2026)",
   "comments_made": [],
   "prs_created": [
     {
-      "branch": "repo-assist/bindings-proplists-ff234be9f31f4bba",
-      "pr_number": 66,
-      "title": "feat: add proplists module bindings and tests",
-      "status": "open",
-      "description": "Added Fable.Beam.Proplists with 10 bindings (get_value, is_defined, delete, keys, to_map, etc.) and 7 tests"
+      "branch": "repo-assist/bindings-string-2026-04",
+      "title": "feat: add string module bindings and tests",
+      "status": "patch-only",
+      "description": "Added Fable.Beam.String with 28 bindings (is_empty, length, lowercase, uppercase, titlecase, casefold, reverse, concat, slice, trim, pad, equal, find, findFrom, prefix, splitFirst, splitAll, replaceFirst, replaceAll, toInteger, toFloat, toGraphemes) and 22 tests. Also updated README module table. Push rejected. Patch in run 24595953899.",
+      "pr_number": null
     },
     {
       "branch": "repo-assist/eng-ci-caching-2026-04",
       "title": "chore: add NuGet and rebar3 dependency caching to CI",
       "status": "patch-only",
       "description": "Push rejected (workflows permission). Patch in issue #67 for manual application."
-    },
-    {
-      "branch": "repo-assist/bindings-math-2026-04",
-      "title": "feat: add math module bindings and tests",
-      "status": "patch-only",
-      "description": "Added Fable.Beam.Math with 23 bindings (sin, cos, tan, sqrt, pow, exp, log, log2, log10, pi, ceil, floor, fmod, atan2, etc.) and 12 tests. Push rejected. Patch in run 24546605957."
     }
   ],
   "backlog_cursor": null,
-  "notes": "No open issues. Task 1 (labelling) had nothing to do (0 unlabelled). Task 3 (fix) had no bug issues; substituted with math bindings (future_bindings_ideas item). CI caching PR still needs manual application by maintainer (#67). Proplists PR #66 still open for review.",
-  "future_bindings_ideas": ["String.fs"]
+  "notes": "No open issues besides #67 (CI caching info) and #62 (monthly summary). All PRs merged. String bindings PR push rejected (patch in run 24595953899). CI caching patch still needs manual application (#67). README updated to include Binary, String, Math, Proplists modules.",
+  "future_bindings_ideas": []
 }
