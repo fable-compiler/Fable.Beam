@@ -102,6 +102,19 @@ let ``test tail removes front element`` () =
 #endif
 
 [<Fact>]
+let ``test init removes rear element`` () =
+#if FABLE_COMPILER
+    let q = queue.``new`` ()
+    let q1 = queue.``in`` (1, q)
+    let q2 = queue.``in`` (2, q1)
+    let q3 = queue.init q2
+    queue.len q3 |> equal 1
+    queue.last q3 |> equal 1
+#else
+    ()
+#endif
+
+[<Fact>]
 let ``test to_list returns elements front first`` () =
 #if FABLE_COMPILER
     let q = queue.``new`` ()
@@ -206,6 +219,16 @@ let ``test outRear removes rear element`` () =
 #endif
 
 [<Fact>]
+let ``test outRear returns None for empty queue`` () =
+#if FABLE_COMPILER
+    let q = queue.``new`` ()
+    let (item, _) = outRear q
+    item |> equal None
+#else
+    ()
+#endif
+
+[<Fact>]
 let ``test peek returns front element without removing`` () =
 #if FABLE_COMPILER
     let q = queue.from_list [ 10; 20 ]
@@ -241,6 +264,17 @@ let ``test split divides queue at position`` () =
     let (q1, q2) = split 3 q
     queue.to_list q1 |> equal [ 1; 2; 3 ]
     queue.to_list q2 |> equal [ 4; 5 ]
+#else
+    ()
+#endif
+
+[<Fact>]
+let ``test split at zero yields empty front`` () =
+#if FABLE_COMPILER
+    let q = queue.from_list [ 1; 2; 3 ]
+    let (q1, q2) = split 0 q
+    queue.is_empty q1 |> equal true
+    queue.to_list q2 |> equal [ 1; 2; 3 ]
 #else
     ()
 #endif

@@ -28,7 +28,6 @@ from F#.
 | `Fable.Beam.Ets` | `ets` | Erlang Term Storage |
 | `Fable.Beam.Maps` | `maps` | Erlang map operations |
 | `Fable.Beam.Lists` | `lists` | Erlang list operations |
-| `Fable.Beam.Maps` | `maps` | Erlang map operations |
 | `Fable.Beam.Binary` | `binary` | Binary data operations |
 | `Fable.Beam.Math` | `math` | Mathematical functions |
 | `Fable.Beam.Proplists` | `proplists` | Property list operations |
