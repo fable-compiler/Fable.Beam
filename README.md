@@ -28,6 +28,11 @@ from F#.
 | `Fable.Beam.Ets` | `ets` | Erlang Term Storage |
 | `Fable.Beam.Maps` | `maps` | Erlang map operations |
 | `Fable.Beam.Lists` | `lists` | Erlang list operations |
+| `Fable.Beam.Binary` | `binary` | Binary data operations |
+| `Fable.Beam.Math` | `math` | Mathematical functions |
+| `Fable.Beam.Proplists` | `proplists` | Property list operations |
+| `Fable.Beam.Queue` | `queue` | Functional FIFO queue |
+| `Fable.Beam.String` | `string` | Unicode string operations |
 | `Fable.Beam.Io` | `io` | I/O functions |
 | `Fable.Beam.Logger` | `logger` | OTP logger |
 | `Fable.Beam.File` | `file` | File system operations |
