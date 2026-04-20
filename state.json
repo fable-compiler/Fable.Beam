@@ -1,21 +1,14 @@
 {
-  "last_run": "2026-04-19T03:52:59Z",
-  "last_run_id": "24620382255",
+  "last_run": "2026-04-20T03:59:00Z",
+  "last_run_id": "24647598905",
   "monthly_summary_issue": "open #62 (April 2026)",
   "comments_made": [],
   "prs_created": [
     {
-      "branch": "repo-assist/bindings-queue-2026-04",
-      "title": "feat: add queue module bindings and tests",
+      "branch": "repo-assist/bindings-base64-rand-2026-04",
+      "title": "feat: add base64 and rand module bindings and tests",
       "status": "patch-only",
-      "description": "Added Fable.Beam.Queue with 14 ImportAll bindings (new, is_empty, is_queue, len, in, in_r, head, last, tail, init, to_list, from_list, member, reverse, join, filter) and 5 Emit wrappers (out, outRear, peek, peekRear, split), plus 26 tests. Also backfilled README. Patch in run 24620382255.",
-      "pr_number": null
-    },
-    {
-      "branch": "repo-assist/bindings-string-2026-04",
-      "title": "feat: add string module bindings and tests",
-      "status": "patch-only",
-      "description": "Added Fable.Beam.String with 28 bindings and 22 tests. Patch in run 24595953899.",
+      "description": "Added Fable.Beam.Base64 (encode, decode, mime_decode via ImportAll + tryDecode, tryMimeDecode Emit wrappers, 11 tests) and Fable.Beam.Rand (uniform, uniform(n), uniform_real, bytes, normal(), normal(mean,var) via ImportAll, 8 tests). Patch in run 24647598905.",
       "pr_number": null
     },
     {
@@ -26,6 +19,6 @@
     }
   ],
   "backlog_cursor": null,
-  "notes": "Open issues: #67 (CI caching info), #62 (monthly summary). No user-filed issues. String bindings patch applied manually by maintainer (PR #71 merged, release PR #72 open). Queue bindings patch in run 24620382255. CI caching patch still needs manual application (#67). README updated with all recent modules.",
-  "future_bindings_ideas": ["uri_string", "base64", "calendar", "re", "rand"]
+  "notes": "Open issues: #67 (CI caching info), #62 (monthly summary). No user-filed issues. String bindings merged as PR #71. Queue bindings merged as PR #73. Release PR #72 open (5.0.0-rc.25). CI caching patch still needs manual application (#67). Base64+rand bindings patch in run 24647598905.",
+  "future_bindings_ideas": ["uri_string", "calendar", "re"]
 }
