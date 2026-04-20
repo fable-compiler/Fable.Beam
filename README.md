@@ -32,6 +32,8 @@ from F#.
 | `Fable.Beam.Math` | `math` | Mathematical functions |
 | `Fable.Beam.Proplists` | `proplists` | Property list operations |
 | `Fable.Beam.Queue` | `queue` | Functional FIFO queue |
+| `Fable.Beam.Base64` | `base64` | Base64 encoding and decoding |
+| `Fable.Beam.Rand` | `rand` | Pseudo-random number generation |
 | `Fable.Beam.String` | `string` | Unicode string operations |
 | `Fable.Beam.Io` | `io` | I/O functions |
 | `Fable.Beam.Logger` | `logger` | OTP logger |
@@ -177,7 +179,8 @@ src/
     Erlang.fs, GenServer.fs, Supervisor.fs, Timer.fs,
     Ets.fs, Maps.fs, Lists.fs, Io.fs, Logger.fs,
     File.fs, Os.fs, Httpc.fs, Application.fs, Init.fs,
-    Testing.fs
+    Binary.fs, Math.fs, Proplists.fs, String.fs, Queue.fs,
+    Base64.fs, Rand.fs, Testing.fs
   cowboy/          # Fable.Beam.Cowboy — HTTP server bindings
     Cowboy.fs, CowboyReq.fs, CowboyRouter.fs,
     CowboyHandler.fs, CowboyWebsocket.fs

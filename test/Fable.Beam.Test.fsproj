@@ -28,6 +28,8 @@
     <Compile Include="TestProplists.fs" />
     <Compile Include="TestString.fs" />
     <Compile Include="TestQueue.fs" />
+    <Compile Include="TestBase64.fs" />
+    <Compile Include="TestRand.fs" />
     <Compile Include="TestOs.fs" />
     <Compile Include="TestFile.fs" />
     <Compile Include="TestLogger.fs" />
