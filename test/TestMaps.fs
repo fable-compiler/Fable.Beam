@@ -102,3 +102,21 @@ let ``test maps.to_list and from_list`` () =
 #else
     ()
 #endif
+
+[<Fact>]
+let ``test tryFind returns Some for existing key`` () =
+#if FABLE_COMPILER
+    let m: BeamMap<string, int> = maps.put ("x", 99, maps.new_ ())
+    tryFind "x" m |> equal (Some 99)
+#else
+    ()
+#endif
+
+[<Fact>]
+let ``test tryFind returns None for missing key`` () =
+#if FABLE_COMPILER
+    let m: BeamMap<string, int> = maps.new_ ()
+    tryFind "missing" m |> equal None
+#else
+    ()
+#endif

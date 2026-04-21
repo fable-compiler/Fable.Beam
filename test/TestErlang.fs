@@ -85,6 +85,7 @@ let ``test send and receive`` () =
 #if FABLE_COMPILER
     let pid = Erlang.self ()
     emitErlExpr () "erlang:self() ! {ping}"
+
     match Erlang.receive<RecvMsg> 1000 with
     | Some Ping -> equal 1 1
     | _ -> equal 0 1
@@ -106,6 +107,7 @@ let ``test receive with timeout returns None`` () =
 let ``test receive with data`` () =
 #if FABLE_COMPILER
     emitErlExpr () "erlang:self() ! {data, 42}"
+
     match Erlang.receive<RecvMsg> 1000 with
     | Some(Data v) -> equal 42 v
     | _ -> equal 0 1
@@ -117,6 +119,7 @@ let ``test receive with data`` () =
 let ``test sendAfter and cancelTimer`` () =
 #if FABLE_COMPILER
     let timerRef = Erlang.sendAfter 60000 (box "should_not_arrive")
+
     match Erlang.cancelTimer timerRef with
     | Some remaining -> (remaining > 0) |> equal true
     | None -> equal "Some" "None"
@@ -151,6 +154,7 @@ let ``test register and whereis`` () =
     let name = Erlang.binaryToAtom "fable_beam_test_proc"
     let pid = Erlang.self ()
     Erlang.register name pid
+
     match Erlang.whereis name with
     | Some found -> Erlang.exactEquals pid found |> equal true
     | None -> equal "Some" "None"
@@ -259,6 +263,7 @@ let ``test cancelTimer returns None for invalid ref`` () =
     // Note: makeRef() does not create a timer ref, but we can test
     // that sendAfter + cancel works and returns Some
     let timerRef = Erlang.sendAfter 60000 (box "test")
+
     match Erlang.cancelTimer timerRef with
     | Some ms -> (ms >= 0) |> equal true
     | None -> equal "Some" "None"
@@ -273,6 +278,7 @@ let ``test sendAfterTo sends to specific pid`` () =
 #if FABLE_COMPILER
     let pid = Erlang.self ()
     let timerRef = Erlang.sendAfterTo 60000 pid (box "msg")
+
     match Erlang.cancelTimer timerRef with
     | Some _ -> equal true true
     | None -> equal "Some" "None"

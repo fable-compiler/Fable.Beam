@@ -58,7 +58,7 @@ let ``test rand.normal returns a float`` () =
 #if FABLE_COMPILER
     let v = rand.normal ()
     // Normal distribution — just check it's a finite float
-    (v = v) |> equal true  // NaN check: NaN <> NaN
+    (v = v) |> equal true // NaN check: NaN <> NaN
 #else
     ()
 #endif

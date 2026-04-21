@@ -25,7 +25,7 @@ let ``test putChars does not crash`` () =
 [<Fact>]
 let ``test format does not crash`` () =
 #if FABLE_COMPILER
-    format "hello ~s~n" [box "beam"]
+    format "hello ~s~n" [ box "beam" ]
 #else
     ()
 #endif
