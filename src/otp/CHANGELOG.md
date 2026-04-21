@@ -1,11 +1,21 @@
 ---
-last_commit_released: fed1ee24a0b0ce0453c28871c6dd9e7d612e597c
+last_commit_released: aa357492c6da4e43fc87f516987581f337071d11
 name: Fable.Beam
 ---
 
 # Changelog
 
 All notable changes to this project will be documented in this file.
+
+## 5.0.0-rc.25 - 2026-04-21
+
+### 🚀 Features
+
+* Add string module bindings and tests (#71) ([40a3c7e](https://github.com/fable-compiler/Fable.Beam/commit/40a3c7e780a48d031f244de5e5b28cf5470eef98))
+* Add queue module bindings and tests (#73) ([88c45e2](https://github.com/fable-compiler/Fable.Beam/commit/88c45e224e04b116f70309a4e14bdca370bfe7e2))
+* Add base64 and rand module bindings and tests (#74) ([581fc02](https://github.com/fable-compiler/Fable.Beam/commit/581fc021d1c8abe9e0a54913588b330c9bcf6b03))
+
+<strong><small>[View changes on Github](https://github.com/fable-compiler/Fable.Beam/compare/fed1ee24a0b0ce0453c28871c6dd9e7d612e597c..aa357492c6da4e43fc87f516987581f337071d11)</small></strong>
 
 ## 5.0.0-rc.24 - 2026-04-17
 
