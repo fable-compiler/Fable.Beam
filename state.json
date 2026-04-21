@@ -1,15 +1,27 @@
 {
-  "last_run": "2026-04-20T03:59:00Z",
-  "last_run_id": "24647598905",
+  "last_run": "2026-04-21T03:48:00Z",
+  "last_run_id": "24702949366",
   "monthly_summary_issue": "open #62 (April 2026)",
   "comments_made": [],
   "prs_created": [
     {
+      "branch": "repo-assist/improve-formatting-maps-tryfind",
+      "title": "style: apply Fantomas formatting and add maps.tryFind",
+      "status": "patch-only",
+      "description": "Fixed Fantomas formatting across 14 files (src/otp/Maps,Timer,Ets,Httpc and 10 test files). Added Maps.tryFind type-safe Option wrapper + 2 tests. Fixed doc comments (list->array). Patch in run 24702949366."
+    },
+    {
+      "branch": "repo-assist/eng-deps-test-sdk-2026-04",
+      "title": "chore: update Microsoft.NET.Test.Sdk from 16.11 to 17.14.1",
+      "status": "patch-only",
+      "description": "Bumped paket.dependencies ~> 16 to ~> 17, paket.lock regenerated. dotnet build test passes. Patch in run 24702949366."
+    },
+    {
       "branch": "repo-assist/bindings-base64-rand-2026-04",
       "title": "feat: add base64 and rand module bindings and tests",
       "status": "patch-only",
-      "description": "Added Fable.Beam.Base64 (encode, decode, mime_decode via ImportAll + tryDecode, tryMimeDecode Emit wrappers, 11 tests) and Fable.Beam.Rand (uniform, uniform(n), uniform_real, bytes, normal(), normal(mean,var) via ImportAll, 8 tests). Patch in run 24647598905.",
-      "pr_number": null
+      "description": "Added Fable.Beam.Base64 (encode, decode, mime_decode via ImportAll + tryDecode, tryMimeDecode Emit wrappers, 11 tests) and Fable.Beam.Rand (uniform, uniform(n), uniform_real, bytes, normal(), normal(mean,var) via ImportAll, 8 tests). Merged as PR #74. Patch in run 24647598905.",
+      "pr_number": 74
     },
     {
       "branch": "repo-assist/eng-ci-caching-2026-04",
@@ -19,6 +31,6 @@
     }
   ],
   "backlog_cursor": null,
-  "notes": "Open issues: #67 (CI caching info), #62 (monthly summary). No user-filed issues. String bindings merged as PR #71. Queue bindings merged as PR #73. Release PR #72 open (5.0.0-rc.25). CI caching patch still needs manual application (#67). Base64+rand bindings patch in run 24647598905.",
+  "notes": "Open issues: #67 (CI caching info), #62 (monthly summary). No user-filed issues. String bindings merged as PR #71. Queue bindings merged as PR #73. Base64+rand bindings merged as PR #74. Release PR #72 open (5.0.0-rc.25). Formatting patch + maps.tryFind patch in run 24702949366. Test SDK bump patch in run 24702949366. After formatting patch applied, re-enable #- name: Check formatting in build-and-test.yml.",
   "future_bindings_ideas": ["uri_string", "calendar", "re"]
 }
