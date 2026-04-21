@@ -6,6 +6,7 @@ open Fable.Beam.Testing
 open Fable.Beam.Maps
 #endif
 
+
 [<Fact>]
 let ``test maps.new_ creates empty map`` () =
 #if FABLE_COMPILER
@@ -99,6 +100,24 @@ let ``test maps.to_list and from_list`` () =
     Array.length lst |> equal 1
     let m2 = maps.from_list lst
     maps.size m2 |> equal 1
+#else
+    ()
+#endif
+
+[<Fact>]
+let ``test tryFind returns Some for existing key`` () =
+#if FABLE_COMPILER
+    let m: BeamMap<string, int> = maps.put ("x", 99, maps.new_ ())
+    tryFind "x" m |> equal (Some 99)
+#else
+    ()
+#endif
+
+[<Fact>]
+let ``test tryFind returns None for missing key`` () =
+#if FABLE_COMPILER
+    let m: BeamMap<string, int> = maps.new_ ()
+    tryFind "missing" m |> equal None
 #else
     ()
 #endif

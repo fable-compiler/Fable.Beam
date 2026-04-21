@@ -14,8 +14,8 @@ let ``test gen_server.stop on non-existent catches error`` () =
 #if FABLE_COMPILER
     try
         gen_server.stop (ServerRef "nonexistent_process_xyz")
-    with
-    | _ -> ()
+    with _ ->
+        ()
 #else
     ()
 #endif
@@ -23,7 +23,9 @@ let ``test gen_server.stop on non-existent catches error`` () =
 [<Fact>]
 let ``test gen_server.start_link returns ok with pid`` () =
 #if FABLE_COMPILER
-    let result = gen_server.start_link (Erlang.binaryToAtom "test_counter_server", box 0, [])
+    let result =
+        gen_server.start_link (Erlang.binaryToAtom "test_counter_server", box 0, [])
+
     match result with
     | Ok pid -> Erlang.isProcessAlive pid |> equal true
     | Error _ -> failwith "start_link should succeed"
@@ -35,6 +37,7 @@ let ``test gen_server.start_link returns ok with pid`` () =
 let ``test gen_server.start returns ok with pid`` () =
 #if FABLE_COMPILER
     let result = gen_server.start (Erlang.binaryToAtom "test_counter_server", box 0, [])
+
     match result with
     | Ok pid ->
         Erlang.isProcessAlive pid |> equal true
@@ -47,7 +50,9 @@ let ``test gen_server.start returns ok with pid`` () =
 [<Fact>]
 let ``test gen_server.call gets state`` () =
 #if FABLE_COMPILER
-    let result = gen_server.start (Erlang.binaryToAtom "test_counter_server", box 42, [])
+    let result =
+        gen_server.start (Erlang.binaryToAtom "test_counter_server", box 42, [])
+
     match result with
     | Ok pid ->
         let value = gen_server.call (ServerRef pid, box (Erlang.binaryToAtom "get"))
@@ -62,6 +67,7 @@ let ``test gen_server.call gets state`` () =
 let ``test gen_server.call increment`` () =
 #if FABLE_COMPILER
     let result = gen_server.start (Erlang.binaryToAtom "test_counter_server", box 0, [])
+
     match result with
     | Ok pid ->
         let ref = ServerRef pid
@@ -78,7 +84,9 @@ let ``test gen_server.call increment`` () =
 [<Fact>]
 let ``test gen_server.call with timeout`` () =
 #if FABLE_COMPILER
-    let result = gen_server.start (Erlang.binaryToAtom "test_counter_server", box 10, [])
+    let result =
+        gen_server.start (Erlang.binaryToAtom "test_counter_server", box 10, [])
+
     match result with
     | Ok pid ->
         let ref = ServerRef pid
@@ -94,6 +102,7 @@ let ``test gen_server.call with timeout`` () =
 let ``test gen_server.cast updates state`` () =
 #if FABLE_COMPILER
     let result = gen_server.start (Erlang.binaryToAtom "test_counter_server", box 0, [])
+
     match result with
     | Ok pid ->
         let ref = ServerRef pid
@@ -113,6 +122,7 @@ let ``test gen_server.cast updates state`` () =
 let ``test gen_server.stop with reason and timeout`` () =
 #if FABLE_COMPILER
     let result = gen_server.start (Erlang.binaryToAtom "test_counter_server", box 0, [])
+
     match result with
     | Ok pid ->
         let ref = ServerRef pid

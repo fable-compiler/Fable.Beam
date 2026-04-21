@@ -243,7 +243,7 @@ let ``test replaceAll replaces all occurrences`` () =
 let ``test toInteger parses valid integer`` () =
 #if FABLE_COMPILER
     match toInteger "42abc" with
-    | Ok (n, rest) ->
+    | Ok(n, rest) ->
         n |> equal 42
         rest |> equal "abc"
     | Error _ -> equal true false
@@ -265,8 +265,7 @@ let ``test toInteger returns error for non-integer`` () =
 let ``test toFloat parses valid float`` () =
 #if FABLE_COMPILER
     match toFloat "3.14rest" with
-    | Ok (f, _) ->
-        (f > 3.13 && f < 3.15) |> equal true
+    | Ok(f, _) -> (f > 3.13 && f < 3.15) |> equal true
     | Error _ -> equal true false
 #else
     ()

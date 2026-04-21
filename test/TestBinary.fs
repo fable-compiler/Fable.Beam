@@ -64,7 +64,7 @@ let ``test binary.part extracts subbinary`` () =
 [<Fact>]
 let ``test matchFirst returns Some on match`` () =
 #if FABLE_COMPILER
-    matchFirst "hello" "ll" |> equal (Some (2, 2))
+    matchFirst "hello" "ll" |> equal (Some(2, 2))
 #else
     ()
 #endif
@@ -128,7 +128,7 @@ let ``test replaceAll replaces all occurrences`` () =
 [<Fact>]
 let ``test binary.longest_common_prefix`` () =
 #if FABLE_COMPILER
-    binary.longest_common_prefix (["foobar"; "foobaz"; "fooqux"]) |> equal 4
+    binary.longest_common_prefix ([ "foobar"; "foobaz"; "fooqux" ]) |> equal 4
 #else
     ()
 #endif

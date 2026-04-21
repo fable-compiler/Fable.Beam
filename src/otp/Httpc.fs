@@ -25,9 +25,7 @@ let startSsl () : Result<unit, string> = nativeOnly
 // fsharplint:disable MemberNames
 
 /// HTTP response with typed fields.
-type HttpResponse =
-    { StatusCode: int
-      Body: string }
+type HttpResponse = { StatusCode: int; Body: string }
 
 // ============================================================================
 // SSL configuration
@@ -90,7 +88,14 @@ let get (url: string) (headers: (string * string) list) (ssl: SslOptions) : Resu
     end
 end)()
 """)>]
-let post (url: string) (headers: (string * string) list) (contentType: string) (body: string) (ssl: SslOptions) : Result<HttpResponse, string> = nativeOnly
+let post
+    (url: string)
+    (headers: (string * string) list)
+    (contentType: string)
+    (body: string)
+    (ssl: SslOptions)
+    : Result<HttpResponse, string> =
+    nativeOnly
 
 /// Performs an HTTP PUT request with a content type and body.
 [<Emit("""
@@ -107,7 +112,14 @@ let post (url: string) (headers: (string * string) list) (contentType: string) (
     end
 end)()
 """)>]
-let put (url: string) (headers: (string * string) list) (contentType: string) (body: string) (ssl: SslOptions) : Result<HttpResponse, string> = nativeOnly
+let put
+    (url: string)
+    (headers: (string * string) list)
+    (contentType: string)
+    (body: string)
+    (ssl: SslOptions)
+    : Result<HttpResponse, string> =
+    nativeOnly
 
 /// Performs an HTTP DELETE request.
 [<Emit("""
@@ -145,7 +157,13 @@ let delete (url: string) (headers: (string * string) list) (ssl: SslOptions) : R
     end
 end)()
 """)>]
-let getWithTimeout (url: string) (headers: (string * string) list) (timeoutMs: int) (ssl: SslOptions) : Result<HttpResponse, string> = nativeOnly
+let getWithTimeout
+    (url: string)
+    (headers: (string * string) list)
+    (timeoutMs: int)
+    (ssl: SslOptions)
+    : Result<HttpResponse, string> =
+    nativeOnly
 
 /// Performs an HTTP POST request with a timeout in milliseconds.
 [<Emit("""
@@ -163,7 +181,15 @@ let getWithTimeout (url: string) (headers: (string * string) list) (timeoutMs: i
     end
 end)()
 """)>]
-let postWithTimeout (url: string) (headers: (string * string) list) (contentType: string) (body: string) (timeoutMs: int) (ssl: SslOptions) : Result<HttpResponse, string> = nativeOnly
+let postWithTimeout
+    (url: string)
+    (headers: (string * string) list)
+    (contentType: string)
+    (body: string)
+    (timeoutMs: int)
+    (ssl: SslOptions)
+    : Result<HttpResponse, string> =
+    nativeOnly
 
 /// Performs an HTTP PUT request with a timeout in milliseconds.
 [<Emit("""
@@ -181,7 +207,15 @@ let postWithTimeout (url: string) (headers: (string * string) list) (contentType
     end
 end)()
 """)>]
-let putWithTimeout (url: string) (headers: (string * string) list) (contentType: string) (body: string) (timeoutMs: int) (ssl: SslOptions) : Result<HttpResponse, string> = nativeOnly
+let putWithTimeout
+    (url: string)
+    (headers: (string * string) list)
+    (contentType: string)
+    (body: string)
+    (timeoutMs: int)
+    (ssl: SslOptions)
+    : Result<HttpResponse, string> =
+    nativeOnly
 
 /// Performs an HTTP DELETE request with a timeout in milliseconds.
 [<Emit("""
@@ -197,4 +231,10 @@ let putWithTimeout (url: string) (headers: (string * string) list) (contentType:
     end
 end)()
 """)>]
-let deleteWithTimeout (url: string) (headers: (string * string) list) (timeoutMs: int) (ssl: SslOptions) : Result<HttpResponse, string> = nativeOnly
+let deleteWithTimeout
+    (url: string)
+    (headers: (string * string) list)
+    (timeoutMs: int)
+    (ssl: SslOptions)
+    : Result<HttpResponse, string> =
+    nativeOnly

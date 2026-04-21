@@ -11,8 +11,8 @@ let ``test supervisor.which_children on non-existent catches error`` () =
 #if FABLE_COMPILER
     try
         supervisor.which_children (box "nonexistent_sup_xyz") |> ignore
-    with
-    | _ -> ()
+    with _ ->
+        ()
 #else
     ()
 #endif

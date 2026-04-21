@@ -51,7 +51,7 @@ let ``test readFile and writeFile roundtrip`` () =
 #if FABLE_COMPILER
     let path = "/tmp/fable_beam_typed_test.txt"
     let writeResult = writeFile path "typed hello"
-    writeResult |> equal (Ok ())
+    writeResult |> equal (Ok())
     let readResult = readFile path
     readResult |> equal (Ok "typed hello")
     delete path |> ignore
@@ -74,7 +74,7 @@ let ``test writeFile and delete roundtrip`` () =
     let path = "/tmp/fable_beam_delete_test.txt"
     writeFile path "to delete" |> ignore
     let delResult = delete path
-    delResult |> equal (Ok ())
+    delResult |> equal (Ok())
     let readResult = readFile path
     readResult |> equal (Error "enoent")
 #else
@@ -95,9 +95,9 @@ let ``test makeDir and delDir`` () =
 #if FABLE_COMPILER
     let path = "/tmp/fable_beam_test_dir"
     let mkResult = makeDir path
-    mkResult |> equal (Ok ())
+    mkResult |> equal (Ok())
     let delResult = delDir path
-    delResult |> equal (Ok ())
+    delResult |> equal (Ok())
 #else
     ()
 #endif
@@ -110,11 +110,10 @@ let ``test listDir returns files`` () =
     writeFile (dir + "/a.txt") "a" |> ignore
     writeFile (dir + "/b.txt") "b" |> ignore
     let result = listDir dir
+
     match result with
-    | Ok files ->
-        (List.length files >= 2) |> equal true
-    | Error e ->
-        equal "ok" e
+    | Ok files -> (List.length files >= 2) |> equal true
+    | Error e -> equal "ok" e
     // cleanup
     delete (dir + "/a.txt") |> ignore
     delete (dir + "/b.txt") |> ignore
@@ -139,7 +138,7 @@ let ``test rename moves a file`` () =
     let dst = "/tmp/fable_beam_rename_dst.txt"
     writeFile src "rename me" |> ignore
     let result = rename src dst
-    result |> equal (Ok ())
+    result |> equal (Ok())
     readFile dst |> equal (Ok "rename me")
     readFile src |> equal (Error "enoent")
     delete dst |> ignore
@@ -151,10 +150,8 @@ let ``test rename moves a file`` () =
 let ``test getCwd returns a path`` () =
 #if FABLE_COMPILER
     match getCwd () with
-    | Ok dir ->
-        (String.length dir > 0) |> equal true
-    | Error e ->
-        equal "ok" e
+    | Ok dir -> (String.length dir > 0) |> equal true
+    | Error e -> equal "ok" e
 #else
     ()
 #endif

@@ -38,8 +38,7 @@ let ``test unsetenv removes a variable`` () =
 let ``test getenv returns Some for HOME`` () =
 #if FABLE_COMPILER
     match getenv "HOME" with
-    | Some home ->
-        (String.length home > 0) |> equal true
+    | Some home -> (String.length home > 0) |> equal true
     | None ->
         // HOME should be set on any unix system
         equal "Some" "None"

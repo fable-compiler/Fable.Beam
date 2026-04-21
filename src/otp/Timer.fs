@@ -15,8 +15,11 @@ type IExports =
     abstract send_interval: time: int * dest: Pid * msg: obj -> Result<TimerRef, Atom>
     /// Evaluates Fun after Time milliseconds.
     abstract apply_after: time: int * ``module``: Atom * ``function``: Atom * args: obj list -> Result<TimerRef, Atom>
+
     /// Evaluates Fun repeatedly every Time milliseconds.
-    abstract apply_interval: time: int * ``module``: Atom * ``function``: Atom * args: obj list -> Result<TimerRef, Atom>
+    abstract apply_interval:
+        time: int * ``module``: Atom * ``function``: Atom * args: obj list -> Result<TimerRef, Atom>
+
     /// Cancels a previously started timer.
     abstract cancel: timerRef: TimerRef -> Result<Atom, Atom>
     /// Suspends the process for Time milliseconds.
