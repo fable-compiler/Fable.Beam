@@ -6,7 +6,6 @@ open Fable.Beam.Testing
 open Fable.Beam.Maps
 #endif
 
-
 [<Fact>]
 let ``test maps.new_ creates empty map`` () =
 #if FABLE_COMPILER
