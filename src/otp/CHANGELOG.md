@@ -1,11 +1,19 @@
 ---
-last_commit_released: aa357492c6da4e43fc87f516987581f337071d11
+last_commit_released: 917f17768e0e65b8e8e7d00620c1045bb33e5796
 name: Fable.Beam
 ---
 
 # Changelog
 
 All notable changes to this project will be documented in this file.
+
+## 5.0.0-rc.26 - 2026-04-22
+
+### 🚀 Features
+
+* Add re module bindings and tests (#78) ([917f177](https://github.com/fable-compiler/Fable.Beam/commit/917f17768e0e65b8e8e7d00620c1045bb33e5796))
+
+<strong><small>[View changes on Github](https://github.com/fable-compiler/Fable.Beam/compare/aa357492c6da4e43fc87f516987581f337071d11..917f17768e0e65b8e8e7d00620c1045bb33e5796)</small></strong>
 
 ## 5.0.0-rc.25 - 2026-04-21
 
