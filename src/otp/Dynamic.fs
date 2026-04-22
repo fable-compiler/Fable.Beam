@@ -49,31 +49,18 @@ module Decode =
     /// Uses System.Func for the decoder — matches the Lists.fs convention for
     /// callbacks and avoids curried-arg substitution issues with Emit.
     [<Emit("(fun() -> case maps:find($0, $2) of {ok, FieldVal__} -> $1(FieldVal__); error -> {error, erlang:list_to_binary(io_lib:format(<<\"missing field ~p\">>, [$0]))} end end)()")>]
-    let field
-        (key: Atom)
-        (decoder: System.Func<Dynamic, Result<'V, string>>)
-        (d: Dynamic)
-        : Result<'V, string> =
+    let field (key: Atom) (decoder: System.Func<Dynamic, Result<'V, string>>) (d: Dynamic) : Result<'V, string> =
         nativeOnly
 
     /// Decode a Dynamic as a list of values, decoding each element with `decoder`.
     /// Short-circuits on the first decode error.
-    /// Decode a Dynamic as a list of values, decoding each element with `decoder`.
-    /// Short-circuits on the first decode error.
     [<Emit("(fun() -> case erlang:is_list($1) of true -> DecodeListFold__ = fun (_, {error, _} = E__) -> E__; (Elem__, {ok, Acc__}) -> case $0(Elem__) of {ok, V__} -> {ok, [V__ | Acc__]}; {error, _} = E__ -> E__ end end, case lists:foldl(DecodeListFold__, {ok, []}, $1) of {ok, Rev__} -> {ok, fable_utils:new_ref(lists:reverse(Rev__))}; {error, _} = E__ -> E__ end; false -> {error, <<\"expected list\">>} end end)()")>]
-    let list
-        (decoder: System.Func<Dynamic, Result<'V, string>>)
-        (d: Dynamic)
-        : Result<'V array, string> =
-        nativeOnly
+    let list (decoder: System.Func<Dynamic, Result<'V, string>>) (d: Dynamic) : Result<'V array, string> = nativeOnly
 
     /// Decode a Dynamic that may be the atom `undefined` (mapped to None) or
     /// a value decoded by the inner decoder (mapped to Some).
     [<Emit("(fun() -> case $1 of undefined -> {ok, undefined}; V__ -> case $0(V__) of {ok, V2__} -> {ok, V2__}; {error, _} = E__ -> E__ end end end)()")>]
-    let optional
-        (decoder: System.Func<Dynamic, Result<'V, string>>)
-        (d: Dynamic)
-        : Result<'V option, string> =
+    let optional (decoder: System.Func<Dynamic, Result<'V, string>>) (d: Dynamic) : Result<'V option, string> =
         nativeOnly
 
     /// Decode a 2-tuple by applying each decoder to the corresponding element.
@@ -94,5 +81,4 @@ module Decode =
 
     /// Chain decode results: run the first, and if it succeeds, run the second
     /// with its value.
-    let inline andThen (f: 'A -> Result<'B, string>) (r: Result<'A, string>) : Result<'B, string> =
-        Result.bind f r
+    let inline andThen (f: 'A -> Result<'B, string>) (r: Result<'A, string>) : Result<'B, string> = Result.bind f r

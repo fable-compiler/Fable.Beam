@@ -34,18 +34,15 @@ type IExports =
     /// Starts a gen_server process.
     abstract start_link: ``module``: Atom * args: 'Args * options: obj list -> Result<Pid<'Msg>, obj>
     /// Starts a named gen_server process.
-    abstract start_link:
-        name: ServerName * ``module``: Atom * args: 'Args * options: obj list -> Result<Pid<'Msg>, obj>
+    abstract start_link: name: ServerName * ``module``: Atom * args: 'Args * options: obj list -> Result<Pid<'Msg>, obj>
     /// Starts a gen_server without linking.
     abstract start: ``module``: Atom * args: 'Args * options: obj list -> Result<Pid<'Msg>, obj>
     /// Starts a named gen_server without linking.
-    abstract start:
-        name: ServerName * ``module``: Atom * args: 'Args * options: obj list -> Result<Pid<'Msg>, obj>
+    abstract start: name: ServerName * ``module``: Atom * args: 'Args * options: obj list -> Result<Pid<'Msg>, obj>
     /// Makes a synchronous call to a gen_server.
     abstract call: serverRef: ServerRef<'Call, 'Cast> * request: 'Call -> 'Reply
     /// Makes a synchronous call with timeout (int ms or atom 'infinity').
-    abstract call:
-        serverRef: ServerRef<'Call, 'Cast> * request: 'Call * timeout: U2<int, Atom> -> 'Reply
+    abstract call: serverRef: ServerRef<'Call, 'Cast> * request: 'Call * timeout: U2<int, Atom> -> 'Reply
     /// Sends an asynchronous request to a gen_server.
     abstract cast: serverRef: ServerRef<'Call, 'Cast> * request: 'Cast -> unit
     /// Sends a reply to a client that called call/2,3.
@@ -53,8 +50,7 @@ type IExports =
     /// Stops a gen_server.
     abstract stop: serverRef: ServerRef<'Call, 'Cast> -> unit
     /// Stops a gen_server with reason and timeout (int ms or atom 'infinity').
-    abstract stop:
-        serverRef: ServerRef<'Call, 'Cast> * reason: Atom * timeout: U2<int, Atom> -> unit
+    abstract stop: serverRef: ServerRef<'Call, 'Cast> * reason: Atom * timeout: U2<int, Atom> -> unit
 
 /// gen_server module
 [<ImportAll("gen_server")>]

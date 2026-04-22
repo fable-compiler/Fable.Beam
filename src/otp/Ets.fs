@@ -60,6 +60,7 @@ type IExports =
     /// Returns the first key in the table, or None if the table is empty.
     [<Emit("(fun() -> case ets:first($0) of '$end_of_table' -> undefined; FirstKey__ -> FirstKey__ end end)()")>]
     abstract first: table: TableId<'Key, 'Row> -> 'Key option
+
     /// Returns the next key after the given key, or None if at the end.
     [<Emit("(fun() -> case ets:next($0, $1) of '$end_of_table' -> undefined; NextKey__ -> NextKey__ end end)()")>]
     abstract next: table: TableId<'Key, 'Row> * key: 'Key -> 'Key option

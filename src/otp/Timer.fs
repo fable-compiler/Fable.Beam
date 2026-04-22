@@ -13,6 +13,7 @@ type IExports =
     abstract send_after: time: int * dest: Pid<'Msg> * msg: 'Msg -> Result<TimerRef<'Msg>, Atom>
     /// Sends Msg to Dest repeatedly every Time milliseconds.
     abstract send_interval: time: int * dest: Pid<'Msg> * msg: 'Msg -> Result<TimerRef<'Msg>, Atom>
+
     /// Evaluates Fun after Time milliseconds.
     abstract apply_after:
         time: int * ``module``: Atom * ``function``: Atom * args: obj list -> Result<TimerRef<'Msg>, Atom>

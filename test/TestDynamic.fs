@@ -50,7 +50,7 @@ let ``test Decode.atom succeeds on atom`` () =
     let d: Dynamic = emitErlExpr () "ok"
 
     match Decode.atom d with
-    | Ok _ -> ()  // don't compare Atom values across the boundary, just ensure decode succeeded
+    | Ok _ -> () // don't compare Atom values across the boundary, just ensure decode succeeded
     | Error e -> failwithf "expected Ok, got Error %s" e
 #else
     ()
@@ -133,7 +133,7 @@ let ``test Decode.optional returns None for undefined`` () =
 
     match Decode.optional (System.Func<_, _> Decode.int) d with
     | Ok None -> ()
-    | Ok (Some v) -> failwithf "expected None, got Some %d" v
+    | Ok(Some v) -> failwithf "expected None, got Some %d" v
     | Error e -> failwithf "expected Ok None, got Error %s" e
 #else
     ()
@@ -145,7 +145,7 @@ let ``test Decode.optional returns Some for value`` () =
     let d: Dynamic = emitErlExpr () "42"
 
     match Decode.optional (System.Func<_, _> Decode.int) d with
-    | Ok (Some v) -> v |> equal 42
+    | Ok(Some v) -> v |> equal 42
     | Ok None -> failwith "expected Some"
     | Error e -> failwithf "expected Ok, got Error %s" e
 #else
@@ -158,7 +158,7 @@ let ``test Decode.tuple2 decodes a pair`` () =
     let d: Dynamic = emitErlExpr () "{<<\"alice\">>, 30}"
 
     match Decode.tuple2 (System.Func<_, _> Decode.string) (System.Func<_, _> Decode.int) d with
-    | Ok (name, age) ->
+    | Ok(name, age) ->
         name |> equal "alice"
         age |> equal 30
     | Error e -> failwithf "expected Ok, got Error %s" e
