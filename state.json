@@ -1,9 +1,15 @@
 {
-  "last_run": "2026-04-21T03:48:00Z",
-  "last_run_id": "24702949366",
+  "last_run": "2026-04-22T03:45:07Z",
+  "last_run_id": "24759023978",
   "monthly_summary_issue": "open #62 (April 2026)",
   "comments_made": [],
   "prs_created": [
+    {
+      "branch": "repo-assist/bindings-re-regexp-2026-04",
+      "title": "feat: add re module bindings and tests",
+      "status": "patch-only",
+      "description": "Added Fable.Beam.Re (compile, isMatch/isMatchMP, run/runMP, replaceFirst/replaceAll, split/splitParts, 18 tests). Patch in run 24759023978."
+    },
     {
       "branch": "repo-assist/improve-formatting-maps-tryfind",
       "title": "style: apply Fantomas formatting and add maps.tryFind",
@@ -31,6 +37,6 @@
     }
   ],
   "backlog_cursor": null,
-  "notes": "Open issues: #67 (CI caching info), #62 (monthly summary). No user-filed issues. String bindings merged as PR #71. Queue bindings merged as PR #73. Base64+rand bindings merged as PR #74. Release PR #72 open (5.0.0-rc.25). Formatting patch + maps.tryFind patch in run 24702949366. Test SDK bump patch in run 24702949366. After formatting patch applied, re-enable #- name: Check formatting in build-and-test.yml.",
-  "future_bindings_ideas": ["uri_string", "calendar", "re"]
+  "notes": "Open issues: #67 (CI caching info), #62 (monthly summary). No user-filed issues. String bindings merged as PR #71. Queue bindings merged as PR #73. Base64+rand bindings merged as PR #74. Release PR #72 open (5.0.0-rc.25). Formatting patch + maps.tryFind patch in run 24702949366. Test SDK bump patch in run 24702949366. After formatting patch applied, re-enable #- name: Check formatting in build-and-test.yml. Re module bindings added in run 24759023978.",
+  "future_bindings_ideas": ["uri_string", "calendar"]
 }
