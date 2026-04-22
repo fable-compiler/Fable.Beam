@@ -2,6 +2,8 @@ module Fable.Beam.Tests.Logger
 
 open Fable.Beam.Testing
 
+open Fable.Core
+
 #if FABLE_COMPILER
 open Fable.Beam.Logger
 #endif
@@ -34,7 +36,7 @@ let ``test logger.debug works`` () =
 let ``test logger.info with format args`` () =
 #if FABLE_COMPILER
     // The 2-arg overload accepts both metadata maps and format args lists
-    logger.info ("test ~p message", box [ box 42 ])
+    logger.info ("test ~p message", U2.Case2 [ box 42 ])
 #else
     ()
 #endif

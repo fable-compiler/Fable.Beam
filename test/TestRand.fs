@@ -5,6 +5,7 @@ open Fable.Beam.Testing
 #if FABLE_COMPILER
 open Fable.Core
 open Fable.Core.BeamInterop
+open Fable.Beam
 open Fable.Beam.Rand
 #endif
 
@@ -16,6 +17,30 @@ let ``test rand.uniform returns float in range`` () =
 #else
     ()
 #endif
+
+[<Fact>]
+let ``test rand.seed with typed algorithm DU`` () =
+#if FABLE_COMPILER
+    // Canary for StringEnum-style atom emission from F# DUs on BEAM.
+    // If DU case Exsss compiles to atom `exsss`, rand:seed/1 will accept it.
+    rand.seed Exsss |> ignore
+    let v = rand.uniform ()
+    (v >= 0.0 && v < 1.0) |> equal true
+#else
+    ()
+#endif
+
+[<Fact>]
+let ``test rand.seed multi-word DU case maps to atom`` () =
+#if FABLE_COMPILER
+    // Second canary: does a multi-word case like Exro928ss produce atom exro928ss?
+    rand.seed Exro928ss |> ignore
+    let v = rand.uniform ()
+    (v >= 0.0 && v < 1.0) |> equal true
+#else
+    ()
+#endif
+
 
 [<Fact>]
 let ``test rand.uniform n returns int in range`` () =

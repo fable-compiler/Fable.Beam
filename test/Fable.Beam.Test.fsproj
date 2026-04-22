@@ -35,6 +35,7 @@
     <Compile Include="TestFile.fs" />
     <Compile Include="TestLogger.fs" />
     <Compile Include="TestJsx.fs" />
+    <Compile Include="TestDynamic.fs" />
     <Compile Include="Main.fs" />
   </ItemGroup>
   <Import Project="..\.paket\Paket.Restore.targets" />

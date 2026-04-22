@@ -73,8 +73,9 @@ let ``test process dictionary get/put/erase`` () =
 #if FABLE_COMPILER
     let key = Erlang.makeRef ()
     Erlang.put key (box 42) |> ignore
-    let value = Erlang.get key
-    value |> equal (box 42)
+    match Erlang.get key with
+    | Some v -> v |> equal (box 42)
+    | None -> failwith "process dict key should be set"
     Erlang.erase key |> ignore
 #else
     ()

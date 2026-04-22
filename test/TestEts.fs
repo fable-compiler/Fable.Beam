@@ -51,3 +51,37 @@ let ``test ets tab2list`` () =
 #else
     ()
 #endif
+
+[<Fact>]
+let ``test ets typed info accessors`` () =
+#if FABLE_COMPILER
+    let table =
+        ets.new_ (Erlang.binaryToAtom "info_table", [ Erlang.binaryToAtom "set" ])
+
+    let tuple: obj = emitErlExpr () "{1, <<\"hello\">>}"
+    ets.insert (table, tuple) |> ignore
+
+    size table |> equal 1
+    tableType table |> equal Set
+    access table |> equal Protected  // default access
+    keypos table |> equal 1  // default keypos
+
+    ets.delete table
+#else
+    ()
+#endif
+
+[<Fact>]
+let ``test ets typed info with ordered_set CompiledName`` () =
+#if FABLE_COMPILER
+    let table =
+        ets.new_ (
+            Erlang.binaryToAtom "ordered_table",
+            [ Erlang.binaryToAtom "ordered_set" ]
+        )
+
+    tableType table |> equal OrderedSet
+    ets.delete table
+#else
+    ()
+#endif

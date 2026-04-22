@@ -10,18 +10,19 @@ open Fable.Beam
 [<Erase>]
 type IExports =
     /// Sends Msg to Dest after Time milliseconds.
-    abstract send_after: time: int * dest: Pid * msg: obj -> Result<TimerRef, Atom>
+    abstract send_after: time: int * dest: Pid<'Msg> * msg: 'Msg -> Result<TimerRef<'Msg>, Atom>
     /// Sends Msg to Dest repeatedly every Time milliseconds.
-    abstract send_interval: time: int * dest: Pid * msg: obj -> Result<TimerRef, Atom>
+    abstract send_interval: time: int * dest: Pid<'Msg> * msg: 'Msg -> Result<TimerRef<'Msg>, Atom>
     /// Evaluates Fun after Time milliseconds.
-    abstract apply_after: time: int * ``module``: Atom * ``function``: Atom * args: obj list -> Result<TimerRef, Atom>
+    abstract apply_after:
+        time: int * ``module``: Atom * ``function``: Atom * args: obj list -> Result<TimerRef<'Msg>, Atom>
 
     /// Evaluates Fun repeatedly every Time milliseconds.
     abstract apply_interval:
-        time: int * ``module``: Atom * ``function``: Atom * args: obj list -> Result<TimerRef, Atom>
+        time: int * ``module``: Atom * ``function``: Atom * args: obj list -> Result<TimerRef<'Msg>, Atom>
 
     /// Cancels a previously started timer.
-    abstract cancel: timerRef: TimerRef -> Result<Atom, Atom>
+    abstract cancel: timerRef: TimerRef<'Msg> -> Result<Atom, Atom>
     /// Suspends the process for Time milliseconds.
     abstract sleep: time: int -> unit
     /// Converts hours to milliseconds.

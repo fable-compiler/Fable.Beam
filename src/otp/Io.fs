@@ -12,7 +12,7 @@ type IExports =
     /// Writes a formatted string to standard output.
     abstract format: format: string * args: obj list -> unit
     /// Writes a formatted string to a device.
-    abstract format: device: Pid * format: string * args: obj list -> unit
+    abstract format: device: Pid<'Msg> * format: string * args: obj list -> unit
     /// Reads a line from standard input (raw — returns eof atom on EOF).
     abstract get_line: prompt: string -> string
     /// Writes output to standard output.

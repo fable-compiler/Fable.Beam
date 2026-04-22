@@ -5,6 +5,7 @@ module Fable.Beam.Erlang
 
 open Fable.Core
 open Fable.Beam
+open Fable.Beam.Lists
 
 // Note: For selective receive, use Fable.Core.BeamInterop.Erlang.receive<'T>
 // which is provided by Fable.Core and handled by the compiler.
@@ -13,21 +14,21 @@ open Fable.Beam
 // Process management
 // ============================================================================
 
-/// Get the current process's pid.
+/// Get the current process's pid. Caller picks the phantom 'Msg tag.
 [<Emit("erlang:self()")>]
-let self () : Pid = nativeOnly
+let self<'Msg> () : Pid<'Msg> = nativeOnly
 
 /// Spawn a new process that executes the given function.
 [<Emit("erlang:spawn(fun() -> $0(ok) end)")>]
-let spawn (f: unit -> unit) : Pid = nativeOnly
+let spawn<'Msg> (f: unit -> unit) : Pid<'Msg> = nativeOnly
 
 /// Spawn a linked process.
 [<Emit("erlang:spawn_link(fun() -> $0(ok) end)")>]
-let spawnLink (f: unit -> unit) : Pid = nativeOnly
+let spawnLink<'Msg> (f: unit -> unit) : Pid<'Msg> = nativeOnly
 
-/// Send a message to a process (Pid ! Msg).
+/// Send a typed message to a process (Pid ! Msg).
 [<Emit("$0 ! $1")>]
-let send (pid: Pid) (msg: obj) : unit = nativeOnly
+let send (pid: Pid<'Msg>) (msg: 'Msg) : unit = nativeOnly
 
 /// Enable trap_exit so EXIT signals become messages. Returns the old value.
 [<Emit("erlang:process_flag(trap_exit, true)")>]
@@ -39,55 +40,56 @@ let processFlag (flag: Atom) (value: obj) : obj = nativeOnly
 
 /// Exit the current process with a reason.
 [<Emit("erlang:exit($0)")>]
-let exit (reason: obj) : unit = nativeOnly
+let exit (reason: 'Reason) : unit = nativeOnly
 
 /// Send an exit signal to a process.
 [<Emit("erlang:exit($0, $1)")>]
-let exitPid (pid: Pid) (reason: obj) : unit = nativeOnly
+let exitPid (pid: Pid<'Msg>) (reason: 'Reason) : unit = nativeOnly
 
 /// Link to another process.
 [<Emit("erlang:link($0)")>]
-let link (pid: Pid) : unit = nativeOnly
+let link (pid: Pid<'Msg>) : unit = nativeOnly
 
 /// Unlink from a process.
 [<Emit("erlang:unlink($0)")>]
-let unlink (pid: Pid) : unit = nativeOnly
+let unlink (pid: Pid<'Msg>) : unit = nativeOnly
 
-/// Monitor a process. Returns a monitor reference.
+/// Monitor a process. Returns a monitor reference tagged with the monitored Pid.
 [<Emit("erlang:monitor(process, $0)")>]
-let monitor (pid: Pid) : Ref = nativeOnly
+let monitor (pid: Pid<'Msg>) : Ref<Pid<'Msg>> = nativeOnly
 
 /// Demonitor a process.
 [<Emit("erlang:demonitor($0)")>]
-let demonitor (ref: Ref) : unit = nativeOnly
+let demonitor (ref: Ref<'Tag>) : unit = nativeOnly
 
 /// Demonitor a process with flush option.
 [<Emit("erlang:demonitor($0, [flush])")>]
-let demonitorFlush (ref: Ref) : unit = nativeOnly
+let demonitorFlush (ref: Ref<'Tag>) : unit = nativeOnly
 
 /// Register a name for the calling process.
 [<Emit("erlang:register($0, $1)")>]
-let register (name: Atom) (pid: Pid) : unit = nativeOnly
+let register (name: Atom) (pid: Pid<'Msg>) : unit = nativeOnly
 
 /// Look up a registered process name. Returns None if not registered.
 [<Emit("(fun() -> case erlang:whereis($0) of undefined -> undefined; WhereIsPid__ -> WhereIsPid__ end end)()")>]
-let whereis (name: Atom) : Pid option = nativeOnly
+let whereis<'Msg> (name: Atom) : Pid<'Msg> option = nativeOnly
 
 /// Check if a process is alive.
 [<Emit("erlang:is_process_alive($0)")>]
-let isProcessAlive (pid: Pid) : bool = nativeOnly
+let isProcessAlive (pid: Pid<'Msg>) : bool = nativeOnly
 
 // ============================================================================
 // References and identity
 // ============================================================================
 
-/// Create a unique reference.
+/// Create a unique reference. The caller picks the phantom tag.
 [<Emit("erlang:make_ref()")>]
-let makeRef () : Ref = nativeOnly
+let makeRef<'Tag> () : Ref<'Tag> = nativeOnly
 
-/// Exact equality comparison (=:=).
+/// Exact equality comparison (=:=). Generic 'T forces both operands to the same
+/// type — use box on one side if you really need to compare values of unrelated types.
 [<Emit("$0 =:= $1")>]
-let exactEquals (a: obj) (b: obj) : bool = nativeOnly
+let exactEquals (a: 'T) (b: 'T) : bool = nativeOnly
 
 // ============================================================================
 // Time
@@ -111,31 +113,34 @@ let phash2 (term: obj) (range: int) : int = nativeOnly
 
 /// Schedule a message to be sent to self after Ms milliseconds.
 [<Emit("erlang:send_after($0, erlang:self(), $1)")>]
-let sendAfter (ms: int) (msg: obj) : TimerRef = nativeOnly
+let sendAfter (ms: int) (msg: 'Msg) : TimerRef<'Msg> = nativeOnly
 
 /// Schedule a message to be sent to the given process after Ms milliseconds.
 [<Emit("erlang:send_after($0, $1, $2)")>]
-let sendAfterTo (ms: int) (dest: Pid) (msg: obj) : TimerRef = nativeOnly
+let sendAfterTo (ms: int) (dest: Pid<'Msg>) (msg: 'Msg) : TimerRef<'Msg> = nativeOnly
 
 /// Cancel a timer. Returns the remaining time in ms, or None if the timer was not found.
 [<Emit("(fun() -> case erlang:cancel_timer($0) of false -> undefined; CancelTimerMs__ -> CancelTimerMs__ end end)()")>]
-let cancelTimer (timerRef: TimerRef) : int option = nativeOnly
+let cancelTimer (timerRef: TimerRef<'Msg>) : int option = nativeOnly
 
 // ============================================================================
 // Process dictionary
 // ============================================================================
 
-/// Get a value from the process dictionary.
-[<Emit("erlang:get($0)")>]
-let get (key: obj) : obj = nativeOnly
+/// Get a value from the process dictionary. Returns None if the key is not set
+/// (indistinguishable from a value stored as the atom 'undefined').
+[<Emit("(fun() -> case erlang:get($0) of undefined -> undefined; GetVal__ -> GetVal__ end end)()")>]
+let get<'Key, 'Value> (key: 'Key) : 'Value option = nativeOnly
 
-/// Put a value in the process dictionary.
-[<Emit("erlang:put($0, $1)")>]
-let put (key: obj) (value: obj) : obj = nativeOnly
+/// Put a value in the process dictionary. Returns the previous value, or None
+/// if the key wasn't set.
+[<Emit("(fun() -> case erlang:put($0, $1) of undefined -> undefined; PutPrev__ -> PutPrev__ end end)()")>]
+let put<'Key, 'Value> (key: 'Key) (value: 'Value) : 'Value option = nativeOnly
 
-/// Erase a key from the process dictionary.
-[<Emit("erlang:erase($0)")>]
-let erase (key: obj) : obj = nativeOnly
+/// Erase a key from the process dictionary. Returns the previous value, or None
+/// if the key wasn't set.
+[<Emit("(fun() -> case erlang:erase($0) of undefined -> undefined; ErasePrev__ -> ErasePrev__ end end)()")>]
+let erase<'Key, 'Value> (key: 'Key) : 'Value option = nativeOnly
 
 // ============================================================================
 // Date and time
@@ -177,7 +182,7 @@ let universaltime () : (int * int * int) * (int * int * int) = nativeOnly
 /// Use this instead of .Length when working with raw Erlang lists from OTP calls,
 /// since F# .Length expects a ref-wrapped array, not a native Erlang list.
 [<Emit("erlang:length($0)")>]
-let length (list: obj) : int = nativeOnly
+let length (list: BeamList<'T>) : int = nativeOnly
 
 /// Returns the size of a tuple.
 [<Emit("erlang:tuple_size($0)")>]
@@ -197,11 +202,12 @@ let element (n: int) (tuple: obj) : obj = nativeOnly
 
 /// Convert a term to a binary string for display.
 [<Emit("erlang:term_to_binary($0)")>]
-let termToBinary (term: obj) : obj = nativeOnly
+let termToBinary (term: 'Term) : string = nativeOnly
 
-/// Convert a binary back to a term.
+/// Convert a binary back to a Dynamic term. Use `Fable.Beam.Decode` combinators
+/// to narrow the resulting Dynamic to a typed value.
 [<Emit("erlang:binary_to_term($0)")>]
-let binaryToTerm (bin: obj) : obj = nativeOnly
+let binaryToTerm (bin: string) : Dynamic = nativeOnly
 
 /// Convert a list to a binary.
 [<Emit("erlang:list_to_binary($0)")>]
@@ -218,12 +224,12 @@ let binaryToAtom (s: string) : Atom = nativeOnly
 /// Convert an atom to a charlist. Note: returns a charlist (Erlang string()),
 /// not an F# string (binary). Use atomToBinary for F# string conversion.
 [<Emit("erlang:atom_to_list($0)")>]
-let atomToList (atom: Atom) : obj = nativeOnly
+let atomToList (atom: Atom) : BeamList<int> = nativeOnly
 
 /// Convert a charlist to an atom. Note: expects a charlist (Erlang string()),
 /// not an F# string (binary). Use binaryToAtom for F# string conversion.
 [<Emit("erlang:list_to_atom($0)")>]
-let listToAtom (charlist: obj) : Atom = nativeOnly
+let listToAtom (charlist: BeamList<int>) : Atom = nativeOnly
 
 /// Format a term as a readable string.
 [<Emit("erlang:list_to_binary(io_lib:format(<<\"~p\">>, [$0]))")>]
