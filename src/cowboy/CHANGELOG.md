@@ -1,11 +1,19 @@
 ---
-last_commit_released: 80f7f1906fb52f139c5d7064c105c7ecc8452682
+last_commit_released: af90106bba0604fbcf11d270754e67f66f046bc4
 name: Fable.Beam.Cowboy
 ---
 
 # Changelog
 
 All notable changes to this project will be documented in this file.
+
+## 5.0.0-rc.23 - 2026-04-22
+
+### 🚀 Features
+
+* Tighten typing with phantom params, Dynamic, and decoders (#80) ([af90106](https://github.com/fable-compiler/Fable.Beam/commit/af90106bba0604fbcf11d270754e67f66f046bc4))
+
+<strong><small>[View changes on Github](https://github.com/fable-compiler/Fable.Beam/compare/80f7f1906fb52f139c5d7064c105c7ecc8452682..af90106bba0604fbcf11d270754e67f66f046bc4)</small></strong>
 
 ## 5.0.0-rc.22 - 2026-03-29
 
