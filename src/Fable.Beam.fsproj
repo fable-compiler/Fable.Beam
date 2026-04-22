@@ -12,6 +12,9 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="otp/Types.fs" />
+    <Compile Include="otp/Maps.fs" />
+    <Compile Include="otp/Lists.fs" />
+    <Compile Include="otp/Dynamic.fs" />
     <Compile Include="otp/Erlang.fs" />
     <Compile Include="otp/GenServer.fs" />
     <Compile Include="otp/Supervisor.fs" />
@@ -19,8 +22,6 @@
     <Compile Include="otp/Io.fs" />
     <Compile Include="otp/Logger.fs" />
     <Compile Include="otp/Ets.fs" />
-    <Compile Include="otp/Maps.fs" />
-    <Compile Include="otp/Lists.fs" />
     <Compile Include="otp/Init.fs" />
     <Compile Include="otp/Application.fs" />
     <Compile Include="otp/Binary.fs" />

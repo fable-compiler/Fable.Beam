@@ -3,23 +3,24 @@
 module Fable.Beam.Cowboy.Cowboy
 
 open Fable.Core
+open Fable.Beam
 
 /// Start a clear (HTTP) listener.
 [<Emit("cowboy:start_clear($0, $1, $2)")>]
-let startClear (name: obj) (transportOpts: obj) (protoOpts: obj) : obj = nativeOnly
+let startClear (name: Atom) (transportOpts: obj) (protoOpts: obj) : obj = nativeOnly
 
 /// Start a TLS (HTTPS) listener.
 [<Emit("cowboy:start_tls($0, $1, $2)")>]
-let startTls (name: obj) (transportOpts: obj) (protoOpts: obj) : obj = nativeOnly
+let startTls (name: Atom) (transportOpts: obj) (protoOpts: obj) : obj = nativeOnly
 
 /// Stop a running listener.
 [<Emit("cowboy:stop_listener($0)")>]
-let stopListener (name: obj) : obj = nativeOnly
+let stopListener (name: Atom) : obj = nativeOnly
 
 /// Retrieve a listener's environment value.
 [<Emit("cowboy:get_env($0, $1)")>]
-let getEnv (name: obj) (key: obj) : obj = nativeOnly
+let getEnv (name: Atom) (key: Atom) : obj = nativeOnly
 
 /// Update a listener's environment value.
 [<Emit("cowboy:set_env($0, $1, $2)")>]
-let setEnv (name: obj) (key: obj) (value: obj) : obj = nativeOnly
+let setEnv (name: Atom) (key: Atom) (value: obj) : obj = nativeOnly

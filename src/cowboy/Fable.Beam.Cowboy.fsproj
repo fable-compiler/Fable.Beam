@@ -11,11 +11,14 @@
     <Description>Fable bindings for Cowboy HTTP server on BEAM</Description>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="Cowboy.fs" />
-    <Compile Include="CowboyHandler.fs" />
+    <ProjectReference Include="..\Fable.Beam.fsproj" />
+  </ItemGroup>
+  <ItemGroup>
     <Compile Include="CowboyReq.fs" />
-    <Compile Include="CowboyRouter.fs" />
+    <Compile Include="CowboyHandler.fs" />
     <Compile Include="CowboyWebsocket.fs" />
+    <Compile Include="CowboyRouter.fs" />
+    <Compile Include="Cowboy.fs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="*.fsproj; **\*.fs; **\*.fsi" PackagePath="fable\" />

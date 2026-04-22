@@ -3,9 +3,13 @@
 module Fable.Beam.Cowboy.CowboyReq
 
 open Fable.Core
+open Fable.Beam
+open Fable.Beam.Maps
 
-/// Opaque Cowboy request object.
-type Req = obj
+/// Opaque Cowboy request object. Erased at runtime — prevents accidental
+/// mixing with other untyped Erlang terms.
+[<Erase>]
+type Req = Req of obj
 
 /// Get the HTTP method (e.g. <<"GET">>, <<"POST">>).
 [<Emit("cowboy_req:method($0)")>]
@@ -23,9 +27,9 @@ let header (name: string) (req: Req) : string = nativeOnly
 [<Emit("cowboy_req:header($0, $1, $2)")>]
 let headerDefault (name: string) (req: Req) (defaultValue: string) : string = nativeOnly
 
-/// Get all request headers as a map.
+/// Get all request headers as a map of binary-keyed strings.
 [<Emit("cowboy_req:headers($0)")>]
-let headers (req: Req) : obj = nativeOnly
+let headers (req: Req) : BeamMap<string, string> = nativeOnly
 
 /// Read the full request body. Returns {ok, Body, Req}.
 [<Emit("cowboy_req:read_body($0)")>]
@@ -37,11 +41,11 @@ let queryString (req: Req) : string = nativeOnly
 
 /// Send a full response: status, headers map, body, req.
 [<Emit("cowboy_req:reply($0, $1, $2, $3)")>]
-let reply (status: int) (headers: obj) (body: string) (req: Req) : Req = nativeOnly
+let reply (status: int) (headers: BeamMap<string, string>) (body: string) (req: Req) : Req = nativeOnly
 
 /// Send a response with status and headers only (no body).
 [<Emit("cowboy_req:reply($0, $1, $2)")>]
-let replyNoBody (status: int) (headers: obj) (req: Req) : Req = nativeOnly
+let replyNoBody (status: int) (headers: BeamMap<string, string>) (req: Req) : Req = nativeOnly
 
 /// Get the peer IP address and port.
 [<Emit("cowboy_req:peer($0)")>]
@@ -65,8 +69,8 @@ let parseQs (req: Req) : obj = nativeOnly
 
 /// Get a binding value from the route.
 [<Emit("cowboy_req:binding($0, $1)")>]
-let binding (name: obj) (req: Req) : obj = nativeOnly
+let binding (name: Atom) (req: Req) : string = nativeOnly
 
 /// Get a binding value with a default.
 [<Emit("cowboy_req:binding($0, $1, $2)")>]
-let bindingDefault (name: obj) (req: Req) (defaultValue: obj) : obj = nativeOnly
+let bindingDefault (name: Atom) (req: Req) (defaultValue: string) : string = nativeOnly

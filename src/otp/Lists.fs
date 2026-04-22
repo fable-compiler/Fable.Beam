@@ -86,11 +86,11 @@ type IExports =
     /// Sorts a list of tuples by the Nth element (1-based).
     abstract keysort: n: int * list: BeamList<'T> -> BeamList<'T>
     /// Deletes the first tuple in List whose Nth element equals Key.
-    abstract keydelete: key: obj * n: int * list: BeamList<'T> -> BeamList<'T>
+    abstract keydelete: key: 'Key * n: int * list: BeamList<'T> -> BeamList<'T>
     /// Returns true if any tuple in List has Key at position N (1-based).
-    abstract keymember: key: obj * n: int * list: BeamList<'T> -> bool
+    abstract keymember: key: 'Key * n: int * list: BeamList<'T> -> bool
     /// Replaces the first tuple whose Nth element equals Key with NewTuple.
-    abstract keyreplace: key: obj * n: int * list: BeamList<'T> * newTuple: 'T -> BeamList<'T>
+    abstract keyreplace: key: 'Key * n: int * list: BeamList<'T> * newTuple: 'T -> BeamList<'T>
 
     /// Combines map and left fold: applies Fun to each element and an accumulator,
     /// returning a new list of the first Fun results and the final accumulator.
@@ -105,4 +105,4 @@ let lists: IExports = nativeOnly
 /// Searches a list of tuples for the first one whose Nth element (1-based) equals Key.
 /// Returns Some(tuple) if found, or None if not found.
 [<Emit("(fun() -> case lists:keyfind($0, $1, $2) of false -> undefined; KeyFindTuple__ -> KeyFindTuple__ end end)()")>]
-let keyFind (key: obj) (n: int) (list: BeamList<'T>) : 'T option = nativeOnly
+let keyFind (key: 'Key) (n: int) (list: BeamList<'T>) : 'T option = nativeOnly

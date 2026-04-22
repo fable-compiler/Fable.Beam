@@ -3,11 +3,23 @@
 module Fable.Beam.Rand
 
 open Fable.Core
+open Fable.Beam
 
 // fsharplint:disable MemberNames
 
+/// Pseudo-random number generator algorithm. These compile to Erlang atoms.
+/// See https://www.erlang.org/doc/apps/stdlib/rand#type-builtin_alg
+type RandAlg =
+    | Exsss
+    | Exro928ss
+    | Exs1024s
+    | Exsplus
+    | Exs64
+
 [<Erase>]
 type IExports =
+    /// Seeds the random number generator with the given algorithm.
+    abstract seed: alg: RandAlg -> obj
     /// Returns a random float uniformly distributed in the value range 0.0 =< X < 1.0.
     abstract uniform: unit -> float
 
