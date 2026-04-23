@@ -34,6 +34,8 @@ from F#.
 | `Fable.Beam.Queue` | `queue` | Functional FIFO queue |
 | `Fable.Beam.Base64` | `base64` | Base64 encoding and decoding |
 | `Fable.Beam.Rand` | `rand` | Pseudo-random number generation |
+| `Fable.Beam.Re` | `re` | Regular expressions (PCRE-compatible) |
+| `Fable.Beam.Calendar` | `calendar` | Date, time, and Gregorian conversions |
 | `Fable.Beam.String` | `string` | Unicode string operations |
 | `Fable.Beam.Io` | `io` | I/O functions |
 | `Fable.Beam.Logger` | `logger` | OTP logger |
