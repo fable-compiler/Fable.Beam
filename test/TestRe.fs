@@ -135,6 +135,14 @@ let ``test re.replaceFirst replaces only first occurrence`` () =
 #endif
 
 [<Fact>]
+let ``test re.replaceFirstWith caseless replaces first case-insensitively`` () =
+#if FABLE_COMPILER
+    replaceFirstWith "Aabbaa" "a+" "X" [ caseless ] |> equal "Xbbaa"
+#else
+    ()
+#endif
+
+[<Fact>]
 let ``test re.replaceAll replaces all occurrences`` () =
 #if FABLE_COMPILER
     replaceAll "aabbaa" "a+" "X" |> equal "XbbX"

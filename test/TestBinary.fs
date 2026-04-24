@@ -5,7 +5,9 @@ open Fable.Beam.Testing
 #if FABLE_COMPILER
 open Fable.Core
 open Fable.Core.BeamInterop
+open Fable.Beam
 open Fable.Beam.Binary
+open Fable.Beam.Lists
 #endif
 
 [<Fact>]
@@ -129,6 +131,88 @@ let ``test replaceAll replaces all occurrences`` () =
 let ``test binary.longest_common_prefix`` () =
 #if FABLE_COMPILER
     binary.longest_common_prefix ([ "foobar"; "foobaz"; "fooqux" ]) |> equal 4
+#else
+    ()
+#endif
+
+[<Fact>]
+let ``test binary.longest_common_suffix`` () =
+#if FABLE_COMPILER
+    binary.longest_common_suffix ([ "foobar"; "bazbar"; "quuxbar" ]) |> equal 3
+#else
+    ()
+#endif
+
+[<Fact>]
+let ``test binary.bin_to_list returns list of bytes`` () =
+#if FABLE_COMPILER
+    // "ABC" = [65, 66, 67]
+    let bytes = binary.bin_to_list "ABC"
+    lists.nth (1, bytes) |> equal 65
+    lists.nth (2, bytes) |> equal 66
+    lists.nth (3, bytes) |> equal 67
+#else
+    ()
+#endif
+
+[<Fact>]
+let ``test binary.list_to_bin converts bytes to binary`` () =
+#if FABLE_COMPILER
+    // [104, 105] = "hi"
+    let bytes: BeamList<int> = emitErlExpr () "[104, 105]"
+    binary.list_to_bin bytes |> equal "hi"
+#else
+    ()
+#endif
+
+[<Fact>]
+let ``test binary.bin_to_list and list_to_bin roundtrip`` () =
+#if FABLE_COMPILER
+    let original = "hello"
+    let bytes = binary.bin_to_list original
+    binary.list_to_bin bytes |> equal original
+#else
+    ()
+#endif
+
+[<Fact>]
+let ``test binary.encode_unsigned and decode_unsigned roundtrip`` () =
+#if FABLE_COMPILER
+    let n = 12345
+    let encoded = binary.encode_unsigned n
+    binary.decode_unsigned encoded |> equal n
+#else
+    ()
+#endif
+
+[<Fact>]
+let ``test binary.encode_unsigned encodes zero as empty binary`` () =
+#if FABLE_COMPILER
+    // encode_unsigned(0) returns <<>> (empty binary), decode_unsigned(<<>>) = 0
+    let encoded = binary.encode_unsigned 0
+    binary.decode_unsigned encoded |> equal 0
+#else
+    ()
+#endif
+
+[<Fact>]
+let ``test binary.decode_unsigned with little endian`` () =
+#if FABLE_COMPILER
+    let little = Erlang.binaryToAtom "little"
+    let big = Erlang.binaryToAtom "big"
+    let n = 256
+    let encoded_big = binary.encode_unsigned (n, big)
+    // Big-endian <<1, 0>> decoded as little-endian should differ
+    binary.decode_unsigned (encoded_big, big) |> equal n
+#else
+    ()
+#endif
+
+[<Fact>]
+let ``test binary.referenced_byte_size returns byte count`` () =
+#if FABLE_COMPILER
+    binary.referenced_byte_size "hello" |> equal 5
+    binary.referenced_byte_size "" |> equal 0
 #else
     ()
 #endif
