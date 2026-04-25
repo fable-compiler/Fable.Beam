@@ -17,12 +17,21 @@ jobs:
         uses: actions/setup-dotnet@v5
         with:
           dotnet-version: 10.x
+          cache: true
+          cache-dependency-path: 'paket.lock'
 
       - name: Setup Erlang/OTP
         uses: erlef/setup-beam@v1
         with:
           otp-version: '27'
           rebar3-version: '3'
+
+      - name: Cache rebar3 dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/rebar3
+          key: rebar3-${{ hashFiles('**/rebar.config') }}
+          restore-keys: rebar3-
 
       - name: Install just
         uses: extractions/setup-just@v4
