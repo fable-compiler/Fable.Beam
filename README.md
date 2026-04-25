@@ -36,6 +36,7 @@ from F#.
 | `Fable.Beam.Rand` | `rand` | Pseudo-random number generation |
 | `Fable.Beam.Re` | `re` | Regular expressions (PCRE-compatible) |
 | `Fable.Beam.Calendar` | `calendar` | Date, time, and Gregorian conversions |
+| `Fable.Beam.UriString` | `uri_string` | URI parsing, normalization, and encoding |
 | `Fable.Beam.String` | `string` | Unicode string operations |
 | `Fable.Beam.Io` | `io` | I/O functions |
 | `Fable.Beam.Logger` | `logger` | OTP logger |
