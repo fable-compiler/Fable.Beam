@@ -1,11 +1,19 @@
 ---
-last_commit_released: 80f7f1906fb52f139c5d7064c105c7ecc8452682
+last_commit_released: d31ece8440aff76d160d29689eed22f0d85bdbe5
 name: Fable.Beam.Jsx
 ---
 
 # Changelog
 
 All notable changes to this project will be documented in this file.
+
+## 5.0.0-rc.8 - 2026-04-25
+
+### 🐞 Bug Fixes
+
+* Tighten Jsx labels binding to typed DU (#89) ([d31ece8](https://github.com/fable-compiler/Fable.Beam/commit/d31ece8440aff76d160d29689eed22f0d85bdbe5))
+
+<strong><small>[View changes on Github](https://github.com/fable-compiler/Fable.Beam/compare/80f7f1906fb52f139c5d7064c105c7ecc8452682..d31ece8440aff76d160d29689eed22f0d85bdbe5)</small></strong>
 
 ## 5.0.0-rc.7 - 2026-03-29
 
