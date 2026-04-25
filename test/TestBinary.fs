@@ -186,9 +186,8 @@ let ``test binary.encode_unsigned and decode_unsigned roundtrip`` () =
 #endif
 
 [<Fact>]
-let ``test binary.encode_unsigned encodes zero as empty binary`` () =
+let ``test binary.encode_unsigned of zero roundtrips`` () =
 #if FABLE_COMPILER
-    // encode_unsigned(0) returns <<>> (empty binary), decode_unsigned(<<>>) = 0
     let encoded = binary.encode_unsigned 0
     binary.decode_unsigned encoded |> equal 0
 #else
@@ -200,10 +199,13 @@ let ``test binary.decode_unsigned with little endian`` () =
 #if FABLE_COMPILER
     let little = Erlang.binaryToAtom "little"
     let big = Erlang.binaryToAtom "big"
-    let n = 256
-    let encoded_big = binary.encode_unsigned (n, big)
-    // Big-endian <<1, 0>> decoded as little-endian should differ
-    binary.decode_unsigned (encoded_big, big) |> equal n
+    // Big-endian encoding of 256 is <<1, 0>>.
+    // Decoded as little-endian, those bytes read as 1.
+    let encoded_big = binary.encode_unsigned (256, big)
+    binary.decode_unsigned (encoded_big, little) |> equal 1
+    // Roundtrip via little endian preserves the value.
+    let encoded_little = binary.encode_unsigned (256, little)
+    binary.decode_unsigned (encoded_little, little) |> equal 256
 #else
     ()
 #endif
