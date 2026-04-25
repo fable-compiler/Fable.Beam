@@ -33,6 +33,7 @@
     <Compile Include="otp/Rand.fs" />
     <Compile Include="otp/Re.fs" />
     <Compile Include="otp/Calendar.fs" />
+    <Compile Include="otp/UriString.fs" />
     <Compile Include="otp/Os.fs" />
     <Compile Include="otp/File.fs" />
     <Compile Include="otp/Httpc.fs" />
