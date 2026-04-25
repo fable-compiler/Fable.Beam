@@ -1,11 +1,24 @@
 ---
-last_commit_released: af90106bba0604fbcf11d270754e67f66f046bc4
+last_commit_released: 7e76fcc26dc1870df9ee1bc0d90ee7277ee0d872
 name: Fable.Beam
 ---
 
 # Changelog
 
 All notable changes to this project will be documented in this file.
+
+## 5.0.0-rc.27 - 2026-04-25
+
+### 🚀 Features
+
+* Add calendar module bindings and tests (#82) ([f50b769](https://github.com/fable-compiler/Fable.Beam/commit/f50b7698c25cadc03af861467dfaef24a7453f5b))
+* Add uri_string module bindings and tests (#86) ([7e76fcc](https://github.com/fable-compiler/Fable.Beam/commit/7e76fcc26dc1870df9ee1bc0d90ee7277ee0d872))
+
+### 🐞 Bug Fixes
+
+* Improve Binary type signatures and add missing tests (#85) ([fdebc83](https://github.com/fable-compiler/Fable.Beam/commit/fdebc83e1b1e64da86851e00b174d9a5e79c7a32))
+
+<strong><small>[View changes on Github](https://github.com/fable-compiler/Fable.Beam/compare/af90106bba0604fbcf11d270754e67f66f046bc4..7e76fcc26dc1870df9ee1bc0d90ee7277ee0d872)</small></strong>
 
 ## 5.0.0-rc.26 - 2026-04-22
 
