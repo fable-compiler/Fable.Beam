@@ -4,6 +4,7 @@ module Fable.Beam.Binary
 
 open Fable.Core
 open Fable.Beam
+open Fable.Beam.Lists
 
 // fsharplint:disable MemberNames
 
@@ -33,10 +34,10 @@ type IExports =
     abstract encode_unsigned: n: int -> string
     /// Encodes an unsigned integer as a binary with the given endianness (big or little).
     abstract encode_unsigned: n: int * endianness: Atom -> string
-    /// Converts a binary to a list of bytes (charlist).
-    abstract bin_to_list: subject: string -> obj
-    /// Converts a list of bytes (charlist) to a binary.
-    abstract list_to_bin: byteList: obj -> string
+    /// Converts a binary to a list of bytes (integers in 0..255).
+    abstract bin_to_list: subject: string -> BeamList<int>
+    /// Converts a list of bytes (integers in 0..255) to a binary.
+    abstract list_to_bin: byteList: BeamList<int> -> string
     /// Returns the length of the longest common prefix of a list of binaries.
     abstract longest_common_prefix: binaries: string list -> int
     /// Returns the length of the longest common suffix of a list of binaries.

@@ -209,9 +209,9 @@ let termToBinary (term: 'Term) : string = nativeOnly
 [<Emit("erlang:binary_to_term($0)")>]
 let binaryToTerm (bin: string) : Dynamic = nativeOnly
 
-/// Convert a list to a binary.
+/// Convert a list of bytes (integers in 0..255) to a binary string.
 [<Emit("erlang:list_to_binary($0)")>]
-let listToBinary (list: obj) : obj = nativeOnly
+let listToBinary (list: BeamList<int>) : string = nativeOnly
 
 /// Convert an atom to a binary string.
 [<Emit("erlang:atom_to_binary($0)")>]
