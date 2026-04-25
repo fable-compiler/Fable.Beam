@@ -98,7 +98,8 @@ let composeQuery (pairs: (string * string) list) : string = nativeOnly
 
 /// Percent-decodes a URI string: converts every %XX sequence to its byte value.
 /// Returns Ok decoded string; Error "invalid_encoding" if any %XX sequence is malformed.
-[<Emit("(fun() -> case uri_string:percent_decode($0) of {error, {invalid, _}} -> {error, <<\"invalid_encoding\">>}; UriPctDecR__ -> {ok, UriPctDecR__} end end)()")>]
+/// Note: percent_decode/1 throws on malformed input, so we catch with try/of/catch.
+[<Emit("(fun() -> try uri_string:percent_decode($0) of UriPctDecR__ -> {ok, UriPctDecR__} catch throw:{error, _, _} -> {error, <<\"invalid_encoding\">>} end end)()")>]
 let percentDecode (uri: string) : Result<string, string> = nativeOnly
 
 /// Percent-encodes Data, preserving only the unreserved characters (A–Z, a–z, 0–9, -, _, ., ~).
@@ -112,8 +113,9 @@ let quote (data: string) : string = nativeOnly
 /// Percent-encodes Data like quote/1 but also preserves any characters in SafeChars.
 /// E.g. quoteWith "hello/world" "/" → "hello/world"   (/ is not encoded)
 ///
-/// Requires OTP 24+.
-[<Emit("uri_string:quote($0, $1)")>]
+/// Requires OTP 24+. Note: uri_string:quote/2 requires SafeChars as a charlist, so
+/// the F# binary is converted with binary_to_list/1 before the call.
+[<Emit("uri_string:quote($0, binary_to_list($1))")>]
 let quoteWith (data: string) (safeChars: string) : string = nativeOnly
 
 /// Percent-decodes a string like percentDecode but never fails — malformed
