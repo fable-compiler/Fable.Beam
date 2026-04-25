@@ -9,6 +9,9 @@
     <WarnOn>3390;$(WarnOn)</WarnOn>
     <PackageTags>fsharp;fable;fable-binding;fable-beam;erlang;jsx;json</PackageTags>
     <Description>Fable bindings for jsx JSON library on BEAM</Description>
+    <RepositoryUrl>https://github.com/fable-compiler/Fable.Beam</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageProjectUrl>https://github.com/fable-compiler/Fable.Beam</PackageProjectUrl>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Jsx.fs" />
