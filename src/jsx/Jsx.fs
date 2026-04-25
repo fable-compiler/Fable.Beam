@@ -30,9 +30,21 @@ let stream: JsxOpt = nativeOnly
 [<Emit("uescape")>]
 let uescape: JsxOpt = nativeOnly
 
-/// Set label handling for JSON object keys (e.g., binary_to_atom).
+/// How JSON object keys are decoded. Cases compile to Erlang atoms.
+[<RequireQualifiedAccess>]
+type LabelMode =
+    /// Decode keys as UTF-8 binaries (the jsx default).
+    | Binary
+    /// Decode keys as atoms; fails if a key cannot be converted.
+    | Atom
+    /// Decode keys as existing atoms; fails if a key is not already an atom in the VM.
+    | ExistingAtom
+    /// Decode keys as atoms when possible, falling back to binaries otherwise.
+    | AttemptAtom
+
+/// Control how JSON object keys are decoded.
 [<Emit("{labels, $0}")>]
-let labels (mode: obj) : JsxOpt = nativeOnly
+let labels (mode: LabelMode) : JsxOpt = nativeOnly
 
 /// Set the number of spaces for indentation when formatting.
 [<Emit("{indent, $0}")>]
