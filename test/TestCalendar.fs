@@ -231,30 +231,11 @@ let ``test calendar.datetimeToGregorianSeconds for known value`` () =
 #endif
 
 // ============================================================================
-// date / time / local_time / universal_time (sanity checks)
+// local_time / universal_time (sanity checks)
+// ----------------------------------------------------------------------------
+// `calendar:date/0` and `calendar:time/0` do NOT exist in the calendar module
+// (they live in `erlang`), so no tests for them here.
 // ============================================================================
-
-[<Fact>]
-let ``test calendar.date returns plausible year`` () =
-#if FABLE_COMPILER
-    let (y, m, d) = calendar.date ()
-    (y >= 2024) |> equal true
-    (m >= 1 && m <= 12) |> equal true
-    (d >= 1 && d <= 31) |> equal true
-#else
-    ()
-#endif
-
-[<Fact>]
-let ``test calendar.time returns plausible time`` () =
-#if FABLE_COMPILER
-    let (h, m, s) = calendar.time ()
-    (h >= 0 && h <= 23) |> equal true
-    (m >= 0 && m <= 59) |> equal true
-    (s >= 0 && s <= 60) |> equal true
-#else
-    ()
-#endif
 
 [<Fact>]
 let ``test calendar.local_time returns plausible datetime`` () =
@@ -275,6 +256,53 @@ let ``test calendar.universal_time returns plausible datetime`` () =
 #if FABLE_COMPILER
     let ((y, _, _), _) = calendar.universal_time ()
     (y >= 2024) |> equal true
+#else
+    ()
+#endif
+
+// ============================================================================
+// localTimeToUniversalTime / universalTimeToLocalTime smoke tests
+// ----------------------------------------------------------------------------
+// Result depends on the system's time zone, so we only assert structural
+// validity (year preserved within ±1, month/day/hour/minute/second in range).
+// ============================================================================
+
+[<Fact>]
+let ``test calendar.localTimeToUniversalTime returns plausible datetime`` () =
+#if FABLE_COMPILER
+    let ((y, mo, d), (h, mi, s)) = localTimeToUniversalTime ((2024, 6, 15), (12, 0, 0))
+    // Crossing tz can shift the date by one day, so we allow the year to differ by 1.
+    (y >= 2023 && y <= 2025) |> equal true
+    (mo >= 1 && mo <= 12) |> equal true
+    (d >= 1 && d <= 31) |> equal true
+    (h >= 0 && h <= 23) |> equal true
+    (mi >= 0 && mi <= 59) |> equal true
+    (s >= 0 && s <= 60) |> equal true
+#else
+    ()
+#endif
+
+[<Fact>]
+let ``test calendar.universalTimeToLocalTime returns plausible datetime`` () =
+#if FABLE_COMPILER
+    let ((y, mo, d), (h, mi, s)) = universalTimeToLocalTime ((2024, 6, 15), (12, 0, 0))
+    (y >= 2023 && y <= 2025) |> equal true
+    (mo >= 1 && mo <= 12) |> equal true
+    (d >= 1 && d <= 31) |> equal true
+    (h >= 0 && h <= 23) |> equal true
+    (mi >= 0 && mi <= 59) |> equal true
+    (s >= 0 && s <= 60) |> equal true
+#else
+    ()
+#endif
+
+[<Fact>]
+let ``test calendar.localTimeToUniversalTime then back roundtrips`` () =
+#if FABLE_COMPILER
+    let original: DateTime = (2024, 6, 15), (12, 0, 0)
+    let utc = localTimeToUniversalTime original
+    let roundtrip = universalTimeToLocalTime utc
+    roundtrip |> equal original
 #else
     ()
 #endif
