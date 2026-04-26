@@ -6,6 +6,7 @@ open Fable.Beam.Testing
 open Fable.Core
 open Fable.Core.BeamInterop
 open Fable.Beam
+open Fable.Beam.Lists
 
 type RecvMsg =
     | [<CompiledName("ping")>] Ping
@@ -309,6 +310,74 @@ let ``test atomToList returns charlist not binary`` () =
     // We verify by round-tripping through listToAtom.
     let atom2 = Erlang.listToAtom charlist
     Erlang.atomToBinary atom2 |> equal "test"
+#else
+    ()
+#endif
+
+
+[<Fact>]
+let ``test isEmpty returns true for empty list`` () =
+#if FABLE_COMPILER
+    let empty: BeamList<int> = emitErlExpr () "[]"
+    Erlang.isEmpty empty |> equal true
+#else
+    ()
+#endif
+
+[<Fact>]
+let ``test isEmpty returns false for non-empty list`` () =
+#if FABLE_COMPILER
+    let xs: BeamList<int> = emitErlExpr () "[1, 2, 3]"
+    Erlang.isEmpty xs |> equal false
+#else
+    ()
+#endif
+
+[<Fact>]
+let ``test head returns first element`` () =
+#if FABLE_COMPILER
+    let xs: BeamList<int> = emitErlExpr () "[42, 2, 3]"
+    Erlang.head xs |> equal 42
+#else
+    ()
+#endif
+
+[<Fact>]
+let ``test head preserves element type with tuples`` () =
+#if FABLE_COMPILER
+    let xs: BeamList<int * string> = emitErlExpr () "[{1, <<\"a\">>}, {2, <<\"b\">>}]"
+    let (n, s) = Erlang.head xs
+    n |> equal 1
+    s |> equal "a"
+#else
+    ()
+#endif
+
+[<Fact>]
+let ``test tail returns rest of list`` () =
+#if FABLE_COMPILER
+    let xs: BeamList<int> = emitErlExpr () "[1, 2, 3]"
+    let tl = Erlang.tail xs
+    Erlang.head tl |> equal 2
+    Erlang.isEmpty (Erlang.tail tl |> Erlang.tail) |> equal true
+#else
+    ()
+#endif
+
+[<Fact>]
+let ``test head raises on empty list`` () =
+#if FABLE_COMPILER
+    let empty: BeamList<int> = emitErlExpr () "[]"
+    throwsAnyError (fun () -> Erlang.head empty)
+#else
+    ()
+#endif
+
+[<Fact>]
+let ``test tail raises on empty list`` () =
+#if FABLE_COMPILER
+    let empty: BeamList<int> = emitErlExpr () "[]"
+    throwsAnyError (fun () -> Erlang.tail empty)
 #else
     ()
 #endif
