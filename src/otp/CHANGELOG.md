@@ -1,11 +1,19 @@
 ---
-last_commit_released: 7e76fcc26dc1870df9ee1bc0d90ee7277ee0d872
+last_commit_released: 21b8ba518db427f3609a3a6dd0499363bca8dd8e
 name: Fable.Beam
 ---
 
 # Changelog
 
 All notable changes to this project will be documented in this file.
+
+## 5.0.0-rc.28 - 2026-04-26
+
+### 🚀 Features
+
+* Add isEmpty, head, and tail list BIF bindings to Erlang module (#93) ([21b8ba5](https://github.com/fable-compiler/Fable.Beam/commit/21b8ba518db427f3609a3a6dd0499363bca8dd8e))
+
+<strong><small>[View changes on Github](https://github.com/fable-compiler/Fable.Beam/compare/7e76fcc26dc1870df9ee1bc0d90ee7277ee0d872..21b8ba518db427f3609a3a6dd0499363bca8dd8e)</small></strong>
 
 ## 5.0.0-rc.27 - 2026-04-25
 
