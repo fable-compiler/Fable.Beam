@@ -201,13 +201,13 @@ let element (n: int) (tuple: obj) : obj = nativeOnly
 [<Emit("$0 =:= []")>]
 let isEmpty (list: BeamList<'T>) : bool = nativeOnly
 
-/// Returns the first element (head) of a non-empty list.
-/// Raises badarg on an empty list.
+/// Returns the first element of a non-empty list. Raises `badarg` on an empty list.
+/// For F# `list<'T>` use `List.head`; this is for raw `BeamList<'T>` from OTP calls.
 [<Emit("erlang:hd($0)")>]
 let head (list: BeamList<'T>) : 'T = nativeOnly
 
-/// Returns the list without its first element (tail) of a non-empty list.
-/// Raises badarg on an empty list.
+/// Returns the list without its first element. Raises `badarg` on an empty list.
+/// For F# `list<'T>` use `List.tail`; this is for raw `BeamList<'T>` from OTP calls.
 [<Emit("erlang:tl($0)")>]
 let tail (list: BeamList<'T>) : BeamList<'T> = nativeOnly
 

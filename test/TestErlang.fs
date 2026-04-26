@@ -6,6 +6,7 @@ open Fable.Beam.Testing
 open Fable.Core
 open Fable.Core.BeamInterop
 open Fable.Beam
+open Fable.Beam.Lists
 
 type RecvMsg =
     | [<CompiledName("ping")>] Ping
@@ -342,12 +343,41 @@ let ``test head returns first element`` () =
 #endif
 
 [<Fact>]
+let ``test head preserves element type with tuples`` () =
+#if FABLE_COMPILER
+    let xs: BeamList<int * string> = emitErlExpr () "[{1, <<\"a\">>}, {2, <<\"b\">>}]"
+    let (n, s) = Erlang.head xs
+    n |> equal 1
+    s |> equal "a"
+#else
+    ()
+#endif
+
+[<Fact>]
 let ``test tail returns rest of list`` () =
 #if FABLE_COMPILER
     let xs: BeamList<int> = emitErlExpr () "[1, 2, 3]"
     let tl = Erlang.tail xs
     Erlang.head tl |> equal 2
     Erlang.isEmpty (Erlang.tail tl |> Erlang.tail) |> equal true
+#else
+    ()
+#endif
+
+[<Fact>]
+let ``test head raises on empty list`` () =
+#if FABLE_COMPILER
+    let empty: BeamList<int> = emitErlExpr () "[]"
+    throwsAnyError (fun () -> Erlang.head empty)
+#else
+    ()
+#endif
+
+[<Fact>]
+let ``test tail raises on empty list`` () =
+#if FABLE_COMPILER
+    let empty: BeamList<int> = emitErlExpr () "[]"
+    throwsAnyError (fun () -> Erlang.tail empty)
 #else
     ()
 #endif
