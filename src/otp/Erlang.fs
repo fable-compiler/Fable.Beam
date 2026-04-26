@@ -196,6 +196,21 @@ let byteSize (bin: string) : int = nativeOnly
 [<Emit("erlang:element($0, $1)")>]
 let element (n: int) (tuple: obj) : obj = nativeOnly
 
+/// Returns true if the list is empty (=:= []). O(1) and guard-safe.
+/// Use instead of `Erlang.length(xs) = 0` to avoid an O(n) scan.
+[<Emit("$0 =:= []")>]
+let isEmpty (list: BeamList<'T>) : bool = nativeOnly
+
+/// Returns the first element (head) of a non-empty list.
+/// Raises badarg on an empty list.
+[<Emit("erlang:hd($0)")>]
+let head (list: BeamList<'T>) : 'T = nativeOnly
+
+/// Returns the list without its first element (tail) of a non-empty list.
+/// Raises badarg on an empty list.
+[<Emit("erlang:tl($0)")>]
+let tail (list: BeamList<'T>) : BeamList<'T> = nativeOnly
+
 // ============================================================================
 // Type checks and conversions
 // ============================================================================

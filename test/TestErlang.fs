@@ -312,3 +312,42 @@ let ``test atomToList returns charlist not binary`` () =
 #else
     ()
 #endif
+
+
+[<Fact>]
+let ``test isEmpty returns true for empty list`` () =
+#if FABLE_COMPILER
+    let empty: BeamList<int> = emitErlExpr () "[]"
+    Erlang.isEmpty empty |> equal true
+#else
+    ()
+#endif
+
+[<Fact>]
+let ``test isEmpty returns false for non-empty list`` () =
+#if FABLE_COMPILER
+    let xs: BeamList<int> = emitErlExpr () "[1, 2, 3]"
+    Erlang.isEmpty xs |> equal false
+#else
+    ()
+#endif
+
+[<Fact>]
+let ``test head returns first element`` () =
+#if FABLE_COMPILER
+    let xs: BeamList<int> = emitErlExpr () "[42, 2, 3]"
+    Erlang.head xs |> equal 42
+#else
+    ()
+#endif
+
+[<Fact>]
+let ``test tail returns rest of list`` () =
+#if FABLE_COMPILER
+    let xs: BeamList<int> = emitErlExpr () "[1, 2, 3]"
+    let tl = Erlang.tail xs
+    Erlang.head tl |> equal 2
+    Erlang.isEmpty (Erlang.tail tl |> Erlang.tail) |> equal true
+#else
+    ()
+#endif
