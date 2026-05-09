@@ -14,7 +14,7 @@ description: |
   Always polite, constructive, and mindful of the project's goals.
 
 on:
-  schedule: every 24h
+  # schedule: every 24h  # disabled: was burning Copilot tokens; trigger manually via workflow_dispatch / slash_command instead
   workflow_dispatch:
   slash_command:
     name: repo-assist
