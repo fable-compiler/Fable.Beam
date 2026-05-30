@@ -1,11 +1,19 @@
 ---
-last_commit_released: 21b8ba518db427f3609a3a6dd0499363bca8dd8e
+last_commit_released: ecd0e13b4d0e5040a5dde345e0d04471258f8e50
 name: Fable.Beam
 ---
 
 # Changelog
 
 All notable changes to this project will be documented in this file.
+
+## 5.0.0-rc.29 - 2026-05-30
+
+### 🚀 Features
+
+* Replace obj with typed APIs in Cowboy, Supervisor and GenServer bindings (#103) ([ecd0e13](https://github.com/fable-compiler/Fable.Beam/commit/ecd0e13b4d0e5040a5dde345e0d04471258f8e50))
+
+<strong><small>[View changes on Github](https://github.com/fable-compiler/Fable.Beam/compare/21b8ba518db427f3609a3a6dd0499363bca8dd8e..ecd0e13b4d0e5040a5dde345e0d04471258f8e50)</small></strong>
 
 ## 5.0.0-rc.28 - 2026-04-26
 
