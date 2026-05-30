@@ -31,9 +31,20 @@ let headerDefault (name: string) (req: Req) (defaultValue: string) : string = na
 [<Emit("cowboy_req:headers($0)")>]
 let headers (req: Req) : BeamMap<string, string> = nativeOnly
 
-/// Read the full request body. Returns {ok, Body, Req}.
+/// Completeness status of a `readBody` call. `Ok` means the whole body was
+/// read; `More` means it exceeded the read length and `readBody` must be called
+/// again with the returned `Req` to read the next chunk.
+[<RequireQualifiedAccess>]
+type BodyStatus =
+    | Ok
+    | More
+
+/// Read a chunk of the request body. Returns the completeness status, the chunk
+/// data (a binary), and the updated request. For bodies within the default read
+/// length this is a single `Ok` read; larger bodies yield `More` until the final
+/// `Ok`. Maps `cowboy_req:read_body/1`'s `{ok | more, Data, Req}`.
 [<Emit("cowboy_req:read_body($0)")>]
-let readBody (req: Req) : obj * byte array * Req = nativeOnly
+let readBody (req: Req) : BodyStatus * string * Req = nativeOnly
 
 /// Get the query string.
 [<Emit("cowboy_req:qs($0)")>]
@@ -47,9 +58,13 @@ let reply (status: int) (headers: BeamMap<string, string>) (body: string) (req: 
 [<Emit("cowboy_req:reply($0, $1, $2)")>]
 let replyNoBody (status: int) (headers: BeamMap<string, string>) (req: Req) : Req = nativeOnly
 
-/// Get the peer IP address and port.
-[<Emit("cowboy_req:peer($0)")>]
-let peer (req: Req) : obj * int = nativeOnly
+/// Remote peer address (as a string, e.g. "127.0.0.1") and port.
+type Peer = { Ip: string; Port: int }
+
+/// Get the remote peer address and port. The raw `inet:ip_address()` tuple is
+/// rendered to a string via `inet:ntoa/1`.
+[<Emit("(fun() -> {PeerIp__, PeerPort__} = cowboy_req:peer($0), #{ip => erlang:list_to_binary(inet:ntoa(PeerIp__)), port => PeerPort__} end)()")>]
+let peer (req: Req) : Peer = nativeOnly
 
 /// Get the scheme (<<"http">> or <<"https">>).
 [<Emit("cowboy_req:scheme($0)")>]
@@ -63,9 +78,10 @@ let host (req: Req) : string = nativeOnly
 [<Emit("cowboy_req:port($0)")>]
 let port (req: Req) : int = nativeOnly
 
-/// Parse query string into a list of key-value pairs.
-[<Emit("cowboy_req:parse_qs($0)")>]
-let parseQs (req: Req) : obj = nativeOnly
+/// Parse the query string into key-value pairs. Valueless keys (e.g. `?flag`)
+/// yield an empty-string value.
+[<Emit("(fun() -> [{ParseQsK__, case ParseQsV__ of true -> <<>>; _ -> ParseQsV__ end} || {ParseQsK__, ParseQsV__} <- cowboy_req:parse_qs($0)] end)()")>]
+let parseQs (req: Req) : (string * string) list = nativeOnly
 
 /// Get a binding value from the route.
 [<Emit("cowboy_req:binding($0, $1)")>]

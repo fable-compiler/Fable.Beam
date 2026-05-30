@@ -29,16 +29,24 @@ let globalName (name: Atom) : ServerName = nativeOnly
 [<Emit("{via, $0, $1}")>]
 let viaName (``module``: Atom) (name: Atom) : ServerName = nativeOnly
 
+/// Opaque client tag passed to a `handle_call` callback and forwarded to
+/// `reply` for a deferred response. Erased at runtime.
+[<Erase>]
+type From = From of obj
+
 [<Erase>]
 type IExports =
     /// Starts a gen_server process.
-    abstract start_link: ``module``: Atom * args: 'Args * options: obj list -> Result<Pid<'Msg>, obj>
+    abstract start_link: ``module``: Atom * args: 'Args * options: obj list -> Result<Pid<'Msg>, Dynamic>
+
     /// Starts a named gen_server process.
-    abstract start_link: name: ServerName * ``module``: Atom * args: 'Args * options: obj list -> Result<Pid<'Msg>, obj>
+    abstract start_link:
+        name: ServerName * ``module``: Atom * args: 'Args * options: obj list -> Result<Pid<'Msg>, Dynamic>
+
     /// Starts a gen_server without linking.
-    abstract start: ``module``: Atom * args: 'Args * options: obj list -> Result<Pid<'Msg>, obj>
+    abstract start: ``module``: Atom * args: 'Args * options: obj list -> Result<Pid<'Msg>, Dynamic>
     /// Starts a named gen_server without linking.
-    abstract start: name: ServerName * ``module``: Atom * args: 'Args * options: obj list -> Result<Pid<'Msg>, obj>
+    abstract start: name: ServerName * ``module``: Atom * args: 'Args * options: obj list -> Result<Pid<'Msg>, Dynamic>
     /// Makes a synchronous call to a gen_server.
     abstract call: serverRef: ServerRef<'Call, 'Cast> * request: 'Call -> 'Reply
     /// Makes a synchronous call with timeout (int ms or atom 'infinity').
@@ -46,7 +54,7 @@ type IExports =
     /// Sends an asynchronous request to a gen_server.
     abstract cast: serverRef: ServerRef<'Call, 'Cast> * request: 'Cast -> unit
     /// Sends a reply to a client that called call/2,3.
-    abstract reply: from: obj * reply: 'Reply -> unit
+    abstract reply: from: From * reply: 'Reply -> unit
     /// Stops a gen_server.
     abstract stop: serverRef: ServerRef<'Call, 'Cast> -> unit
     /// Stops a gen_server with reason and timeout (int ms or atom 'infinity').

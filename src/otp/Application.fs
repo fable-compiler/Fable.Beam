@@ -7,9 +7,9 @@ open Fable.Beam
 
 // fsharplint:disable MemberNames
 
-/// Raw low-level bindings. Prefer the typed helpers below for most use cases.
+/// Raw low-level bindings (internal escape hatch). Prefer the typed helpers below.
 [<Erase>]
-type IExports =
+type internal IExports =
     /// Starts an application and all its dependencies.
     abstract ensure_all_started: app: Atom -> obj
     /// Starts an application.
@@ -27,7 +27,7 @@ type IExports =
 
 /// application module
 [<ImportAll("application")>]
-let application: IExports = nativeOnly
+let internal application: IExports = nativeOnly
 
 // ============================================================================
 // Typed API
@@ -52,3 +52,12 @@ let start (app: Atom) : Result<unit, string> = nativeOnly
 /// Stops an application. Returns Ok on success.
 [<Emit("(fun() -> case application:stop($0) of ok -> {ok, ok}; {error, Reason__} -> {error, erlang:list_to_binary(io_lib:format(<<\"~p\">>, [Reason__]))} end end)()")>]
 let stop (app: Atom) : Result<unit, string> = nativeOnly
+
+/// Sets an application environment variable.
+[<Emit("application:set_env($0, $1, $2)")>]
+let setEnv (app: Atom) (key: Atom) (value: 'V) : unit = nativeOnly
+
+/// Returns the running applications as a dynamic list of `{Name, Description,
+/// Vsn}` tuples — decode with `Fable.Beam.Decode`.
+[<Emit("application:which_applications()")>]
+let whichApplications () : Dynamic = nativeOnly

@@ -7,11 +7,11 @@ open Fable.Core
 // fsharplint:disable MemberNames
 
 // ============================================================================
-// Raw bindings (returns obj, caller must handle tuples)
+// Raw bindings (internal escape hatch; returns obj — prefer the typed API below)
 // ============================================================================
 
 [<Erase>]
-type IExports =
+type internal IExports =
     /// Reads the contents of a file.
     abstract read_file: filename: string -> obj
     /// Writes data to a file.
@@ -35,7 +35,7 @@ type IExports =
 
 /// file module (raw, no charlist conversion — prefer typed functions below)
 [<ImportAll("file")>]
-let file: IExports = nativeOnly
+let internal file: IExports = nativeOnly
 
 // ============================================================================
 // Typed API with charlist conversion and Result returns
@@ -82,3 +82,7 @@ let getCwd () : Result<string, string> = nativeOnly
 /// Checks if a file or directory exists at the given path.
 [<Emit("(fun() -> case file:read_file_info(binary_to_list($0)) of {ok, _} -> true; {error, _} -> false end end)()")>]
 let exists (path: string) : bool = nativeOnly
+
+/// Sets the current working directory. Handles binary_to_list conversion for path.
+[<Emit("(fun() -> case file:set_cwd(binary_to_list($0)) of ok -> {ok, ok}; {error, FileSetCwdReason__} -> {error, erlang:atom_to_binary(FileSetCwdReason__)} end end)()")>]
+let setCwd (path: string) : Result<unit, string> = nativeOnly
