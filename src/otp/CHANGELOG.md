@@ -1,11 +1,19 @@
 ---
-last_commit_released: ecd0e13b4d0e5040a5dde345e0d04471258f8e50
+last_commit_released: 88f03e053f2bd194650335508af9f4c77bfefb9f
 name: Fable.Beam
 ---
 
 # Changelog
 
 All notable changes to this project will be documented in this file.
+
+## 5.0.0-rc.30 - 2026-05-31
+
+### 🚀 Features
+
+* Add Maps.ofList for clean literal map construction (#105) ([88f03e0](https://github.com/fable-compiler/Fable.Beam/commit/88f03e053f2bd194650335508af9f4c77bfefb9f))
+
+<strong><small>[View changes on Github](https://github.com/fable-compiler/Fable.Beam/compare/ecd0e13b4d0e5040a5dde345e0d04471258f8e50..88f03e053f2bd194650335508af9f4c77bfefb9f)</small></strong>
 
 ## 5.0.0-rc.29 - 2026-05-30
 
