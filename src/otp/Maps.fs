@@ -64,3 +64,11 @@ let maps: IExports = nativeOnly
 /// Type-safe wrapper around maps:find/2.
 [<Emit("(fun() -> case maps:find($0, $1) of error -> undefined; {ok, MapsFindVal__} -> MapsFindVal__ end end)()")>]
 let tryFind (key: 'K) (map: BeamMap<'K, 'V>) : 'V option = nativeOnly
+
+/// Builds a map from a list of key-value pairs. Unlike `maps.from_list` (which
+/// takes an F# array and round-trips through a process-dictionary ref via
+/// `erlang:get(fable_utils:new_ref(...))`), this takes an F# list and lowers to a
+/// direct `maps:from_list([...])` — ideal for small literal maps such as Cowboy
+/// response headers, e.g. `ofList [ "content-type", "text/html" ]`.
+[<Emit("maps:from_list($0)")>]
+let ofList (pairs: ('K * 'V) list) : BeamMap<'K, 'V> = nativeOnly
