@@ -120,3 +120,16 @@ let ``test tryFind returns None for missing key`` () =
 #else
     ()
 #endif
+
+[<Fact>]
+let ``test ofList builds a map from a literal list`` () =
+#if FABLE_COMPILER
+    let headers: BeamMap<string, string> =
+        ofList [ "content-type", "text/html"; "server", "cowboy" ]
+
+    maps.size headers |> equal 2
+    maps.get ("content-type", headers) |> equal "text/html"
+    tryFind "server" headers |> equal (Some "cowboy")
+#else
+    ()
+#endif
