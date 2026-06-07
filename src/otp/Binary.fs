@@ -52,8 +52,9 @@ let binary: IExports = nativeOnly
 // ============================================================================
 // Typed API — match, matches, split, replace
 // ============================================================================
-// WORKAROUND: Emit expressions wrapped in (fun() -> ... end)() to prevent
-// Erlang "unsafe variable" errors. Remove IIFEs once fixed in Fable.
+// NOTE: the (fun() -> ... end)() wrappers on the case Emits below are no longer
+// required — Fable (>= 5.0.0) auto-wraps case-containing Emits for variable scoping.
+// Kept for explicitness; safe to remove.
 
 /// Searches for Pattern in Subject.
 /// Returns Some (startPos, length) if found, or None if not found.

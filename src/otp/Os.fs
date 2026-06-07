@@ -10,8 +10,9 @@ open Fable.Beam
 // ============================================================================
 // Environment variables
 // ============================================================================
-// WORKAROUND: Emit expressions wrapped in (fun() -> ... end)() to prevent
-// Erlang "unsafe variable" errors. Remove IIFEs once fixed in Fable.
+// NOTE: the (fun() -> ... end)() wrappers on the case Emits below are no longer
+// required — Fable (>= 5.0.0) auto-wraps case-containing Emits for variable scoping.
+// Kept for explicitness; safe to remove.
 
 /// Gets an environment variable. Returns None if not set
 /// (os:getenv returns the atom `false` when unset).

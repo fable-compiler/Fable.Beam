@@ -71,8 +71,9 @@ let queue: IExports = nativeOnly
 // ============================================================================
 // Typed API — functions with non-trivial Erlang return values
 // ============================================================================
-// WORKAROUND: Emit expressions wrapped in (fun() -> ... end)() to prevent
-// Erlang "unsafe variable" errors.
+// NOTE: the (fun() -> ... end)() wrappers on the case Emits below are no longer
+// required — Fable (>= 5.0.0) auto-wraps case-containing Emits for variable scoping.
+// Kept for explicitness; safe to remove.
 
 /// Removes the front element of queue Q.
 /// Returns (Some element, newQueue) if Q is non-empty, or (None, Q) if empty. O(1) amortized.

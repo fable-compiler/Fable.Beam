@@ -32,8 +32,9 @@ let internal application: IExports = nativeOnly
 // ============================================================================
 // Typed API
 // ============================================================================
-// WORKAROUND: Emit expressions wrapped in (fun() -> ... end)() to prevent
-// Erlang "unsafe variable" errors. Remove IIFEs once fixed in Fable.
+// NOTE: the (fun() -> ... end)() wrappers on the case Emits below are no longer
+// required — Fable (>= 5.0.0) auto-wraps case-containing Emits for variable scoping.
+// Kept for explicitness; safe to remove.
 
 /// Gets an application environment variable. Returns None if unset.
 /// The returned Dynamic must be decoded with `Fable.Beam.Decode` combinators.

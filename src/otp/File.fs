@@ -40,10 +40,11 @@ let internal file: IExports = nativeOnly
 // ============================================================================
 // Typed API with charlist conversion and Result returns
 // ============================================================================
-// WORKAROUND: All Emit expressions below are wrapped in (fun() -> ... end)()
-// to prevent Erlang "unsafe variable" errors when multiple Emit calls appear
-// in the same function. This is a Fable BEAM backend bug — Emit inlines case
-// expressions without scoping variables. Remove IIFEs once fixed in Fable.
+// NOTE: the Emit expressions below are wrapped in (fun() -> ... end)(). As of
+// Fable 5.0.0 this is no longer required — the BEAM backend auto-wraps every
+// case-containing Emit, so clause variables are isolated even when the same Emit
+// is inlined twice into one function. The wrappers are kept for explicitness and
+// are safe to remove.
 
 /// Reads the contents of a file. Handles binary_to_list conversion for path.
 /// Returns Ok with file contents as binary, or Error with reason as string.
