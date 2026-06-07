@@ -18,7 +18,7 @@ When writing or reviewing a binding, check:
 - **Arity** — ensure all arities of a function are covered or the most common ones are bound
 - **Charlist vs binary** — the docs say `string()` for charlists; F# strings are binaries, so convert
 - **Discrete atom sets** — model as plain DUs with no fields (add `[<CompiledName>]` for snake_case atoms)
-- **Callbacks** — use `System.Func<>` / `System.Action<>` (not raw F# function types) to avoid Emit positional bugs
+- **Callbacks** — `System.Func<>` / `System.Action<>` is the house style for `ImportAll` callback params (raw F# function types also work in curried Emits — it's a consistency choice, not a correctness fix)
 
 ## Quick Reference
 
@@ -744,17 +744,23 @@ let getCwd () : Result<string, string> = nativeOnly
 
 ## IIFE Wrapping for Variable Scoping
 
-Wrap complex Emit expressions in `(fun() -> ... end)()` (an Immediately
-Invoked Function Expression). This prevents Erlang "unsafe variable"
-errors when multiple Emit calls appear in the same generated function:
+**As of Fable 5.0.0 this is handled automatically** — the Erlang backend wraps every
+`case`-containing Emit in its own `(fun() -> ... end)()`, so clause variables are isolated
+even when the same Emit is inlined twice into one function. You do **not** need to add the
+IIFE yourself, and reusing a clause variable name across bindings no longer collides.
+(Verified on 5.1.0: an un-wrapped `case` Emit called twice in one function compiles via
+`erlc` with no "unsafe variable" error and runs correctly.)
+
+Historically this required a manual Immediately Invoked Function Expression:
 
 ```fsharp
-// BAD — may cause "unsafe variable" errors in generated Erlang
+// Previously needed; now redundant — Fable adds the wrapper. Both forms generate identical
+// Erlang (Fable does not double-wrap a case Emit that already carries its own IIFE).
 [<Emit("case file:read_file($0) of {ok, Data} -> {ok, Data}; {error, R} -> {error, R} end")>]
-
-// GOOD — scoped in IIFE
-[<Emit("(fun() -> case file:read_file($0) of {ok, Data} -> {ok, Data}; {error, R} -> {error, R} end end)()")>]
 ```
+
+Existing bindings still carry manual IIFEs; they are harmless (belt-and-suspenders) and can
+be dropped opportunistically. New bindings don't need them.
 
 ## Variable Naming in Emit
 
@@ -881,41 +887,27 @@ wrappers around private Emit functions. Fable compiles cross-module
 non-Emit calls as Erlang module calls (e.g., `httpc:get/3`), which won't
 exist in the target Erlang module.
 
-### Curried Emit + function-valued param: use `System.Func`
+### Curried Emit + function-valued param: `System.Func` is optional (style, not correctness)
 
-When an Emit-bound function is **curried** AND takes a **function-valued argument**,
-Fable-BEAM can misplace positional `$N` substitutions in the generated Erlang. The symptom
-is the decoder fn appearing where another argument should be — typically manifesting as a
-runtime `{badmap, #Fun<...>}` or `badarity` error.
-
-**Fix**: wrap callback parameters as `System.Func<>` (matches the existing `Lists.fs`
-convention for `map`, `filter`, `foldl`):
+A curried `[<Emit>]` binding that takes a **function-valued argument** substitutes its
+positional `$N` **correctly** — including when an earlier `$N` is referenced after a later
+one in the body. There is no `$1`/`$2` swap. This was verified on Fable 5.1.0 for a raw
+curried `'a -> 'b` parameter:
 
 ```fsharp
-// BAD — curried signature with raw F# function type. Positional $N may be swapped.
-[<Emit("(fun() -> case maps:find($0, $2) of {ok, V__} -> $1(V__); ... end end)()")>]
+// Generates CORRECT Erlang: maps:find(Key, D) with $1 applied to the {ok, _} value.
+[<Emit("(fun() -> case maps:find($0, $2) of {ok, FieldVal__} -> $1(FieldVal__); error -> ... end end)()")>]
 let field (key: Atom) (decoder: Dynamic -> Result<'V, string>) (d: Dynamic) : Result<'V, string>
-// Generated (wrong): maps:find(Key, <decoder-fun>)   ← $1 and $2 swapped
-
-// GOOD — System.Func makes the decoder a single .NET value; substitutions are correct.
-[<Emit("(fun() -> case maps:find($0, $2) of {ok, V__} -> $1(V__); ... end end)()")>]
-let field (key: Atom) (decoder: System.Func<Dynamic, Result<'V, string>>) (d: Dynamic)
-    : Result<'V, string>
-// Generated (correct): maps:find(Key, D)
 ```
 
-Call site: `Decode.field key (System.Func<_, _> Decode.int) d`.
+So you may use either a raw `'a -> 'b` parameter or `System.Func<>`. The `Decode` and
+`Lists` modules use `System.Func<>` purely for **stylistic consistency** (all callback-taking
+bindings look the same, and call sites read uniformly), not because a raw function type is
+broken. Pick whichever fits; don't add `System.Func` believing it's required for correctness.
 
-The alternative is to switch the whole function to **tupled args**:
-
-```fsharp
-let field (key: Atom, decoder: Dynamic -> Result<'V, string>, d: Dynamic) : Result<'V, string>
-// Call site: Decode.field (key, Decode.int, d)
-```
-
-`System.Func` is preferred when the function is a natural fit for curried partial
-application and there are multiple callbacks in the same module's API (consistency with
-`Lists.fs`).
+> Historical note: earlier revisions of this guide claimed curried Emit + raw function args
+> caused positional-substitution swaps (`{badmap, #Fun<...>}` / `badarity`). That does not
+> reproduce on Fable 5.x — the claim was stale and has been removed.
 
 ## Anti-patterns
 
@@ -1093,8 +1085,8 @@ let moduleName: IExports = nativeOnly
 // Typed API (Result return for {ok, V} | {error, R} shapes)
 // ============================================================================
 
-/// WORKAROUND: IIFE wrapping required for case expressions until Fable fixes
-/// the "unsafe variable" bug. Keep (fun() -> ... end)() around Emit cases.
+/// Note: the (fun() -> ... end)() around this case is optional as of Fable 5.0.0
+/// (the backend auto-wraps case Emits for variable scoping); shown for clarity.
 [<Emit("(fun() -> case module_name:do_something($0) of {ok, Result__} -> {ok, Result__}; {error, Reason__} -> {error, erlang:atom_to_binary(Reason__)} end end)()")>]
 let doSomething (arg: string) : Result<string, string> = nativeOnly
 

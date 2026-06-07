@@ -60,8 +60,8 @@ See `BINDINGS-GUIDE.md` for the full guide. Two core patterns:
 Key rules:
 - Use concrete F# types (`int`, `string`, `Pid`, `Result<T,E>`) instead of `obj` wherever possible
 - F# strings compile to Erlang binaries (`<<"hello">>`), not charlists — use `binary_to_list($0)` when OTP expects charlists
-- Wrap complex Emit expressions in `(fun() -> ... end)()` to prevent Erlang "unsafe variable" errors
-- Use suffixed variable names in Emit (`FileReadData__`, not `Data`) to avoid Erlang variable collisions
+- `case`-containing Emit expressions are auto-wrapped in `(fun() -> ... end)()` by Fable (>= 5.0.0), so manual IIFE wrapping is no longer required (existing wrappers are harmless)
+- Suffixed Emit variable names (`FileReadData__`, not `Data`) are still good practice for non-`case` bindings, though the auto-wrap isolates `case`-clause variables
 - `[<ImportAll>]` members use tupled args; `[<Emit>]` bindings use curried args
 
 ## Architecture

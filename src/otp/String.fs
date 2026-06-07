@@ -84,8 +84,9 @@ let str: IExports = nativeOnly
 // ============================================================================
 // Typed API — functions with non-trivial Erlang return values
 // ============================================================================
-// WORKAROUND: Emit expressions wrapped in (fun() -> ... end)() to prevent
-// Erlang "unsafe variable" errors.
+// NOTE: the (fun() -> ... end)() wrappers on the case Emits below are no longer
+// required — Fable (>= 5.0.0) auto-wraps case-containing Emits for variable scoping.
+// Kept for explicitness; safe to remove.
 
 /// Searches for the first occurrence of SearchPattern in String, searching left to right.
 /// Returns Some suffix (the tail of String from the match start) or None if not found.

@@ -15,8 +15,9 @@ type Dynamic = Dynamic of obj
 /// Decoder combinators for extracting typed values from a `Dynamic`.
 /// Each decoder returns `Result<'T, string>` where the error is a human-readable message.
 ///
-/// WORKAROUND: Emit expressions wrapped in `(fun() -> ... end)()` to prevent
-/// Erlang "unsafe variable" errors. Remove IIFEs once fixed in Fable.
+/// Note: the `(fun() -> ... end)()` wrappers on the `case` Emits below are no longer
+/// required — Fable (>= 5.0.0) auto-wraps `case`-containing Emits for variable scoping.
+/// They're kept for explicitness and can be removed.
 module Decode =
 
     /// Decode a Dynamic as an integer.
@@ -46,8 +47,9 @@ module Decode =
 
     /// Extract a field from an Erlang map and decode it with the given decoder.
     /// Returns Error if the map doesn't contain the key or the inner decoder fails.
-    /// Uses System.Func for the decoder — matches the Lists.fs convention for
-    /// callbacks and avoids curried-arg substitution issues with Emit.
+    /// Uses System.Func for the decoder for consistency with the Lists.fs callback
+    /// convention. (A raw `Dynamic -> Result<_,_>` param also substitutes correctly
+    /// in the Emit — System.Func is a style choice here, not a correctness requirement.)
     [<Emit("(fun() -> case maps:find($0, $2) of {ok, FieldVal__} -> $1(FieldVal__); error -> {error, erlang:list_to_binary(io_lib:format(<<\"missing field ~p\">>, [$0]))} end end)()")>]
     let field (key: Atom) (decoder: System.Func<Dynamic, Result<'V, string>>) (d: Dynamic) : Result<'V, string> =
         nativeOnly
