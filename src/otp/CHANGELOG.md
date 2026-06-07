@@ -1,11 +1,19 @@
 ---
-last_commit_released: 88f03e053f2bd194650335508af9f4c77bfefb9f
+last_commit_released: e850ad5d7007eafd2b0897bdceef0a2815934863
 name: Fable.Beam
 ---
 
 # Changelog
 
 All notable changes to this project will be documented in this file.
+
+## 5.0.0-rc.31 - 2026-06-07
+
+### 🚀 Features
+
+* Add OTP logger handler bindings + fix latent bare-ok Result bug (#108) ([e850ad5](https://github.com/fable-compiler/Fable.Beam/commit/e850ad5d7007eafd2b0897bdceef0a2815934863))
+
+<strong><small>[View changes on Github](https://github.com/fable-compiler/Fable.Beam/compare/88f03e053f2bd194650335508af9f4c77bfefb9f..e850ad5d7007eafd2b0897bdceef0a2815934863)</small></strong>
 
 ## 5.0.0-rc.30 - 2026-05-31
 
