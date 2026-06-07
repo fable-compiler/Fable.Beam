@@ -6,6 +6,7 @@ open Fable.Core
 
 #if FABLE_COMPILER
 open Fable.Beam
+open Fable.Beam.Maps
 open Fable.Beam.Logger
 #endif
 
@@ -46,16 +47,15 @@ let ``test logger.info with format args`` () =
 let ``test logger add and remove handler`` () =
 #if FABLE_COMPILER
     // Round-trip a handler through add_handler/3 and remove_handler/1, asserting the
-    // ok | {error, term()} result is returned (not swallowed).
+    // ok | {error, term()} result maps to Ok () (and is not swallowed).
     let handlerId = Erlang.binaryToAtom "test_handler"
     let modle = Erlang.binaryToAtom "logger_std_h"
-    let ok = box (Erlang.binaryToAtom "ok")
 
-    let config =
+    let config: BeamMap<Atom, obj> =
         Maps.ofList [ (Erlang.binaryToAtom "level", box (Erlang.binaryToAtom "info")) ]
 
-    logger.add_handler (handlerId, modle, box config) |> equal ok
-    logger.remove_handler handlerId |> equal ok
+    logger.add_handler (handlerId, modle, config) |> equal (Ok())
+    logger.remove_handler handlerId |> equal (Ok())
 #else
     ()
 #endif
