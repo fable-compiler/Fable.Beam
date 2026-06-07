@@ -45,9 +45,22 @@ type IExports =
     /// Set the primary logger configuration. Common use: set_primary_config(atom "level", atom "debug")
     abstract set_primary_config: key: Atom * value: Atom -> unit
     /// Update a handler's configuration. Common use: change formatter template.
-    abstract update_handler_config: handler: Atom * key: Atom * value: obj -> unit
+    /// Returns ok | {error, term()} — OTP rejects some changes (e.g. changing a
+    /// logger_std_h handler's type at runtime), so the result must not be swallowed.
+    abstract update_handler_config: handler: Atom * key: Atom * value: obj -> obj
     /// Add a primary filter. The filter is an opaque {FilterFun, Extra} tuple.
     abstract add_primary_filter: id: Atom * filter: obj -> unit
+    /// Add a handler. logger:add_handler/3 — returns ok | {error, term()}.
+    /// config is an open handler-config map (e.g. logger_std_h / logger_formatter settings).
+    abstract add_handler: handlerId: Atom * modle: Atom * config: obj -> obj
+    /// Remove a handler. logger:remove_handler/1 — returns ok | {error, term()}.
+    abstract remove_handler: handlerId: Atom -> obj
+    /// Get a handler's full configuration map. logger:get_handler_config/1.
+    abstract get_handler_config: handlerId: Atom -> obj
+    /// Replace a handler's entire configuration. logger:set_handler_config/2 — returns ok | {error, term()}.
+    abstract set_handler_config: handlerId: Atom * config: obj -> obj
+    /// Set a single key in a handler's configuration. logger:set_handler_config/3 — returns ok | {error, term()}.
+    abstract set_handler_config: handlerId: Atom * key: Atom * value: obj -> obj
 
 /// logger module
 [<ImportAll("logger")>]
