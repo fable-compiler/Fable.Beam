@@ -61,7 +61,7 @@ The only narrow places `obj` is acceptable are listed in the "When `obj` is acce
 | `int`, `float`   | `integer()`, `float()`      | Direct                                     |
 | `string`         | `binary()`                  | `<<"hello">>` — **not** charlists          |
 | `bool`           | `true` \| `false`           | Atoms                                      |
-| `unit`           | `ok`                        | Atom                                       |
+| `unit`           | `ok`                        | Atom — but `Ok ()` in a `Result` is `{ok, ok}` (see bare-`ok` anti-pattern) |
 | `tuple`          | `tuple`                     | `{A, B, C}` — direct mapping               |
 | `list<T>`        | `list()`                    | Both are linked lists                      |
 | `option<T>`      | value or `undefined`        | Erased wrapper                             |
@@ -170,7 +170,10 @@ let writeFile (path: string) (data: string) : Result<unit, string> = nativeOnly
 ```
 
 Note: for functions that return bare `ok` (not `{ok, Value}`), wrap it as
-`{ok, ok}` in the Emit so it maps to `Result<unit, string>`.
+`{ok, ok}` in the Emit so it maps to `Result<unit, string>`. **This wrapper is
+mandatory even for `[<ImportAll>]` interface members** — a plain `Result<unit, _>`
+binding over a bare-`ok` function compiles but is silently wrong at runtime. See
+the "Result over a bare-`ok` function" anti-pattern below for why.
 
 ### Records: use for structured Erlang maps
 
@@ -1006,6 +1009,44 @@ let send (pid: Pid) (msg: obj) : unit = nativeOnly
 // GOOD — types flow naturally
 let send (pid: Pid<'Msg>) (msg: 'Msg) : unit = nativeOnly
 ```
+
+### Anti-pattern: `Result<unit, _>` over a bare-`ok` function without an Emit wrapper
+
+Fable encodes `Ok ()` as the tuple `{ok, ok}` (because `unit` is the atom `ok`) and
+`Error e` as `{error, e}`. So a compiled F# `match ... with Ok () | Error _` expects
+`{ok, _}` / `{error, _}` *tuples*. But many OTP functions return a **bare `ok` atom** on
+success — `logger:add_handler/3`, `supervisor:terminate_child/2`, `file:write_file/2`, etc.
+A plain binding typed `Result<unit, _>` passes that bare `ok` straight through, where it
+matches **neither** branch:
+
+```fsharp
+// BAD — compiles, but every successful call is silently wrong at runtime.
+// OTP returns `ok`, Fable's Ok () is `{ok, ok}`, so the match falls through.
+abstract terminate_child: supRef: SupRef * id: Atom -> Result<unit, Atom>
+```
+
+This is a nasty latent bug because:
+
+- It **compiles cleanly** — the type is plausible and the codegen is valid Erlang.
+- The **error path still matches** (`{error, _}` is already in Result shape), so a test that
+  only checks the failure case passes and hides the bug. The *success* path is the one that
+  breaks.
+
+Fix: bridge `ok -> {ok, ok}` with an `[<Emit>]` wrapper. This works on abstract interface
+members too — it just overrides codegen for that one method:
+
+```fsharp
+// GOOD — wrapper converts the bare ok; Error term passes through unchanged.
+[<Emit("(fun() -> case supervisor:terminate_child($0, $1) of ok -> {ok, ok}; {error, TerminateChildReason__} -> {error, TerminateChildReason__} end end)()")>]
+abstract terminate_child: supRef: SupRef * id: Atom -> Result<unit, Atom>
+```
+
+A wrapper-free `Result` binding is correct **only** when the OTP function *already* returns
+`{ok, V} | {error, R}` (e.g. `logger:get_handler_config/1`, `gen_server:start_link/3`) —
+that shape matches Fable's `Result` representation directly, so no `[<Emit>]` is needed.
+
+**Always add a test that exercises the success (`ok`) path** of any bare-`ok` binding —
+that is the only path that reveals a missing wrapper.
 
 ## Module File Template
 
