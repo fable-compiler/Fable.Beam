@@ -86,8 +86,8 @@ let ``test Filter.addPrimary receives the event and can stop it`` () =
     // `error` is above the default primary level (`notice`), so it reaches the filter.
     logger.error "trigger for filter"
 
-    match Erlang.get<Atom, Atom> seenKey with
-    | Some lvl -> Erlang.exactEquals lvl (Erlang.binaryToAtom "error") |> equal true
+    match Erlang.get<Atom, LogLevel> seenKey with
+    | Some lvl -> lvl |> equal LogLevel.Error
     | None -> equal "filter saw the event" "filter did not run"
 
     Filter.removePrimary filterId |> equal (Ok())

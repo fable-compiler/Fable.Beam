@@ -80,6 +80,20 @@ type IExports =
 [<ImportAll("logger")>]
 let logger: IExports = nativeOnly
 
+/// OTP log severity levels (logger:level/0). Each case compiles to the matching
+/// Erlang atom (`emergency`..`debug`). `RequireQualifiedAccess` avoids the clash
+/// between the `Error` case and the `Result.Error` constructor.
+[<RequireQualifiedAccess>]
+type LogLevel =
+    | Emergency
+    | Alert
+    | Critical
+    | Error
+    | Warning
+    | Notice
+    | Info
+    | Debug
+
 // ============================================================================
 // Typed filters
 // ----------------------------------------------------------------------------
@@ -105,9 +119,9 @@ module Filter =
     [<Erase>]
     type FilterReturn = FilterReturn of obj
 
-    /// The event's severity level (e.g. the atom `info` or `error`).
+    /// The event's severity level (e.g. `LogLevel.Info` or `LogLevel.Error`).
     [<Emit("maps:get(level, $0)")>]
-    let level (event: LogEvent) : Atom = nativeOnly
+    let level (event: LogEvent) : LogLevel = nativeOnly
 
     /// The event's metadata map.
     [<Emit("maps:get(meta, $0)")>]
