@@ -314,6 +314,26 @@ let ``test atomToList returns charlist not binary`` () =
     ()
 #endif
 
+[<Fact>]
+let ``test binaryToList returns list of bytes`` () =
+#if FABLE_COMPILER
+    let bytes = Erlang.binaryToList "ABC"
+    Erlang.length bytes |> equal 3
+    Erlang.head bytes |> equal 65
+#else
+    ()
+#endif
+
+[<Fact>]
+let ``test binaryToList and listToBinary roundtrip`` () =
+#if FABLE_COMPILER
+    let original = "hello"
+    let bytes = Erlang.binaryToList original
+    Erlang.listToBinary bytes |> equal original
+#else
+    ()
+#endif
+
 
 [<Fact>]
 let ``test isEmpty returns true for empty list`` () =

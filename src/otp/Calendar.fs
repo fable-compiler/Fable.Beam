@@ -7,6 +7,7 @@
 module Fable.Beam.Calendar
 
 open Fable.Core
+open Fable.Beam
 
 // fsharplint:disable MemberNames
 
@@ -63,6 +64,19 @@ type IExports =
 
     /// Converts a Gregorian second count back to ((Year,Month,Day),(Hour,Min,Sec)).
     abstract gregorian_seconds_to_datetime: seconds: int64 -> DateTime
+
+    /// Converts an OS/system time to local datetime ((Year,Month,Day),(Hour,Min,Sec)).
+    /// `time` is a system time (e.g. from `os:system_time/1` / `Os.systemTime`); `unit`
+    /// is a time unit atom such as `second`, `millisecond`, `microsecond`, `nanosecond`,
+    /// or `native` (build one with `Erlang.binaryToAtom`). Result depends on the system's
+    /// time zone configuration.
+    abstract system_time_to_local_time: time: int64 * unit: Atom -> DateTime
+
+    /// Converts an OS/system time to UTC datetime ((Year,Month,Day),(Hour,Min,Sec)).
+    /// `time` is a system time (e.g. from `os:system_time/1` / `Os.systemTime`); `unit`
+    /// is a time unit atom such as `second`, `millisecond`, `microsecond`, `nanosecond`,
+    /// or `native` (build one with `Erlang.binaryToAtom`).
+    abstract system_time_to_universal_time: time: int64 * unit: Atom -> DateTime
 
 /// calendar module
 [<ImportAll("calendar")>]
