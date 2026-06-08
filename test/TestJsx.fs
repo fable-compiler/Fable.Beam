@@ -120,6 +120,7 @@ let ``test jsx labels Atom probe emits raw atom option`` () =
 #if FABLE_COMPILER
     let decoded: obj =
         jsx.decode ("""{"atom_key_probe_xyz":"value"}""", [ labels LabelMode.Atom ])
+
     firstKeyIsAtom decoded |> equal true
 #else
     ()
@@ -130,6 +131,7 @@ let ``test jsx labels ExistingAtom rejects unknown atoms`` () =
 #if FABLE_COMPILER
     // Force the atom to exist before decoding.
     let _ = "definitely_known_key_xyz"
+
     jsx.is_json ("""{"definitely_known_key_xyz":"value"}""", [ labels LabelMode.ExistingAtom ])
     |> equal true
 #else
@@ -139,7 +141,8 @@ let ``test jsx labels ExistingAtom rejects unknown atoms`` () =
 [<Fact>]
 let ``test jsx labels AttemptAtom is accepted`` () =
 #if FABLE_COMPILER
-    jsx.is_json ("""{"key":"value"}""", [ labels LabelMode.AttemptAtom ]) |> equal true
+    jsx.is_json ("""{"key":"value"}""", [ labels LabelMode.AttemptAtom ])
+    |> equal true
 #else
     ()
 #endif

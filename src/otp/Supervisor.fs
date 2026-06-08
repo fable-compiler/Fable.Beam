@@ -78,16 +78,20 @@ type IExports =
     abstract start_link: name: ServerName * ``module``: Atom * args: 'Args -> Result<Pid<obj>, Dynamic>
     /// Dynamically adds and starts a child. Returns the child pid or an error term.
     abstract start_child: supRef: SupRef * childSpec: ChildSpec -> Result<Pid<obj>, Dynamic>
+
     /// Terminates a running child by id. Error is an atom (e.g. 'not_found').
     /// The Emit wrapper bridges OTP's bare `ok` into Fable's `{ok, ok}` Result form.
     [<Emit("(fun() -> case supervisor:terminate_child($0, $1) of ok -> {ok, ok}; {error, SupTerminateChildReason__} -> {error, SupTerminateChildReason__} end end)()")>]
     abstract terminate_child: supRef: SupRef * id: Atom -> Result<unit, Atom>
+
     /// Restarts a previously-terminated child by id. Returns the new child pid.
     abstract restart_child: supRef: SupRef * id: Atom -> Result<Pid<obj>, Dynamic>
+
     /// Deletes a child specification by id. Error is an atom (e.g. 'not_found').
     /// The Emit wrapper bridges OTP's bare `ok` into Fable's `{ok, ok}` Result form.
     [<Emit("(fun() -> case supervisor:delete_child($0, $1) of ok -> {ok, ok}; {error, SupDeleteChildReason__} -> {error, SupDeleteChildReason__} end end)()")>]
     abstract delete_child: supRef: SupRef * id: Atom -> Result<unit, Atom>
+
     /// Returns the children as a dynamic list of `{Id, Child, Type, Modules}`
     /// tuples — decode with `Fable.Beam.Decode`.
     abstract which_children: supRef: SupRef -> Dynamic
