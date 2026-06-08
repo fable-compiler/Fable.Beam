@@ -317,7 +317,7 @@ let ``test calendar.system_time_to_universal_time for unix epoch`` () =
 #if FABLE_COMPILER
     // Unix epoch 0 seconds = 1970-01-01 00:00:00 UTC
     let ((y, mo, d), (h, mi, s)) =
-        calendar.system_time_to_universal_time (0L, Erlang.binaryToAtom "second")
+        calendar.system_time_to_universal_time (0L, TimeUnit.Second)
 
     y |> equal 1970
     mo |> equal 1
@@ -334,7 +334,7 @@ let ``test calendar.system_time_to_universal_time for known second`` () =
 #if FABLE_COMPILER
     // 1700000000 seconds since the Unix epoch = 2023-11-14 22:13:20 UTC
     let ((y, mo, d), (h, mi, s)) =
-        calendar.system_time_to_universal_time (1700000000L, Erlang.binaryToAtom "second")
+        calendar.system_time_to_universal_time (1700000000L, TimeUnit.Second)
 
     y |> equal 2023
     mo |> equal 11
@@ -351,7 +351,7 @@ let ``test calendar.system_time_to_local_time returns plausible datetime`` () =
 #if FABLE_COMPILER
     // Local time depends on the system time zone, so only assert structural validity.
     let ((y, mo, d), (h, mi, s)) =
-        calendar.system_time_to_local_time (1700000000L, Erlang.binaryToAtom "second")
+        calendar.system_time_to_local_time (1700000000L, TimeUnit.Second)
 
     (y >= 2023 && y <= 2024) |> equal true
     (mo >= 1 && mo <= 12) |> equal true

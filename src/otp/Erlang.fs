@@ -99,9 +99,10 @@ let exactEquals (a: 'T) (b: 'T) : bool = nativeOnly
 [<Emit("erlang:monotonic_time(millisecond)")>]
 let monotonicTimeMs () : int = nativeOnly
 
-/// Get system time in the given unit.
+/// Get system time in the given unit. Returns int64 — microsecond/nanosecond
+/// system time exceeds the 32-bit range.
 [<Emit("erlang:system_time($0)")>]
-let systemTime (unit: Atom) : int = nativeOnly
+let systemTime (unit: TimeUnit) : int64 = nativeOnly
 
 /// Get system time in seconds (Unix epoch).
 [<Emit("erlang:system_time(second)")>]
