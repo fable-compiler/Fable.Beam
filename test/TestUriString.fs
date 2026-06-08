@@ -93,7 +93,8 @@ let ``test normalize removes default http port`` () =
 [<Fact>]
 let ``test normalize removes default https port`` () =
 #if FABLE_COMPILER
-    normalize "https://example.com:443/path" |> equal (Ok "https://example.com/path")
+    normalize "https://example.com:443/path"
+    |> equal (Ok "https://example.com/path")
 #else
     ()
 #endif
@@ -113,7 +114,8 @@ let ``test normalize resolves dot segments`` () =
 [<Fact>]
 let ``test resolve absolute path reference`` () =
 #if FABLE_COMPILER
-    resolve "/new" "https://example.com/old/page" |> equal (Ok "https://example.com/new")
+    resolve "/new" "https://example.com/old/page"
+    |> equal (Ok "https://example.com/new")
 #else
     ()
 #endif
@@ -121,7 +123,8 @@ let ``test resolve absolute path reference`` () =
 [<Fact>]
 let ``test resolve relative path reference`` () =
 #if FABLE_COMPILER
-    resolve "new" "https://example.com/old/page" |> equal (Ok "https://example.com/old/new")
+    resolve "new" "https://example.com/old/page"
+    |> equal (Ok "https://example.com/old/new")
 #else
     ()
 #endif
