@@ -3,6 +3,7 @@ module Fable.Beam.Tests.Os
 open Fable.Beam.Testing
 
 #if FABLE_COMPILER
+open Fable.Beam
 open Fable.Beam.Os
 #endif
 
@@ -60,6 +61,18 @@ let ``test systemTimeSeconds returns positive`` () =
 #if FABLE_COMPILER
     let t = systemTimeSeconds ()
     (t > 0) |> equal true
+#else
+    ()
+#endif
+
+[<Fact>]
+let ``test systemTime with TimeUnit returns a sensible value`` () =
+#if FABLE_COMPILER
+    // Exercises the TimeUnit DU: each case compiles to its time-unit atom.
+    let secs = systemTime TimeUnit.Second
+    (secs > 1_000_000_000L) |> equal true
+    let micros = systemTime TimeUnit.Microsecond
+    (micros > secs) |> equal true
 #else
     ()
 #endif

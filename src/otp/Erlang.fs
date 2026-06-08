@@ -99,9 +99,10 @@ let exactEquals (a: 'T) (b: 'T) : bool = nativeOnly
 [<Emit("erlang:monotonic_time(millisecond)")>]
 let monotonicTimeMs () : int = nativeOnly
 
-/// Get system time in the given unit.
+/// Get system time in the given unit. Returns int64 — microsecond/nanosecond
+/// system time exceeds the 32-bit range.
 [<Emit("erlang:system_time($0)")>]
-let systemTime (unit: Atom) : int = nativeOnly
+let systemTime (unit: TimeUnit) : int64 = nativeOnly
 
 /// Get system time in seconds (Unix epoch).
 [<Emit("erlang:system_time(second)")>]
@@ -227,6 +228,11 @@ let binaryToTerm (bin: string) : Dynamic = nativeOnly
 /// Convert a list of bytes (integers in 0..255) to a binary string.
 [<Emit("erlang:list_to_binary($0)")>]
 let listToBinary (list: BeamList<int>) : string = nativeOnly
+
+/// Convert a binary string to a list of bytes (integers in 0..255).
+/// Inverse of listToBinary. (`Binary.bin_to_list` is the equivalent in the binary module.)
+[<Emit("erlang:binary_to_list($0)")>]
+let binaryToList (bin: string) : BeamList<int> = nativeOnly
 
 /// Convert an atom to a binary string.
 [<Emit("erlang:atom_to_binary($0)")>]

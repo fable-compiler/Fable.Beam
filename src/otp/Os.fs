@@ -48,9 +48,9 @@ let version () : int * int * int = nativeOnly
 // Time
 // ============================================================================
 
-/// Returns the current OS system time in the given unit (e.g., second, millisecond).
+/// Returns the current OS system time in the given unit (e.g. TimeUnit.Second).
 [<Emit("os:system_time($0)")>]
-let systemTime (unit: Atom) : int64 = nativeOnly
+let systemTime (unit: TimeUnit) : int64 = nativeOnly
 
 /// Returns the current OS system time in seconds.
 [<Emit("os:system_time(second)")>]
