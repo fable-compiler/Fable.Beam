@@ -42,8 +42,13 @@ type IExports =
     abstract debug: msg: string -> unit
     /// Log a debug message with metadata or format args.
     abstract debug: msg: string * metadataOrArgs: U2<BeamMap<Atom, obj>, obj list> -> unit
-    /// Set the primary logger configuration. Common use: set_primary_config(atom "level", atom "debug")
-    abstract set_primary_config: key: Atom * value: Atom -> unit
+
+    /// Set a key in the primary logger configuration (e.g. level, filter_default).
+    /// Common use: set_primary_config(atom "level", atom "debug").
+    /// logger:set_primary_config/2; returns `Ok ()` or `Error reason` — OTP validates
+    /// the key/value, so the result must not be swallowed.
+    [<Emit("(fun() -> case logger:set_primary_config($0, $1) of ok -> {ok, ok}; {error, LoggerSetPrimaryCfgReason__} -> {error, LoggerSetPrimaryCfgReason__} end end)()")>]
+    abstract set_primary_config: key: Atom * value: Atom -> Result<unit, Dynamic>
 
     /// Update a single key in a handler's configuration. logger:update_handler_config/3.
     /// Returns `Ok ()` or `Error reason` — OTP rejects some changes (e.g. changing a
@@ -51,8 +56,11 @@ type IExports =
     [<Emit("(fun() -> case logger:update_handler_config($0, $1, $2) of ok -> {ok, ok}; {error, LoggerUpdateHandlerCfgReason__} -> {error, LoggerUpdateHandlerCfgReason__} end end)()")>]
     abstract update_handler_config: handler: Atom * key: Atom * value: obj -> Result<unit, Dynamic>
 
-    /// Add a primary filter. The filter is an opaque {FilterFun, Extra} tuple.
-    abstract add_primary_filter: id: Atom * filter: obj -> unit
+    /// Add a primary filter. The filter is an opaque {FilterFun, Extra} tuple —
+    /// prefer the typed `Filter.addPrimary` below, which builds it from an F# function.
+    /// logger:add_primary_filter/2; returns `Ok ()` or `Error reason`.
+    [<Emit("(fun() -> case logger:add_primary_filter($0, $1) of ok -> {ok, ok}; {error, LoggerAddPrimaryFilterRawReason__} -> {error, LoggerAddPrimaryFilterRawReason__} end end)()")>]
+    abstract add_primary_filter: id: Atom * filter: obj -> Result<unit, Dynamic>
 
     /// Add a handler. logger:add_handler/3. Returns `Ok ()` or `Error reason`.
     /// config is an open handler-config map (e.g. logger_std_h / logger_formatter settings).
@@ -123,9 +131,10 @@ module Filter =
     [<Emit("maps:get(level, $0)")>]
     let level (event: LogEvent) : LogLevel = nativeOnly
 
-    /// The event's metadata map.
+    /// The event's metadata map. Values are heterogeneous Erlang terms, so they
+    /// come out as `Dynamic` — narrow each with the `Decode` combinators.
     [<Emit("maps:get(meta, $0)")>]
-    let meta (event: LogEvent) : BeamMap<Atom, obj> = nativeOnly
+    let meta (event: LogEvent) : BeamMap<Atom, Dynamic> = nativeOnly
 
     /// The event's message term — one of `{Format, Args}`, `{report, Report}`,
     /// or `{string, Chardata}`. Narrow it with the `Decode` combinators.
