@@ -1,11 +1,20 @@
 ---
-last_commit_released: e850ad5d7007eafd2b0897bdceef0a2815934863
+last_commit_released: ccae658d86dd4c009a6897e2499fb4a04acc616b
 name: Fable.Beam
 ---
 
 # Changelog
 
 All notable changes to this project will be documented in this file.
+
+## 5.0.0-rc.32 - 2026-06-08
+
+### 🚀 Features
+
+* Add typed Logger.Filter and Logger.Formatter helpers (#112) ([9d41361](https://github.com/fable-compiler/Fable.Beam/commit/9d41361bc1640d7cc12d732f8229f66454c8c325))
+* Add calendar system_time conversions + symmetric binaryToList (#111) ([a017e33](https://github.com/fable-compiler/Fable.Beam/commit/a017e33efdc12db3c010732ec115daf1a27426c1))
+
+<strong><small>[View changes on Github](https://github.com/fable-compiler/Fable.Beam/compare/e850ad5d7007eafd2b0897bdceef0a2815934863..ccae658d86dd4c009a6897e2499fb4a04acc616b)</small></strong>
 
 ## 5.0.0-rc.31 - 2026-06-07
 
