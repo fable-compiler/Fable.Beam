@@ -16,7 +16,6 @@ Libraries built on top of Fable.Beam:
 | --- | --- |
 | [Fable.Actor](https://github.com/fable-hub/Fable.Actor) | F# actor model for Fable and the BEAM |
 | [Fable.Logging](https://github.com/fable-hub/Fable.Logging) | Logging framework for Fable |
-| [Fable.Reactive](https://github.com/fable-hub/Fable.Reactive) | Async reactive (Rx) programming for F# and Fable |
 | [Fable.TypedJson](https://github.com/dbrattli/Fable.TypedJson) | Pydantic-flavored JSON validation and serialization for F# records |
 
 ## Packages
