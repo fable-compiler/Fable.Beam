@@ -1,5 +1,8 @@
 # Fable.Beam
 
+[![Build and Test](https://github.com/fable-compiler/Fable.Beam/actions/workflows/build-and-test.yml/badge.svg)](https://github.com/fable-compiler/Fable.Beam/actions/workflows/build-and-test.yml)
+[![Nuget](https://img.shields.io/nuget/vpre/Fable.Beam)](https://www.nuget.org/packages/Fable.Beam/)
+
 F# bindings for Erlang/OTP on the BEAM virtual machine,
 powered by [Fable](https://fable.io/).
 
