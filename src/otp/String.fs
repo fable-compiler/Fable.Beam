@@ -32,8 +32,10 @@ type IExports =
     /// Converts String to a case-folded form suitable for case-insensitive comparisons.
     abstract casefold: s: string -> string
 
-    /// Reverses grapheme clusters in String (Unicode-aware, unlike binary:reverse).
-    abstract reverse: s: string -> string
+    // NOTE: `string:reverse/1` returns a charlist ("olleh"), not a binary, so it cannot be
+    // bound through ImportAll — there is nowhere to convert the result. Use the typed
+    // `reverse` Emit below, which wraps it in `unicode:characters_to_binary/1`.
+    // abstract reverse: s: string -> string
 
     // NOTE: `string:concat/2` is bound to Erlang's `++` operator, which expects
     // charlists — it raises `badarg` when called with binaries. Since F# strings
@@ -60,15 +62,13 @@ type IExports =
     // the chars via `binary_to_list` would be needed — left unbound for now.
     // abstract trim: s: string * dir: Atom * characters: string -> string
 
-    /// Pads String on the trailing side to at least Length grapheme clusters.
-    abstract pad: s: string * length: int -> string
-
-    /// Pads String on the given side Dir to at least Length grapheme clusters.
-    /// Dir must be the atom leading, trailing, or both (use erlang.binaryToAtom).
-    abstract pad: s: string * length: int * dir: Atom -> string
-
-    /// Pads String on the given side Dir with the grapheme cluster Char.
-    abstract pad: s: string * length: int * dir: Atom * char: string -> string
+    // NOTE: every `string:pad` arity returns an *iolist* ([<<"hi">>,32,32,32]), not a binary,
+    // so they cannot be bound through ImportAll — there is nowhere to convert the result.
+    // Use the typed `pad` / `padDir` / `padWith` Emits below, which wrap the result in
+    // `unicode:characters_to_binary/1`.
+    // abstract pad: s: string * length: int -> string
+    // abstract pad: s: string * length: int * dir: Atom -> string
+    // abstract pad: s: string * length: int * dir: Atom * char: string -> string
 
     /// Returns true if S1 and S2 are equal (ordinal).
     abstract equal: s1: string * s2: string -> bool
@@ -114,12 +114,36 @@ let splitFirst (s: string) (pattern: string) : string array = nativeOnly
 [<Emit("fable_utils:new_ref(string:split($0, $1, all))")>]
 let splitAll (s: string) (pattern: string) : string array = nativeOnly
 
+// NOTE on the `unicode:characters_to_binary/1` wrappers below: the OTP `string` module returns
+// *chardata* (an iolist, or a charlist of codepoints) from these functions, not a binary. F#
+// strings are Erlang binaries, so the raw result is structurally wrong even though it prints
+// plausibly — `string:pad("hi", 5)` is `[<<"hi">>,32,32,32]`, which compares unequal to
+// <<"hi   ">>. Flattening at the binding boundary is what makes the F# signature honest.
+
+/// Reverses grapheme clusters in String (Unicode-aware, unlike binary:reverse).
+[<Emit("unicode:characters_to_binary(string:reverse($0))")>]
+let reverse (s: string) : string = nativeOnly
+
+/// Pads String on the trailing side to at least Length grapheme clusters.
+[<Emit("unicode:characters_to_binary(string:pad($0, $1))")>]
+let pad (s: string) (length: int) : string = nativeOnly
+
+/// Pads String on the given side Dir to at least Length grapheme clusters.
+/// Dir must be the atom leading, trailing, or both (use erlang.binaryToAtom).
+[<Emit("unicode:characters_to_binary(string:pad($0, $1, $2))")>]
+let padDir (s: string) (length: int) (dir: Atom) : string = nativeOnly
+
+/// Pads String on the given side Dir with the grapheme cluster Char.
+/// Dir must be the atom leading, trailing, or both (use erlang.binaryToAtom).
+[<Emit("unicode:characters_to_binary(string:pad($0, $1, $2, $3))")>]
+let padWith (s: string) (length: int) (dir: Atom) (char: string) : string = nativeOnly
+
 /// Replaces the first occurrence of SearchPattern in String with Replacement.
-[<Emit("string:replace($0, $1, $2)")>]
+[<Emit("unicode:characters_to_binary(string:replace($0, $1, $2))")>]
 let replaceFirst (s: string) (pattern: string) (replacement: string) : string = nativeOnly
 
 /// Replaces all occurrences of SearchPattern in String with Replacement.
-[<Emit("string:replace($0, $1, $2, all)")>]
+[<Emit("unicode:characters_to_binary(string:replace($0, $1, $2, all))")>]
 let replaceAll (s: string) (pattern: string) (replacement: string) : string = nativeOnly
 
 /// Parses an integer from the start of String.
@@ -133,5 +157,7 @@ let toInteger (s: string) : Result<int * string, string> = nativeOnly
 let toFloat (s: string) : Result<float * string, string> = nativeOnly
 
 /// Returns the grapheme clusters of String as an array.
-[<Emit("fable_utils:new_ref(string:to_graphemes($0))")>]
+/// `string:to_graphemes/1` yields codepoints (97) or codepoint lists for multi-codepoint clusters,
+/// so each cluster is converted back to a binary to match the `string array` signature.
+[<Emit("fable_utils:new_ref([unicode:characters_to_binary([StringGrapheme__]) || StringGrapheme__ <- string:to_graphemes($0)])")>]
 let toGraphemes (s: string) : string array = nativeOnly

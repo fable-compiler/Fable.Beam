@@ -89,7 +89,10 @@ let dissectQuery (queryStr: string) : (string * string) list = nativeOnly
 /// Special characters in keys and values are percent-encoded; spaces are encoded as '+'.
 ///
 /// E.g. composeQuery [("q", "hello world"); ("lang", "en")] → "q=hello+world&lang=en"
-[<Emit("uri_string:compose_query($0)")>]
+///
+/// `uri_string:compose_query/1` returns chardata — notably the empty list `[]` for no pairs, which
+/// is not the empty binary — so the result is flattened to match the `string` signature.
+[<Emit("unicode:characters_to_binary(uri_string:compose_query($0))")>]
 let composeQuery (pairs: (string * string) list) : string = nativeOnly
 
 // ============================================================================
