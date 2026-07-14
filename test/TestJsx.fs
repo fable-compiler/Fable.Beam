@@ -88,13 +88,22 @@ let ``test jsx format with indent`` () =
     ()
 #endif
 
+// `labels` is a *decoder* option: jsx:is_json/2 does not accept it and simply answers `false`,
+// so is_json can never show that the option took effect. These tests decode instead and inspect
+// the key type of the resulting map -- if Fable stringified the DU case, jsx would receive
+// {labels, <<"atom">>}, silently ignore it, and the keys would stay binaries.
+[<Emit("case maps:keys($0) of [K] -> is_atom(K); _ -> false end")>]
+let private firstKeyIsAtom (m: obj) : bool = nativeOnly
+
+[<Emit("case maps:keys($0) of [K] -> is_binary(K); _ -> false end")>]
+let private firstKeyIsBinary (m: obj) : bool = nativeOnly
+
 [<Fact>]
 let ``test jsx labels Binary keeps keys as binaries`` () =
 #if FABLE_COMPILER
-    // With LabelMode.Binary the decoded map's keys are binaries, so a binary
-    // lookup must succeed. is_json/decode round-trip is enough to prove the
-    // option was accepted by jsx (bad atoms would crash the call).
-    jsx.is_json ("""{"key":"value"}""", [ labels LabelMode.Binary ]) |> equal true
+    let decoded: obj = jsx.decode ("""{"key":"value"}""", [ labels LabelMode.Binary ])
+
+    firstKeyIsBinary decoded |> equal true
 #else
     ()
 #endif
@@ -102,18 +111,12 @@ let ``test jsx labels Binary keeps keys as binaries`` () =
 [<Fact>]
 let ``test jsx labels Atom converts keys to atoms`` () =
 #if FABLE_COMPILER
-    jsx.is_json ("""{"key":"value"}""", [ labels LabelMode.Atom ]) |> equal true
+    let decoded: obj = jsx.decode ("""{"key":"value"}""", [ labels LabelMode.Atom ])
+
+    firstKeyIsAtom decoded |> equal true
 #else
     ()
 #endif
-
-// Stronger probe: decode a key with LabelMode.Atom and check the resulting
-// key is an atom, not a binary. If the [<Emit>] attribute on the DU case is
-// honoured, jsx receives {labels, atom} and produces an atom key. If Fable
-// stringifies the case name, jsx receives {labels, <<"atom">>}, silently
-// ignores it, and the key stays a binary.
-[<Emit("case maps:keys($0) of [K] -> is_atom(K); _ -> false end")>]
-let private firstKeyIsAtom (m: obj) : bool = nativeOnly
 
 [<Fact>]
 let ``test jsx labels Atom probe emits raw atom option`` () =
@@ -129,11 +132,10 @@ let ``test jsx labels Atom probe emits raw atom option`` () =
 [<Fact>]
 let ``test jsx labels ExistingAtom rejects unknown atoms`` () =
 #if FABLE_COMPILER
-    // Force the atom to exist before decoding.
-    let _ = "definitely_known_key_xyz"
-
-    jsx.is_json ("""{"definitely_known_key_xyz":"value"}""", [ labels LabelMode.ExistingAtom ])
-    |> equal true
+    // existing_atom uses binary_to_existing_atom, so a key whose atom was never created
+    // raises badarg rather than silently interning it. That rejection *is* the behaviour.
+    (fun () -> jsx.decode ("""{"never_interned_key_qqq":"value"}""", [ labels LabelMode.ExistingAtom ]))
+    |> throwsAnyError
 #else
     ()
 #endif
@@ -141,8 +143,12 @@ let ``test jsx labels ExistingAtom rejects unknown atoms`` () =
 [<Fact>]
 let ``test jsx labels AttemptAtom is accepted`` () =
 #if FABLE_COMPILER
-    jsx.is_json ("""{"key":"value"}""", [ labels LabelMode.AttemptAtom ])
-    |> equal true
+    // attempt_atom converts the key when the atom already exists and leaves it a binary
+    // otherwise. "key" is interned by the decode above, so it comes back as an atom.
+    let decoded: obj =
+        jsx.decode ("""{"key":"value"}""", [ labels LabelMode.AttemptAtom ])
+
+    firstKeyIsAtom decoded |> equal true
 #else
     ()
 #endif

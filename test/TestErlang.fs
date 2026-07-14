@@ -87,8 +87,11 @@ let ``test process dictionary get/put/erase`` () =
 [<Fact>]
 let ``test send and receive`` () =
 #if FABLE_COMPILER
-    let pid = Erlang.self ()
-    emitErlExpr () "erlang:self() ! {ping}"
+    // A nullary DU case compiles to a bare atom (`ping`), not a 1-tuple (`{ping}`) -- only a
+    // case *with* fields becomes a tagged tuple, e.g. `Data 42` -> `{data, 42}`. Sending
+    // `{ping}` here never matched the generated receive clause, so this test used to sit out
+    // the full 1000ms timeout and take the None branch.
+    emitErlExpr () "erlang:self() ! ping"
 
     match Erlang.receive<RecvMsg> 1000 with
     | Some Ping -> equal 1 1

@@ -130,7 +130,9 @@ let ``test replaceAll replaces all occurrences`` () =
 [<Fact>]
 let ``test binary.longest_common_prefix`` () =
 #if FABLE_COMPILER
-    binary.longest_common_prefix ([ "foobar"; "foobaz"; "fooqux" ]) |> equal 4
+    // "foo" is the longest prefix common to *all three* ("foobar"/"foobaz" share "fooba",
+    // but "fooqux" diverges at the 4th byte).
+    binary.longest_common_prefix ([ "foobar"; "foobaz"; "fooqux" ]) |> equal 3
 #else
     ()
 #endif
