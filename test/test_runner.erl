@@ -2,17 +2,25 @@
 -export([main/1]).
 
 %% Test runner for Fable.Beam tests.
-%% Discovers modules starting with "test_" and runs all test_*/0 functions.
+%% Discovers every module exporting test_*/0 functions and runs them.
+%%
+%% Discovery is by exports, not by module name, on purpose: Fable >= 5.8 qualifies generated
+%% Erlang module names with the OTP app name (test_maps.erl -> fable_beam_test_test_maps.erl),
+%% which silently broke the old lists:prefix("test_", ...) match -- the suite then "passed"
+%% while running zero tests. Hence also the empty-suite guard below.
 
 main([Dir]) ->
     io:format("~n=== Fable.Beam Test Suite ===~n~n"),
     Beams = filelib:wildcard(filename:join(Dir, "*.beam")),
-    Modules = [list_to_atom(filename:basename(F, ".beam")) || F <- Beams,
-               lists:prefix("test_", filename:basename(F, ".beam"))],
+    Loaded = [begin
+                  Mod = list_to_atom(filename:basename(F, ".beam")),
+                  code:purge(Mod),
+                  code:load_file(Mod),
+                  Mod
+              end || F <- Beams],
+    Modules = [Mod || Mod <- Loaded, test_funs(Mod) =/= []],
     {TotalPass, TotalFail} = lists:foldl(
         fun(Mod, {AccPass, AccFail}) ->
-            code:purge(Mod),
-            code:load_file(Mod),
             {P, F} = run_module(Mod),
             {AccPass + P, AccFail + F}
         end,
@@ -23,17 +31,28 @@ main([Dir]) ->
     io:format("~n=== Results ===~n"),
     io:format("Total: ~p | Passed: ~p | Failed: ~p~n",
               [Total, TotalPass, TotalFail]),
-    case TotalFail of
-        0 -> io:format("~nAll tests passed!~n"), ok;
-        _ -> io:format("~nSome tests FAILED!~n"), halt(1)
+    if
+        Total =:= 0 ->
+            io:format("~nNo tests found in ~s -- refusing to report success.~n", [Dir]),
+            halt(1);
+        TotalFail =:= 0 ->
+            io:format("~nAll tests passed!~n"), ok;
+        true ->
+            io:format("~nSome tests FAILED!~n"), halt(1)
+    end.
+
+%% Exported arity-0 functions whose name starts with "test_".
+test_funs(Mod) ->
+    try
+        [F || {F, 0} <- Mod:module_info(exports),
+              F =/= module_info,
+              lists:prefix("test_", atom_to_list(F))]
+    catch
+        _:_ -> []
     end.
 
 run_module(Mod) ->
     io:format("--- ~s ---~n", [Mod]),
-    Exports = Mod:module_info(exports),
-    TestFuns = [F || {F, 0} <- Exports,
-                F =/= module_info,
-                lists:prefix("test_", atom_to_list(F))],
     lists:foldl(
         fun(Fun, {Pass, Fail}) ->
             case run_test(Mod, Fun) of
@@ -42,7 +61,7 @@ run_module(Mod) ->
             end
         end,
         {0, 0},
-        lists:sort(TestFuns)
+        lists:sort(test_funs(Mod))
     ).
 
 run_test(Mod, Fun) ->
@@ -51,10 +70,10 @@ run_test(Mod, Fun) ->
         io:format("  \e[32m✓\e[0m ~s~n", [Fun]),
         pass
     catch
-        error:{assertEqual, Props} ->
-            Expected = proplists:get_value(expected, Props),
-            Actual = proplists:get_value(value, Props),
-            io:format("  \e[31m✗\e[0m ~s~n    expected: ~p~n    actual:   ~p~n", [Fun, Expected, Actual]),
+        %% Shape raised by fable_utils:assert_equal/assert_not_equal.
+        error:#{message := Message, actual := Actual, expected := Expected} ->
+            io:format("  \e[31m✗\e[0m ~s~n    ~ts~n    expected: ~p~n    actual:   ~p~n",
+                      [Fun, Message, Expected, Actual]),
             fail;
         Class:Reason:Stack ->
             io:format("  \e[31m✗\e[0m ~s~n    ~p:~p~n    ~p~n", [Fun, Class, Reason, Stack]),
