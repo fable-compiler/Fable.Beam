@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <OutputType>Exe</OutputType>
+    <LangVersion>preview</LangVersion>
+    <IsPackable>false</IsPackable>
+    <NoWarn>NU1510;NU1701</NoWarn>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="Main.fs" />
+  </ItemGroup>
+  <ItemGroup>
+    <!-- The bindings under test. -->
+    <ProjectReference Include="../../src/Fable.Beam.fsproj" />
+    <!-- Scriptorium is consumed straight from the sibling checkout for the spike; a real migration
+         would use the published NuGet packages (Scriptorium.Quill pulls in Nib, Ink, Parchment). -->
+    <ProjectReference Include="../../../Scriptorium/src/Scriptorium.Quill/Scriptorium.Quill.fsproj" />
+  </ItemGroup>
+</Project>

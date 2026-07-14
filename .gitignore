@@ -56,5 +56,8 @@ build/
 # Paket
 paket-files/
 
+# Fable BEAM/Erlang spike output (transpiled .erl + rebar3 build)
+beam-build/
+
 # Claude
 .claude/worktrees
