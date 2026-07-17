@@ -28,6 +28,13 @@ The split turned out to be instructive: **8 were broken bindings, 6 were broken 
 assertions could actually fail, the tests got checked for the first time too — and a third of them
 were asserting the wrong thing. A test that can't fail is not a weaker test; it's not a test.
 
+**A 7th bad test surfaced later, on CI only.** `binary.referenced_byte_size` was asserted to equal 5
+for `"hello"` — but that function reports the size of the *underlying* memory, which OTP's own docs
+call "a hint for optimization, not exact." It returned 5 on the OTP 25 dev box and 40 on CI's OTP 27
+(and 256 for a shell literal). There is no portable value; the test now asserts the only invariant
+the function guarantees, `referenced_byte_size s >= byte_size s >= 0`. Lesson: a green suite on one
+OTP release is not a green suite — assert invariants, not implementation-defined constants.
+
 ### How could these ever have "worked"?
 
 They didn't — nothing verified them. But they *looked* fine for a second reason worth remembering:
