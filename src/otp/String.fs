@@ -33,8 +33,10 @@ type IExports =
     /// Converts String to a case-folded form suitable for case-insensitive comparisons.
     abstract casefold: s: string -> string
 
-    // `string:reverse/1` returns chardata, not a binary, so it can't be an ImportAll member here.
-    // See `reverse` (-> string) and `reverseRaw` (-> BeamChardata) in the typed API below.
+    // `string:reverse/1` returns chardata. The `string` form needs a `unicode:characters_to_binary`
+    // flatten that ImportAll codegen can't express, so it lives in the typed API below as `reverse`
+    // (-> string), with `reverseRaw` (-> BeamChardata) for the unflattened form. (A BeamChardata
+    // member here would compile; `*Raw` module functions just keep raw forms uniform library-wide.)
 
     // NOTE: `string:concat/2` is bound to Erlang's `++` operator, which expects
     // charlists — it raises `badarg` when called with binaries. Since F# strings
@@ -61,9 +63,10 @@ type IExports =
     // the chars via `binary_to_list` would be needed — left unbound for now.
     // abstract trim: s: string * dir: Atom * characters: string -> string
 
-    // Every `string:pad` arity returns chardata (an iolist), not a binary, so they can't be
-    // ImportAll members here. See `pad`/`padDir`/`padWith` (-> string) and their `*Raw` variants
-    // (-> BeamChardata) in the typed API below.
+    // Every `string:pad` arity returns chardata (an iolist). As with reverse, the `string` form
+    // needs a flatten ImportAll codegen can't express, so `pad`/`padDir`/`padWith` (-> string) live
+    // in the typed API below, with `padRaw`/`padDirRaw`/`padWithRaw` (-> BeamChardata) alongside.
+    // (A BeamChardata member here would compile; `*Raw` functions keep raw forms uniform library-wide.)
 
     /// Returns true if S1 and S2 are equal (ordinal).
     abstract equal: s1: string * s2: string -> bool
