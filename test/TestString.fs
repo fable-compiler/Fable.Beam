@@ -68,7 +68,7 @@ let ``test str.casefold lowercases for comparison`` () =
 [<Fact>]
 let ``test str.reverse reverses string`` () =
 #if FABLE_COMPILER
-    str.reverse "hello" |> equal "olleh"
+    reverse "hello" |> equal "olleh"
 #else
     ()
 #endif
@@ -102,7 +102,7 @@ let ``test str.trim with trailing direction`` () =
 [<Fact>]
 let ``test str.pad trailing to length`` () =
 #if FABLE_COMPILER
-    str.pad ("hi", 5) |> equal "hi   "
+    pad "hi" 5 |> equal "hi   "
 #else
     ()
 #endif
@@ -111,7 +111,7 @@ let ``test str.pad trailing to length`` () =
 let ``test str.pad leading with direction`` () =
 #if FABLE_COMPILER
     let leading = Erlang.binaryToAtom "leading"
-    str.pad ("hi", 5, leading) |> equal "   hi"
+    padDir "hi" 5 leading |> equal "   hi"
 #else
     ()
 #endif
@@ -120,7 +120,7 @@ let ``test str.pad leading with direction`` () =
 let ``test str.pad with custom character`` () =
 #if FABLE_COMPILER
     let leading = Erlang.binaryToAtom "leading"
-    str.pad ("7", 3, leading, "0") |> equal "007"
+    padWith "7" 3 leading "0" |> equal "007"
 #else
     ()
 #endif

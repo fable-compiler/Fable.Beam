@@ -10,7 +10,7 @@ test_path := "test"
 # Development mode: use local Fable repo instead of dotnet tool
 # Usage: just dev=true test
 dev := "false"
-fable_repo := justfile_directory() / "../fable"
+fable_repo := justfile_directory() / "../Fable"
 fable := if dev == "true" { "dotnet run --project " + fable_repo / "src/Fable.Cli" + " --" } else { "dotnet fable" }
 
 # Default recipe - show available commands
@@ -55,6 +55,17 @@ test: build-beam
 test-dotnet:
     dotnet build {{test_path}}
     dotnet run --project {{test_path}}
+
+# Spike: run the Scriptorium test framework (Nib + Quill) on the BEAM.
+# No test_runner.erl and no [<Fact>]: Quill's runner is the [<EntryPoint>], which Fable emits as
+# main:main/1. It halts the VM with the suite's exit code, so a failing test fails this recipe.
+spike:
+    dotnet build spike/scriptorium
+    {{fable}} spike/scriptorium --lang beam -o spike/scriptorium/beam-build
+    cd spike/scriptorium/beam-build && rebar3 compile
+    @echo ""
+    cd spike/scriptorium/beam-build && \
+        ERL_LIBS="$(pwd)/_build/default/lib" erl -noshell -eval 'main:main([])' -s init stop
 
 # Create NuGet packages with versions from changelogs
 pack:
