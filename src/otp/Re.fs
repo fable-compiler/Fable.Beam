@@ -10,6 +10,7 @@ module Fable.Beam.Re
 
 open Fable.Core
 open Fable.Beam
+open Fable.Beam.Lists
 
 // ============================================================================
 // Types
@@ -139,15 +140,31 @@ let replaceAllMP (subject: string) (mp: MP) (replacement: string) : string = nat
 [<Emit("fable_utils:new_ref(re:split($0, $1, [{return, binary}]))")>]
 let split (subject: string) (pattern: string) : string array = nativeOnly
 
+/// Like `split`, but returns the native Erlang list instead of an F# array. See "Dual API".
+[<Emit("re:split($0, $1, [{return, binary}])")>]
+let splitRaw (subject: string) (pattern: string) : BeamList<string> = nativeOnly
+
 /// Splits Subject at each match of Pattern, with options.
 [<Emit("fable_utils:new_ref(re:split($0, $1, [{return, binary} | $2]))")>]
 let splitWith (subject: string) (pattern: string) (options: Atom list) : string array = nativeOnly
+
+/// Like `splitWith`, but returns the native Erlang list instead of an F# array. See "Dual API".
+[<Emit("re:split($0, $1, [{return, binary} | $2])")>]
+let splitWithRaw (subject: string) (pattern: string) (options: Atom list) : BeamList<string> = nativeOnly
 
 /// Splits Subject at each match of a compiled pattern.
 [<Emit("fable_utils:new_ref(re:split($0, $1, [{return, binary}]))")>]
 let splitMP (subject: string) (mp: MP) : string array = nativeOnly
 
+/// Like `splitMP`, but returns the native Erlang list instead of an F# array. See "Dual API".
+[<Emit("re:split($0, $1, [{return, binary}])")>]
+let splitMPRaw (subject: string) (mp: MP) : BeamList<string> = nativeOnly
+
 /// Splits Subject at matches of Pattern, returning at most Parts substrings.
 /// The last element contains the remainder of the string.
 [<Emit("fable_utils:new_ref(re:split($0, $1, [{return, binary}, {parts, $2}]))")>]
 let splitParts (subject: string) (pattern: string) (parts: int) : string array = nativeOnly
+
+/// Like `splitParts`, but returns the native Erlang list instead of an F# array. See "Dual API".
+[<Emit("re:split($0, $1, [{return, binary}, {parts, $2}])")>]
+let splitPartsRaw (subject: string) (pattern: string) (parts: int) : BeamList<string> = nativeOnly

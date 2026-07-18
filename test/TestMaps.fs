@@ -3,7 +3,12 @@ module Fable.Beam.Tests.Maps
 open Fable.Beam.Testing
 
 #if FABLE_COMPILER
+open Fable.Core
+open Fable.Beam.Lists
 open Fable.Beam.Maps
+
+[<Emit("length($0)")>]
+let private listLen (xs: BeamList<'T>) : int = nativeOnly
 #endif
 
 [<Fact>]
@@ -130,6 +135,27 @@ let ``test ofList builds a map from a literal list`` () =
     maps.size headers |> equal 2
     maps.get ("content-type", headers) |> equal "text/html"
     tryFind "server" headers |> equal (Some "cowboy")
+#else
+    ()
+#endif
+
+[<Fact>]
+let ``test keysRaw and valuesRaw return native lists matching keys and values`` () =
+#if FABLE_COMPILER
+    let m: BeamMap<string, int> = ofList [ "a", 1; "b", 2; "c", 3 ]
+    // native lists carry the same data as the array-returning members, without the ref-wrap
+    keysRaw m |> listLen |> equal (maps.keys m |> Array.length)
+    valuesRaw m |> listLen |> equal (maps.values m |> Array.length)
+    keysRaw m |> listLen |> equal 3
+#else
+    ()
+#endif
+
+[<Fact>]
+let ``test toListRaw returns native list of pairs`` () =
+#if FABLE_COMPILER
+    let m: BeamMap<string, int> = ofList [ "a", 1; "b", 2 ]
+    toListRaw m |> listLen |> equal 2
 #else
     ()
 #endif

@@ -4,6 +4,7 @@ module Fable.Beam.String
 
 open Fable.Core
 open Fable.Beam
+open Fable.Beam.Lists
 
 // fsharplint:disable MemberNames
 
@@ -103,10 +104,18 @@ let prefix (s: string) (pre: string) : string option = nativeOnly
 [<Emit("fable_utils:new_ref(string:split($0, $1))")>]
 let splitFirst (s: string) (pattern: string) : string array = nativeOnly
 
+/// Like `splitFirst`, but returns the native Erlang list instead of an F# array. See "Dual API".
+[<Emit("string:split($0, $1)")>]
+let splitFirstRaw (s: string) (pattern: string) : BeamList<string> = nativeOnly
+
 /// Splits String at all occurrences of SearchPattern.
 /// Returns an array of all parts between (and around) occurrences.
 [<Emit("fable_utils:new_ref(string:split($0, $1, all))")>]
 let splitAll (s: string) (pattern: string) : string array = nativeOnly
+
+/// Like `splitAll`, but returns the native Erlang list instead of an F# array. See "Dual API".
+[<Emit("string:split($0, $1, all)")>]
+let splitAllRaw (s: string) (pattern: string) : BeamList<string> = nativeOnly
 
 // The OTP `string` module returns *chardata* (an iolist, or a charlist of codepoints) from these
 // functions, not a binary. Each is exposed twice:

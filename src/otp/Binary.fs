@@ -70,10 +70,18 @@ let matchAll (subject: string) (pattern: string) : (int * int) array = nativeOnl
 [<Emit("fable_utils:new_ref(binary:split($0, $1))")>]
 let splitFirst (subject: string) (pattern: string) : string array = nativeOnly
 
+/// Like `splitFirst`, but returns the native Erlang list instead of an F# array. See "Dual API".
+[<Emit("binary:split($0, $1)")>]
+let splitFirstRaw (subject: string) (pattern: string) : BeamList<string> = nativeOnly
+
 /// Splits Subject on all occurrences of Pattern.
 /// Returns an array of all parts between occurrences.
 [<Emit("fable_utils:new_ref(binary:split($0, $1, [global]))")>]
 let splitAll (subject: string) (pattern: string) : string array = nativeOnly
+
+/// Like `splitAll`, but returns the native Erlang list instead of an F# array. See "Dual API".
+[<Emit("binary:split($0, $1, [global])")>]
+let splitAllRaw (subject: string) (pattern: string) : BeamList<string> = nativeOnly
 
 /// Replaces the first occurrence of Pattern in Subject with Replacement.
 [<Emit("binary:replace($0, $1, $2)")>]

@@ -7,6 +7,7 @@ open Fable.Core
 open Fable.Core.BeamInterop
 open Fable.Beam
 open Fable.Beam.String
+open Fable.Beam.Lists
 #endif
 
 [<Fact>]
@@ -329,6 +330,26 @@ let ``test toGraphemes splits into grapheme clusters`` () =
     graphemes.[0] |> equal "a"
     graphemes.[1] |> equal "b"
     graphemes.[2] |> equal "c"
+#else
+    ()
+#endif
+
+[<Fact>]
+let ``test splitAllRaw returns the native list form of splitAll`` () =
+#if FABLE_COMPILER
+    let parts: BeamList<string> = splitAllRaw "a,b,c" ","
+    let expected: BeamList<string> = emitErlExpr () "[<<\"a\">>, <<\"b\">>, <<\"c\">>]"
+    parts |> equal expected
+#else
+    ()
+#endif
+
+[<Fact>]
+let ``test splitFirstRaw returns the native list form of splitFirst`` () =
+#if FABLE_COMPILER
+    let parts: BeamList<string> = splitFirstRaw "hello world" " "
+    let expected: BeamList<string> = emitErlExpr () "[<<\"hello\">>, <<\"world\">>]"
+    parts |> equal expected
 #else
     ()
 #endif

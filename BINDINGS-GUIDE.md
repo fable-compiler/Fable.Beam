@@ -802,10 +802,10 @@ Guidelines:
 
 Where it applies:
 
-| Native form | Default (F#) | `*Raw` (BEAM) | Applied | Candidates not yet done |
-| --- | --- | --- | --- | --- |
-| chardata | `string` | `BeamChardata` | `string:reverse`/`pad`/`replace`, `uri_string:compose_query` | `io_lib:format` (new binding) |
-| raw list | `'T array` | `BeamList<'T>` | — | `maps:keys`/`values`/`to_list`, `string:split`, `binary:split`, `re:split`, `proplists:get_keys` |
+| Native form | Default (F#) | `*Raw` (BEAM) | Applied |
+| --- | --- | --- | --- |
+| chardata | `string` | `BeamChardata` | `string:reverse`/`pad`/`replace`, `uri_string:compose_query`, `io_lib:format` |
+| raw list | `'T array` | `BeamList<'T>` | `maps:keys`/`values`/`to_list`, `string:split`, `binary:split`, `re:split` (all 4 arities), `proplists:get_keys` |
 
 ## IIFE Wrapping for Variable Scoping
 

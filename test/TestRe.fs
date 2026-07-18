@@ -6,6 +6,7 @@ open Fable.Beam.Testing
 open Fable.Core
 open Fable.Core.BeamInterop
 open Fable.Beam.Re
+open Fable.Beam.Lists
 #endif
 
 [<Fact>]
@@ -324,6 +325,16 @@ let ``test re.run with empty subject and optional group returns Some empty`` () 
     match run "" "a*" with
     | Some captures -> captures.[0] |> equal ""
     | None -> false |> equal true
+#else
+    ()
+#endif
+
+[<Fact>]
+let ``test re.splitRaw returns the native list form of split`` () =
+#if FABLE_COMPILER
+    let parts: BeamList<string> = splitRaw "a1b2c" "[0-9]"
+    let expected: BeamList<string> = emitErlExpr () "[<<\"a\">>, <<\"b\">>, <<\"c\">>]"
+    parts |> equal expected
 #else
     ()
 #endif
