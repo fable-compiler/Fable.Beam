@@ -125,6 +125,56 @@ let ``test str.pad with custom character`` () =
     ()
 #endif
 
+// ----------------------------------------------------------------------------
+// Raw chardata variants (BeamChardata)
+// ----------------------------------------------------------------------------
+
+#if FABLE_COMPILER
+// The raw variants return unflattened chardata: an iolist/charlist, i.e. a *list*, never a binary.
+[<Emit("is_list($0)")>]
+let private isList (x: BeamChardata) : bool = nativeOnly
+#endif
+
+[<Fact>]
+let ``test padRaw returns unflattened chardata that flattens to pad`` () =
+#if FABLE_COMPILER
+    let raw = padRaw "hi" 5
+    // proves it is genuinely raw: string:pad yields an iolist ([<<"hi">>,32,32,32]), not a binary
+    isList raw |> equal true
+    BeamChardata.toString raw |> equal "hi   "
+    BeamChardata.toString raw |> equal (pad "hi" 5)
+#else
+    ()
+#endif
+
+[<Fact>]
+let ``test reverseRaw flattens back to reverse`` () =
+#if FABLE_COMPILER
+    let raw = reverseRaw "hello"
+    isList raw |> equal true
+    BeamChardata.toString raw |> equal "olleh"
+#else
+    ()
+#endif
+
+[<Fact>]
+let ``test replaceAllRaw flattens back to replaceAll`` () =
+#if FABLE_COMPILER
+    let raw = replaceAllRaw "aXbXa" "X" "Y"
+    BeamChardata.toString raw |> equal "aYbYa"
+    BeamChardata.toString raw |> equal (replaceAll "aXbXa" "X" "Y")
+#else
+    ()
+#endif
+
+[<Fact>]
+let ``test BeamChardata ofString roundtrips through toString`` () =
+#if FABLE_COMPILER
+    "hi" |> BeamChardata.ofString |> BeamChardata.toString |> equal "hi"
+#else
+    ()
+#endif
+
 [<Fact>]
 let ``test str.slice from position`` () =
 #if FABLE_COMPILER

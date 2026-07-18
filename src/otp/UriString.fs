@@ -95,6 +95,10 @@ let dissectQuery (queryStr: string) : (string * string) list = nativeOnly
 [<Emit("unicode:characters_to_binary(uri_string:compose_query($0))")>]
 let composeQuery (pairs: (string * string) list) : string = nativeOnly
 
+/// Like `composeQuery`, but returns the raw chardata without flattening. See `BeamChardata`.
+[<Emit("uri_string:compose_query($0)")>]
+let composeQueryRaw (pairs: (string * string) list) : BeamChardata = nativeOnly
+
 // ============================================================================
 // Percent encoding / decoding
 // ============================================================================
