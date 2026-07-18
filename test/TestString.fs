@@ -7,6 +7,7 @@ open Fable.Core
 open Fable.Core.BeamInterop
 open Fable.Beam
 open Fable.Beam.String
+open Fable.Beam.Lists
 #endif
 
 [<Fact>]
@@ -121,6 +122,56 @@ let ``test str.pad with custom character`` () =
 #if FABLE_COMPILER
     let leading = Erlang.binaryToAtom "leading"
     padWith "7" 3 leading "0" |> equal "007"
+#else
+    ()
+#endif
+
+// ----------------------------------------------------------------------------
+// Raw chardata variants (BeamChardata)
+// ----------------------------------------------------------------------------
+
+#if FABLE_COMPILER
+// The raw variants return unflattened chardata: an iolist/charlist, i.e. a *list*, never a binary.
+[<Emit("is_list($0)")>]
+let private isList (x: BeamChardata) : bool = nativeOnly
+#endif
+
+[<Fact>]
+let ``test padRaw returns unflattened chardata that flattens to pad`` () =
+#if FABLE_COMPILER
+    let raw = padRaw "hi" 5
+    // proves it is genuinely raw: string:pad yields an iolist ([<<"hi">>,32,32,32]), not a binary
+    isList raw |> equal true
+    BeamChardata.toString raw |> equal "hi   "
+    BeamChardata.toString raw |> equal (pad "hi" 5)
+#else
+    ()
+#endif
+
+[<Fact>]
+let ``test reverseRaw flattens back to reverse`` () =
+#if FABLE_COMPILER
+    let raw = reverseRaw "hello"
+    isList raw |> equal true
+    BeamChardata.toString raw |> equal "olleh"
+#else
+    ()
+#endif
+
+[<Fact>]
+let ``test replaceAllRaw flattens back to replaceAll`` () =
+#if FABLE_COMPILER
+    let raw = replaceAllRaw "aXbXa" "X" "Y"
+    BeamChardata.toString raw |> equal "aYbYa"
+    BeamChardata.toString raw |> equal (replaceAll "aXbXa" "X" "Y")
+#else
+    ()
+#endif
+
+[<Fact>]
+let ``test BeamChardata ofString roundtrips through toString`` () =
+#if FABLE_COMPILER
+    "hi" |> BeamChardata.ofString |> BeamChardata.toString |> equal "hi"
 #else
     ()
 #endif
@@ -279,6 +330,26 @@ let ``test toGraphemes splits into grapheme clusters`` () =
     graphemes.[0] |> equal "a"
     graphemes.[1] |> equal "b"
     graphemes.[2] |> equal "c"
+#else
+    ()
+#endif
+
+[<Fact>]
+let ``test splitAllRaw returns the native list form of splitAll`` () =
+#if FABLE_COMPILER
+    let parts: BeamList<string> = splitAllRaw "a,b,c" ","
+    let expected: BeamList<string> = emitErlExpr () "[<<\"a\">>, <<\"b\">>, <<\"c\">>]"
+    parts |> equal expected
+#else
+    ()
+#endif
+
+[<Fact>]
+let ``test splitFirstRaw returns the native list form of splitFirst`` () =
+#if FABLE_COMPILER
+    let parts: BeamList<string> = splitFirstRaw "hello world" " "
+    let expected: BeamList<string> = emitErlExpr () "[<<\"hello\">>, <<\"world\">>]"
+    parts |> equal expected
 #else
     ()
 #endif

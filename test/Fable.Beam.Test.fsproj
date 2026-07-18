@@ -21,6 +21,7 @@
     <Compile Include="TestTimer.fs" />
     <Compile Include="TestEts.fs" />
     <Compile Include="TestIo.fs" />
+    <Compile Include="TestIoLib.fs" />
     <Compile Include="TestLists.fs" />
     <Compile Include="TestMaps.fs" />
     <Compile Include="TestBinary.fs" />

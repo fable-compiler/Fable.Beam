@@ -51,3 +51,8 @@ type IExports =
 /// proplists module
 [<ImportAll("proplists")>]
 let proplists: IExports = nativeOnly
+
+/// Like `proplists.get_keys`, but returns the native Erlang list instead of an F# array.
+/// See "Dual API" in BINDINGS-GUIDE.md.
+[<Emit("proplists:get_keys($0)")>]
+let getKeysRaw (list: BeamList<obj>) : BeamList<'K> = nativeOnly

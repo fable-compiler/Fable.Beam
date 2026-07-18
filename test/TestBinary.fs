@@ -225,3 +225,23 @@ let ``test binary.referenced_byte_size is at least the logical size`` () =
 #else
     ()
 #endif
+
+[<Fact>]
+let ``test binary.splitAllRaw returns the native list form of splitAll`` () =
+#if FABLE_COMPILER
+    let parts: BeamList<string> = splitAllRaw "a-b-c" "-"
+    let expected: BeamList<string> = emitErlExpr () "[<<\"a\">>, <<\"b\">>, <<\"c\">>]"
+    parts |> equal expected
+#else
+    ()
+#endif
+
+[<Fact>]
+let ``test binary.splitFirstRaw returns the native list form of splitFirst`` () =
+#if FABLE_COMPILER
+    let parts: BeamList<string> = splitFirstRaw "a-b-c" "-"
+    let expected: BeamList<string> = emitErlExpr () "[<<\"a\">>, <<\"b-c\">>]"
+    parts |> equal expected
+#else
+    ()
+#endif

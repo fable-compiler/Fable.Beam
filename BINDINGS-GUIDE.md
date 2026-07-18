@@ -28,6 +28,7 @@ When writing or reviewing a binding, check:
 | `[<Erase>] + [<ImportAll>]` | Binding an Erlang module with multiple functions | `timer`, `gen_server` |
 | `[<Erase>]` on DU | Opaque Erlang types (compile-time safety, no runtime cost) | `Pid`, `Ref`, `TableId` |
 | `[<Erase>]` on generic DU | Typed Erlang containers (maps, lists) | `BeamMap<'K,'V>`, `BeamList<'T>` |
+| Flattened default + `*Raw` variant | Functions returning chardata/iodata or raw lists | `string:pad` (→ `string`) + `padRaw` (→ `BeamChardata`) — see "Dual API" |
 | `[<Emit>]` on abstract member | Override `ImportAll` codegen for specific methods | `fable_utils:new_ref(...)` wrapping |
 | `System.Func<>` / `System.Action` | Typed callbacks in `ImportAll` interfaces | `fold`, `filter`, `foreach` |
 | `U2<>` / `U3<>` / erased union | Parameters or returns that accept multiple types | timeout: `int` or `infinity` |
@@ -60,6 +61,7 @@ The only narrow places `obj` is acceptable are listed in the "When `obj` is acce
 | ---------------- | --------------------------- | ------------------------------------------ |
 | `int`, `float`   | `integer()`, `float()`      | Direct                                     |
 | `string`         | `binary()`                  | `<<"hello">>` — **not** charlists          |
+| `BeamChardata`   | `unicode:chardata()`        | binary/charlist/iolist; `*Raw` return, flatten with `unicode:characters_to_binary` — see "Dual API" |
 | `bool`           | `true` \| `false`           | Atoms                                      |
 | `unit`           | `ok`                        | Atom — but `Ok ()` in a `Result` is `{ok, ok}` (see bare-`ok` anti-pattern) |
 | `tuple`          | `tuple`                     | `{A, B, C}` — direct mapping               |
@@ -433,6 +435,7 @@ For everything else that feels "polymorphic":
 Is the Erlang type...
 ├── a number?                   → int, float, int64
 ├── a binary/string?            → string
+├── chardata (iolist/charlist)? → string (default, flatten) + BeamChardata for a *Raw variant
 ├── a boolean atom?             → bool
 ├── the atom 'ok'?              → unit
 ├── a fixed-size tuple?         → T1 * T2 * ... (or Decode.tuple2/3 from Dynamic)
@@ -742,6 +745,68 @@ end)()
 let getCwd () : Result<string, string> = nativeOnly
 ```
 
+## Dual API: F#-friendly default + BEAM-native `*Raw`
+
+Some OTP functions return a value in a *BEAM-native* form that is efficient and composable when you
+are authoring Erlang, but awkward in idiomatic F#. Two cases recur:
+
+- **chardata** (`unicode:chardata()`) — a binary, a charlist, or a nested iolist. Returned by
+  `string:pad`/`replace`/`reverse`, `uri_string:compose_query`, `io_lib:format`, and friends. It is
+  valid anywhere a binary or iodata is accepted (`io:format`, `gen_tcp:send`, Cowboy response
+  bodies), so it can be passed straight on without flattening. Keeping it unflattened and flattening
+  once at the I/O boundary is the idiomatic way to build output without repeatedly copying binaries.
+- **raw Erlang lists** — a plain linked list, as returned by `maps:keys`, `string:split`,
+  `re:split`. F# array operations need it ref-wrapped first (see "Erlang lists vs F# arrays").
+
+For these, bind the function **twice**:
+
+- the **default** (plain name) returns the F#-friendly form — a flattened `string`, or a ref-wrapped
+  `'T array` — because that is what an F# consumer expects to compare, store, and pattern-match;
+- a **`<name>Raw`** variant returns the BEAM-native type — `BeamChardata` or `BeamList<'T>` — for
+  zero-copy BEAM output and interop with hand-written Erlang.
+
+```fsharp
+/// Pads String on the trailing side to at least Length grapheme clusters.
+[<Emit("unicode:characters_to_binary(string:pad($0, $1))")>]
+let pad (s: string) (length: int) : string = nativeOnly
+
+/// Like `pad`, but returns the raw chardata without flattening. See `BeamChardata`.
+[<Emit("string:pad($0, $1)")>]
+let padRaw (s: string) (length: int) : BeamChardata = nativeOnly
+```
+
+`BeamChardata` (in `Types.fs`) is an erased `unicode:chardata()` with two conversions:
+
+```fsharp
+[<Erase>]
+type BeamChardata = BeamChardata of obj
+
+BeamChardata.ofString: string -> BeamChardata // a binary is already valid chardata (zero cost)
+BeamChardata.toString: BeamChardata -> string // flatten via unicode:characters_to_binary
+```
+
+Guidelines:
+
+- **The default is the flattened / F#-friendly one.** Reach for `*Raw` only when you specifically
+  want the native form — most callers want the default.
+- **Don't invent a `*Raw` where the function already returns the F# type.** `string:lowercase` /
+  `uppercase` / `trim` / `slice` return a binary for binary input, so there is no raw chardata form
+  to expose. Verify in `erl` before adding one.
+- **The raw form is the *honest* return; the default's conversion is what makes its `string` /
+  `array` signature true.** A default that claims `string` but skips the flatten is silently wrong:
+  `string:pad("hi", 5)` is `[<<"hi">>,32,32,32]`, which compares unequal to `<<"hi   ">>` yet prints
+  the same — the kind of bug that only surfaces once the value is compared, matched, or stored.
+- **Pick the honest native type.** Only `reverse` yields a real charlist; `pad` / `replace` yield
+  iodata (nested binaries and integers). `BeamChardata` covers all of them — do not use
+  `BeamList<char>`, which would misrepresent iodata as a list of chars.
+
+Where it applies:
+
+| Native form | Default (F#) | `*Raw` (BEAM) | Applied |
+| --- | --- | --- | --- |
+| chardata | `string` | `BeamChardata` | `string:reverse`/`pad`/`replace`, `uri_string:compose_query`, `io_lib:format` |
+| raw list | `'T array` | `BeamList<'T>` | `maps:keys`/`values`/`to_list`, `string:split`, `binary:split`, `re:split` (all 4 arities), `proplists:get_keys` |
+
 ## IIFE Wrapping for Variable Scoping
 
 **As of Fable 5.0.0 this is handled automatically** — the Erlang backend wraps every
@@ -1039,6 +1104,27 @@ that shape matches Fable's `Result` representation directly, so no `[<Emit>]` is
 
 **Always add a test that exercises the success (`ok`) path** of any bare-`ok` binding —
 that is the only path that reveals a missing wrapper.
+
+### Anti-pattern: asserting an implementation-defined value instead of the invariant
+
+Some OTP functions return a value that is correct but **not portable** — it varies with the OTP
+release, how the term was constructed, or VM internals. A test that pins the exact value passes on the
+box it was written on and fails elsewhere. `binary:referenced_byte_size/1` is the canonical example:
+it reports the size of the *underlying* memory a (sub-)binary references, which the docs call "a hint
+for optimization, not exact". For `"hello"` it returned `5` on OTP 25, `40` on OTP 27, and `256` for
+a shell literal.
+
+```fsharp
+// BAD — passes on OTP 25, fails on OTP 27. The binding is fine; the assertion isn't portable.
+binary.referenced_byte_size "hello" |> equal 5
+
+// GOOD — assert the guarantee the function actually makes: it references at least what it contains.
+(binary.referenced_byte_size "hello" >= Erlang.byteSize "hello") |> equal true
+```
+
+When a function's exact result is implementation-defined, assert the **invariant** it guarantees
+(a bound, an ordering-independent property, a round-trip), not a value observed on one runtime.
+Verify in `erl` across OTP versions if you are unsure which part of the result is contractual.
 
 ## Module File Template
 

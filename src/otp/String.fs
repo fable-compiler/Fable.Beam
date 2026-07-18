@@ -4,6 +4,7 @@ module Fable.Beam.String
 
 open Fable.Core
 open Fable.Beam
+open Fable.Beam.Lists
 
 // fsharplint:disable MemberNames
 
@@ -32,10 +33,10 @@ type IExports =
     /// Converts String to a case-folded form suitable for case-insensitive comparisons.
     abstract casefold: s: string -> string
 
-    // NOTE: `string:reverse/1` returns a charlist ("olleh"), not a binary, so it cannot be
-    // bound through ImportAll — there is nowhere to convert the result. Use the typed
-    // `reverse` Emit below, which wraps it in `unicode:characters_to_binary/1`.
-    // abstract reverse: s: string -> string
+    // `string:reverse/1` returns chardata. The `string` form needs a `unicode:characters_to_binary`
+    // flatten that ImportAll codegen can't express, so it lives in the typed API below as `reverse`
+    // (-> string), with `reverseRaw` (-> BeamChardata) for the unflattened form. (A BeamChardata
+    // member here would compile; `*Raw` module functions just keep raw forms uniform library-wide.)
 
     // NOTE: `string:concat/2` is bound to Erlang's `++` operator, which expects
     // charlists — it raises `badarg` when called with binaries. Since F# strings
@@ -62,13 +63,10 @@ type IExports =
     // the chars via `binary_to_list` would be needed — left unbound for now.
     // abstract trim: s: string * dir: Atom * characters: string -> string
 
-    // NOTE: every `string:pad` arity returns an *iolist* ([<<"hi">>,32,32,32]), not a binary,
-    // so they cannot be bound through ImportAll — there is nowhere to convert the result.
-    // Use the typed `pad` / `padDir` / `padWith` Emits below, which wrap the result in
-    // `unicode:characters_to_binary/1`.
-    // abstract pad: s: string * length: int -> string
-    // abstract pad: s: string * length: int * dir: Atom -> string
-    // abstract pad: s: string * length: int * dir: Atom * char: string -> string
+    // Every `string:pad` arity returns chardata (an iolist). As with reverse, the `string` form
+    // needs a flatten ImportAll codegen can't express, so `pad`/`padDir`/`padWith` (-> string) live
+    // in the typed API below, with `padRaw`/`padDirRaw`/`padWithRaw` (-> BeamChardata) alongside.
+    // (A BeamChardata member here would compile; `*Raw` functions keep raw forms uniform library-wide.)
 
     /// Returns true if S1 and S2 are equal (ordinal).
     abstract equal: s1: string * s2: string -> bool
@@ -109,42 +107,77 @@ let prefix (s: string) (pre: string) : string option = nativeOnly
 [<Emit("fable_utils:new_ref(string:split($0, $1))")>]
 let splitFirst (s: string) (pattern: string) : string array = nativeOnly
 
+/// Like `splitFirst`, but returns the native Erlang list instead of an F# array. See "Dual API".
+[<Emit("string:split($0, $1)")>]
+let splitFirstRaw (s: string) (pattern: string) : BeamList<string> = nativeOnly
+
 /// Splits String at all occurrences of SearchPattern.
 /// Returns an array of all parts between (and around) occurrences.
 [<Emit("fable_utils:new_ref(string:split($0, $1, all))")>]
 let splitAll (s: string) (pattern: string) : string array = nativeOnly
 
-// NOTE on the `unicode:characters_to_binary/1` wrappers below: the OTP `string` module returns
-// *chardata* (an iolist, or a charlist of codepoints) from these functions, not a binary. F#
-// strings are Erlang binaries, so the raw result is structurally wrong even though it prints
-// plausibly — `string:pad("hi", 5)` is `[<<"hi">>,32,32,32]`, which compares unequal to
-// <<"hi   ">>. Flattening at the binding boundary is what makes the F# signature honest.
+/// Like `splitAll`, but returns the native Erlang list instead of an F# array. See "Dual API".
+[<Emit("string:split($0, $1, all)")>]
+let splitAllRaw (s: string) (pattern: string) : BeamList<string> = nativeOnly
+
+// The OTP `string` module returns *chardata* (an iolist, or a charlist of codepoints) from these
+// functions, not a binary. Each is exposed twice:
+//   * the default (e.g. `pad`) flattens with `unicode:characters_to_binary/1` to an F# `string` —
+//     what F# code wants, where the result is compared, stored, or pattern-matched;
+//   * the `*Raw` variant (e.g. `padRaw`) returns the chardata as `BeamChardata`, unflattened — for
+//     building BEAM output cheaply and handing it straight to io:format/gen_tcp/Cowboy.
+// The default is a lie without the flatten: `string:pad("hi", 5)` is `[<<"hi">>,32,32,32]`, which
+// compares unequal to <<"hi   ">>.
 
 /// Reverses grapheme clusters in String (Unicode-aware, unlike binary:reverse).
 [<Emit("unicode:characters_to_binary(string:reverse($0))")>]
 let reverse (s: string) : string = nativeOnly
 
+/// Like `reverse`, but returns the raw chardata without flattening. See `BeamChardata`.
+[<Emit("string:reverse($0)")>]
+let reverseRaw (s: string) : BeamChardata = nativeOnly
+
 /// Pads String on the trailing side to at least Length grapheme clusters.
 [<Emit("unicode:characters_to_binary(string:pad($0, $1))")>]
 let pad (s: string) (length: int) : string = nativeOnly
+
+/// Like `pad`, but returns the raw chardata without flattening. See `BeamChardata`.
+[<Emit("string:pad($0, $1)")>]
+let padRaw (s: string) (length: int) : BeamChardata = nativeOnly
 
 /// Pads String on the given side Dir to at least Length grapheme clusters.
 /// Dir must be the atom leading, trailing, or both (use erlang.binaryToAtom).
 [<Emit("unicode:characters_to_binary(string:pad($0, $1, $2))")>]
 let padDir (s: string) (length: int) (dir: Atom) : string = nativeOnly
 
+/// Like `padDir`, but returns the raw chardata without flattening. See `BeamChardata`.
+[<Emit("string:pad($0, $1, $2)")>]
+let padDirRaw (s: string) (length: int) (dir: Atom) : BeamChardata = nativeOnly
+
 /// Pads String on the given side Dir with the grapheme cluster Char.
 /// Dir must be the atom leading, trailing, or both (use erlang.binaryToAtom).
 [<Emit("unicode:characters_to_binary(string:pad($0, $1, $2, $3))")>]
 let padWith (s: string) (length: int) (dir: Atom) (char: string) : string = nativeOnly
 
+/// Like `padWith`, but returns the raw chardata without flattening. See `BeamChardata`.
+[<Emit("string:pad($0, $1, $2, $3)")>]
+let padWithRaw (s: string) (length: int) (dir: Atom) (char: string) : BeamChardata = nativeOnly
+
 /// Replaces the first occurrence of SearchPattern in String with Replacement.
 [<Emit("unicode:characters_to_binary(string:replace($0, $1, $2))")>]
 let replaceFirst (s: string) (pattern: string) (replacement: string) : string = nativeOnly
 
+/// Like `replaceFirst`, but returns the raw chardata without flattening. See `BeamChardata`.
+[<Emit("string:replace($0, $1, $2)")>]
+let replaceFirstRaw (s: string) (pattern: string) (replacement: string) : BeamChardata = nativeOnly
+
 /// Replaces all occurrences of SearchPattern in String with Replacement.
 [<Emit("unicode:characters_to_binary(string:replace($0, $1, $2, all))")>]
 let replaceAll (s: string) (pattern: string) (replacement: string) : string = nativeOnly
+
+/// Like `replaceAll`, but returns the raw chardata without flattening. See `BeamChardata`.
+[<Emit("string:replace($0, $1, $2, all)")>]
+let replaceAllRaw (s: string) (pattern: string) (replacement: string) : BeamChardata = nativeOnly
 
 /// Parses an integer from the start of String.
 /// Returns Ok (integer, rest) on success, or Error reason on failure.

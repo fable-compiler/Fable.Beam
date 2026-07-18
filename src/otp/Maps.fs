@@ -3,6 +3,7 @@
 module Fable.Beam.Maps
 
 open Fable.Core
+open Fable.Beam.Lists
 
 // fsharplint:disable MemberNames
 
@@ -72,3 +73,19 @@ let tryFind (key: 'K) (map: BeamMap<'K, 'V>) : 'V option = nativeOnly
 /// response headers, e.g. `ofList [ "content-type", "text/html" ]`.
 [<Emit("maps:from_list($0)")>]
 let ofList (pairs: ('K * 'V) list) : BeamMap<'K, 'V> = nativeOnly
+
+// Raw-list variants of keys/values/to_list: the `maps.*` members ref-wrap the Erlang list into an
+// F# array (for Array.* ops); these return the native BeamList for BEAM-side use without the
+// round-trip. See "Dual API" in BINDINGS-GUIDE.md.
+
+/// Like `maps.keys`, but returns the native Erlang list instead of an F# array.
+[<Emit("maps:keys($0)")>]
+let keysRaw (map: BeamMap<'K, 'V>) : BeamList<'K> = nativeOnly
+
+/// Like `maps.values`, but returns the native Erlang list instead of an F# array.
+[<Emit("maps:values($0)")>]
+let valuesRaw (map: BeamMap<'K, 'V>) : BeamList<'V> = nativeOnly
+
+/// Like `maps.to_list`, but returns the native Erlang list instead of an F# array.
+[<Emit("maps:to_list($0)")>]
+let toListRaw (map: BeamMap<'K, 'V>) : BeamList<'K * 'V> = nativeOnly

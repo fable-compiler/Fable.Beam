@@ -36,3 +36,25 @@ type TimeUnit =
 /// when the timer fires — analogous to Gleam's Subject(message). Erased at runtime.
 [<Erase>]
 type TimerRef<'Msg> = TimerRef of obj
+
+/// Erlang `unicode:chardata()` — a binary, a charlist (a list of Unicode codepoints), or a nested
+/// iolist of any of these. The OTP `string`/`uri_string` modules return chardata, and it is valid
+/// anywhere a binary or iodata is accepted (`io:format`, `gen_tcp:send`, Cowboy response bodies),
+/// so a value can be passed straight on without first flattening it to a binary. Erased at runtime.
+///
+/// Prefer this over the flattened `string` results when authoring BEAM output: keeping intermediate
+/// results as chardata avoids repeatedly copying binaries, which is the idiomatic Erlang way to
+/// build output and flatten just once at the I/O boundary.
+[<Erase>]
+type BeamChardata = BeamChardata of obj
+
+/// Conversions between F# strings (Erlang binaries) and chardata.
+[<RequireQualifiedAccess>]
+module BeamChardata =
+    /// An F# string is an Erlang binary, which is already valid chardata — zero cost.
+    [<Emit("$0")>]
+    let ofString (s: string) : BeamChardata = nativeOnly
+
+    /// Flatten chardata into a single binary (F# string).
+    [<Emit("unicode:characters_to_binary($0)")>]
+    let toString (chardata: BeamChardata) : string = nativeOnly
