@@ -1,11 +1,23 @@
 ---
-last_commit_released: ccae658d86dd4c009a6897e2499fb4a04acc616b
+last_commit_released: fadf7d81cf83586774f8f6924c9bb0e5c29fa62e
 name: Fable.Beam
 ---
 
 # Changelog
 
 All notable changes to this project will be documented in this file.
+
+## 5.0.0-rc.33 - 2026-07-18
+
+### 🏗️ Breaking changes
+
+* Upgrade to Fable 5.11 and fix chardata handling in string bindings (#123) ([8491c54](https://github.com/fable-compiler/Fable.Beam/commit/8491c54b5ecd43499e324110eba090ea46577840))
+
+### 🚀 Features
+
+* *(beam)* Dual-API bindings — BeamChardata, io_lib, and raw-list variants (#128) ([fadf7d8](https://github.com/fable-compiler/Fable.Beam/commit/fadf7d81cf83586774f8f6924c9bb0e5c29fa62e))
+
+<strong><small>[View changes on Github](https://github.com/fable-compiler/Fable.Beam/compare/ccae658d86dd4c009a6897e2499fb4a04acc616b..fadf7d81cf83586774f8f6924c9bb0e5c29fa62e)</small></strong>
 
 ## 5.0.0-rc.32 - 2026-06-08
 
