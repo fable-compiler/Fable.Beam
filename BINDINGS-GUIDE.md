@@ -793,9 +793,9 @@ Guidelines:
   `uppercase` / `trim` / `slice` return a binary for binary input, so there is no raw chardata form
   to expose. Verify in `erl` before adding one.
 - **The raw form is the *honest* return; the default's conversion is what makes its `string` /
-  `array` signature true.** A default that claims `string` but skips the flatten is the chardata bug
-  class from `BROKEN-BINDINGS.md` — `string:pad("hi", 5)` is `[<<"hi">>,32,32,32]`, which compares
-  unequal to `<<"hi   ">>`.
+  `array` signature true.** A default that claims `string` but skips the flatten is silently wrong:
+  `string:pad("hi", 5)` is `[<<"hi">>,32,32,32]`, which compares unequal to `<<"hi   ">>` yet prints
+  the same — the kind of bug that only surfaces once the value is compared, matched, or stored.
 - **Pick the honest native type.** Only `reverse` yields a real charlist; `pad` / `replace` yield
   iodata (nested binaries and integers). `BeamChardata` covers all of them — do not use
   `BeamList<char>`, which would misrepresent iodata as a list of chars.
@@ -1104,6 +1104,27 @@ that shape matches Fable's `Result` representation directly, so no `[<Emit>]` is
 
 **Always add a test that exercises the success (`ok`) path** of any bare-`ok` binding —
 that is the only path that reveals a missing wrapper.
+
+### Anti-pattern: asserting an implementation-defined value instead of the invariant
+
+Some OTP functions return a value that is correct but **not portable** — it varies with the OTP
+release, how the term was constructed, or VM internals. A test that pins the exact value passes on the
+box it was written on and fails elsewhere. `binary:referenced_byte_size/1` is the canonical example:
+it reports the size of the *underlying* memory a (sub-)binary references, which the docs call "a hint
+for optimization, not exact". For `"hello"` it returned `5` on OTP 25, `40` on OTP 27, and `256` for
+a shell literal.
+
+```fsharp
+// BAD — passes on OTP 25, fails on OTP 27. The binding is fine; the assertion isn't portable.
+binary.referenced_byte_size "hello" |> equal 5
+
+// GOOD — assert the guarantee the function actually makes: it references at least what it contains.
+(binary.referenced_byte_size "hello" >= Erlang.byteSize "hello") |> equal true
+```
+
+When a function's exact result is implementation-defined, assert the **invariant** it guarantees
+(a bound, an ordering-independent property, a round-trip), not a value observed on one runtime.
+Verify in `erl` across OTP versions if you are unsure which part of the result is contractual.
 
 ## Module File Template
 
