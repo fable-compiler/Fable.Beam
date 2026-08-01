@@ -159,3 +159,35 @@ let ``test toListRaw returns native list of pairs`` () =
 #else
     ()
 #endif
+
+[<Fact>]
+let ``test maps.fold accumulates over key-value pairs`` () =
+#if FABLE_COMPILER
+    // maps:fold/3 applies F(K, V, Acc) — the only 3-arity callback in the bindings.
+    let m: BeamMap<string, int> = ofList [ ("a", 1); ("b", 2); ("c", 3) ]
+    maps.fold ((fun _k v acc -> v + acc), 0, m) |> equal 6
+#else
+    ()
+#endif
+
+[<Fact>]
+let ``test maps.map transforms each value`` () =
+#if FABLE_COMPILER
+    let m: BeamMap<string, int> = ofList [ ("a", 1); ("b", 2) ]
+    let doubled = maps.map ((fun _k v -> v * 2), m)
+    maps.get ("a", doubled) |> equal 2
+    maps.get ("b", doubled) |> equal 4
+#else
+    ()
+#endif
+
+[<Fact>]
+let ``test maps.filter keeps matching pairs`` () =
+#if FABLE_COMPILER
+    let m: BeamMap<string, int> = ofList [ ("a", 1); ("b", 2); ("c", 3) ]
+    let big = maps.filter ((fun _k v -> v > 1), m)
+    maps.size big |> equal 2
+    maps.is_key ("a", big) |> equal false
+#else
+    ()
+#endif

@@ -180,7 +180,7 @@ let ``test join appends two queues`` () =
 let ``test filter keeps matching elements`` () =
 #if FABLE_COMPILER
     let q = queue.from_list [ 1; 2; 3; 4; 5 ]
-    let evens = queue.filter (System.Func<_, _>(fun x -> x % 2 = 0), q)
+    let evens = queue.filter ((fun x -> x % 2 = 0), q)
     queue.to_list evens |> equal [ 2; 4 ]
 #else
     ()

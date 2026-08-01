@@ -16,8 +16,29 @@ type Pid<'Msg> = Pid of obj
 type Ref<'Tag> = Ref of obj
 
 /// Erlang atom.
+///
+/// The constructor is private on purpose. Because the type is erased, a bare
+/// `Atom "name"` would compile to the *binary* `<<"name"/utf8>>`, not to an atom —
+/// it would then silently fail to match any atom-keyed OTP term (`maps:find`,
+/// `ets:info`, a gen_server tag). Build atoms with `Atom.ofString` instead.
 [<Erase>]
-type Atom = Atom of obj
+type Atom = private Atom of obj
+
+/// Conversions between F# strings (Erlang binaries) and atoms.
+[<RequireQualifiedAccess>]
+module Atom =
+    /// Convert an F# string (Erlang binary) to an atom.
+    ///
+    /// Note: atoms are never garbage collected and the atom table is bounded, so
+    /// only call this with names drawn from a known, finite set — never with
+    /// unbounded runtime input. This is `erlang:binary_to_atom/1`, the same BIF
+    /// `Erlang.binaryToAtom` binds.
+    [<Emit("erlang:binary_to_atom($0)")>]
+    let ofString (name: string) : Atom = nativeOnly
+
+    /// Convert an atom to an F# string (Erlang binary).
+    [<Emit("erlang:atom_to_binary($0)")>]
+    let toString (atom: Atom) : string = nativeOnly
 
 /// Erlang time unit (`erlang:time_unit()`), used by `erlang:system_time`,
 /// `os:system_time`, and `calendar:system_time_to_*`. Each case compiles to its

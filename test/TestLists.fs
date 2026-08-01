@@ -107,8 +107,7 @@ let ``test lists.partition returns tuple of two lists`` () =
 #if FABLE_COMPILER
     let xs: BeamList<int> = emitErlExpr () "[1, 2, 3, 4, 5]"
 
-    let (matching, notMatching) =
-        lists.partition (System.Func<_, _>(fun x -> x > 3), xs)
+    let (matching, notMatching) = lists.partition ((fun x -> x > 3), xs)
 
     erlLength matching |> equal 2
     erlLength notMatching |> equal 3
@@ -189,7 +188,7 @@ let ``test lists.duplicate creates repeated list`` () =
 let ``test lists.takewhile takes while predicate holds`` () =
 #if FABLE_COMPILER
     let xs: BeamList<int> = emitErlExpr () "[1, 2, 3, 4, 5]"
-    let result = lists.takewhile (System.Func<_, _>(fun x -> x < 4), xs)
+    let result = lists.takewhile ((fun x -> x < 4), xs)
     erlLength result |> equal 3
     lists.nth (3, result) |> equal 3
 #else
@@ -200,7 +199,7 @@ let ``test lists.takewhile takes while predicate holds`` () =
 let ``test lists.dropwhile drops while predicate holds`` () =
 #if FABLE_COMPILER
     let xs: BeamList<int> = emitErlExpr () "[1, 2, 3, 4, 5]"
-    let result = lists.dropwhile (System.Func<_, _>(fun x -> x < 4), xs)
+    let result = lists.dropwhile ((fun x -> x < 4), xs)
     erlLength result |> equal 2
     lists.nth (1, result) |> equal 4
 #else
@@ -211,7 +210,7 @@ let ``test lists.dropwhile drops while predicate holds`` () =
 let ``test lists.splitwith splits at predicate boundary`` () =
 #if FABLE_COMPILER
     let xs: BeamList<int> = emitErlExpr () "[1, 2, 3, 4, 5]"
-    let (before, after) = lists.splitwith (System.Func<_, _>(fun x -> x < 3), xs)
+    let (before, after) = lists.splitwith ((fun x -> x < 3), xs)
     erlLength before |> equal 2
     erlLength after |> equal 3
 #else
@@ -312,8 +311,7 @@ let ``test lists.mapfoldl maps and folds left`` () =
 #if FABLE_COMPILER
     let xs: BeamList<int> = emitErlExpr () "[1, 2, 3]"
 
-    let (mapped, acc) =
-        lists.mapfoldl (System.Func<_, _, _>(fun x s -> (x * 2, s + x)), 0, xs)
+    let (mapped, acc) = lists.mapfoldl ((fun x s -> (x * 2, s + x)), 0, xs)
 
     mapped |> equal (emitErlExpr () "[2, 4, 6]")
     acc |> equal 6
@@ -326,11 +324,68 @@ let ``test lists.mapfoldr maps and folds right`` () =
 #if FABLE_COMPILER
     let xs: BeamList<int> = emitErlExpr () "[1, 2, 3]"
 
-    let (mapped, acc) =
-        lists.mapfoldr (System.Func<_, _, _>(fun x s -> (x * 2, s + x)), 0, xs)
+    let (mapped, acc) = lists.mapfoldr ((fun x s -> (x * 2, s + x)), 0, xs)
 
     mapped |> equal (emitErlExpr () "[2, 4, 6]")
     acc |> equal 6
+#else
+    ()
+#endif
+
+[<Fact>]
+let ``test lists.map applies a function to each element`` () =
+#if FABLE_COMPILER
+    let xs: BeamList<int> = emitErlExpr () "[1, 2, 3]"
+    lists.map ((fun x -> x * 2), xs) |> equal (emitErlExpr () "[2, 4, 6]")
+#else
+    ()
+#endif
+
+[<Fact>]
+let ``test lists.filter keeps matching elements`` () =
+#if FABLE_COMPILER
+    let xs: BeamList<int> = emitErlExpr () "[1, 2, 3, 4]"
+    lists.filter ((fun x -> x % 2 = 0), xs) |> equal (emitErlExpr () "[2, 4]")
+#else
+    ()
+#endif
+
+[<Fact>]
+let ``test lists.foldl folds from the left`` () =
+#if FABLE_COMPILER
+    let xs: BeamList<int> = emitErlExpr () "[1, 2, 3]"
+    lists.foldl ((fun x acc -> acc + x), 0, xs) |> equal 6
+#else
+    ()
+#endif
+
+[<Fact>]
+let ``test lists.foldr folds from the right`` () =
+#if FABLE_COMPILER
+    // Subtraction is not associative, so this pins the direction: 1-(2-(3-0)) = 2.
+    let xs: BeamList<int> = emitErlExpr () "[1, 2, 3]"
+    lists.foldr ((fun x acc -> x - acc), 0, xs) |> equal 2
+#else
+    ()
+#endif
+
+[<Fact>]
+let ``test lists.all and lists.any check predicates`` () =
+#if FABLE_COMPILER
+    let xs: BeamList<int> = emitErlExpr () "[2, 4, 6]"
+    lists.all ((fun x -> x % 2 = 0), xs) |> equal true
+    lists.any ((fun x -> x > 5), xs) |> equal true
+    lists.any ((fun x -> x > 10), xs) |> equal false
+#else
+    ()
+#endif
+
+[<Fact>]
+let ``test lists.sort with a comparison function`` () =
+#if FABLE_COMPILER
+    let xs: BeamList<int> = emitErlExpr () "[3, 1, 2]"
+    // Descending: the comparator returns true when A should come before B.
+    lists.sort ((fun a b -> a >= b), xs) |> equal (emitErlExpr () "[3, 2, 1]")
 #else
     ()
 #endif

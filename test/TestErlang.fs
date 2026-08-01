@@ -404,3 +404,16 @@ let ``test tail raises on empty list`` () =
 #else
     ()
 #endif
+
+[<Fact>]
+let ``test Atom.ofString builds a real atom, not a binary`` () =
+#if FABLE_COMPILER
+    // Regression: the erased `Atom` constructor used to be public, so `Atom "x"`
+    // compiled to the binary <<"x">> and silently failed to match atom-keyed terms.
+    let a = Atom.ofString "test_real_atom"
+    let isAtom: bool = emitErlExpr a "erlang:is_atom($0)"
+    isAtom |> equal true
+    Atom.toString a |> equal "test_real_atom"
+#else
+    ()
+#endif
