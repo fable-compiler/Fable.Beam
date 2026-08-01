@@ -9,7 +9,13 @@ its own open decision, referenced below.
 
 ## Where things stand
 
-- **Version:** shipping `v5.0.0-rc.15`. Freezing at v5.0.0 locks every public signature under semver.
+- **Versions:** the three packages version *independently*, from their own changelogs — `Fable.Beam`
+  **5.0.0-rc.33**, `Fable.Beam.Cowboy` **5.0.0-rc.24**, `Fable.Beam.Jsx` **5.0.0-rc.8**. Freezing at
+  v5.0.0 locks every public signature under semver, and the three can freeze on different dates.
+  Read the version from the `## <version>` heading at the top of `src/otp/CHANGELOG.md`,
+  `src/cowboy/CHANGELOG.md` and `src/jsx/CHANGELOG.md` — that is what `just pack` uses.
+  **Do not read it from `git tag`:** the newest repo tag is `v5.0.0-rc.15` from 2026-03-26, left
+  behind when ShipIt moved to per-project versioning. No tag corresponds to a current package version.
 - **Toolchain:** Fable 5.13.0 (`.config/dotnet-tools.json`). Plain `just test` is green — the old
   `dev=true` workaround is obsolete, the fixes it waited on shipped.
 - **Suite:** 380 BEAM tests green on `main`; 400 on the `fix/atom-construction-and-callback-types`
