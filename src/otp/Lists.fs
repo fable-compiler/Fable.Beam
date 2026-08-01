@@ -25,19 +25,19 @@ type IExports =
     /// Sorts a list.
     abstract sort: list: BeamList<'T> -> BeamList<'T>
     /// Sorts a list using a comparison function.
-    abstract sort: f: System.Func<'T, 'T, bool> * list: BeamList<'T> -> BeamList<'T>
+    abstract sort: f: ('T -> 'T -> bool) * list: BeamList<'T> -> BeamList<'T>
     /// Returns the Nth element (1-based).
     abstract nth: n: int * list: BeamList<'T> -> 'T
     /// Returns the last element.
     abstract last: list: BeamList<'T> -> 'T
     /// Applies a function to each element (map).
-    abstract map: f: System.Func<'T, 'U> * list: BeamList<'T> -> BeamList<'U>
+    abstract map: f: ('T -> 'U) * list: BeamList<'T> -> BeamList<'U>
     /// Filters elements by a predicate.
-    abstract filter: pred: System.Func<'T, bool> * list: BeamList<'T> -> BeamList<'T>
+    abstract filter: pred: ('T -> bool) * list: BeamList<'T> -> BeamList<'T>
     /// Left fold over a list.
-    abstract foldl: f: System.Func<'T, 'Acc, 'Acc> * acc: 'Acc * list: BeamList<'T> -> 'Acc
+    abstract foldl: f: ('T -> 'Acc -> 'Acc) * acc: 'Acc * list: BeamList<'T> -> 'Acc
     /// Right fold over a list.
-    abstract foldr: f: System.Func<'T, 'Acc, 'Acc> * acc: 'Acc * list: BeamList<'T> -> 'Acc
+    abstract foldr: f: ('T -> 'Acc -> 'Acc) * acc: 'Acc * list: BeamList<'T> -> 'Acc
     /// Applies a function to each element for side effects.
     abstract foreach: f: System.Action<'T> * list: BeamList<'T> -> unit
     /// Zips two lists into a list of tuples.
@@ -45,15 +45,15 @@ type IExports =
     /// Unzips a list of tuples into a tuple of two lists.
     abstract unzip: list: BeamList<'A * 'B> -> BeamList<'A> * BeamList<'B>
     /// Returns a tuple of {Satisfying, NotSatisfying} elements.
-    abstract partition: pred: System.Func<'T, bool> * list: BeamList<'T> -> BeamList<'T> * BeamList<'T>
+    abstract partition: pred: ('T -> bool) * list: BeamList<'T> -> BeamList<'T> * BeamList<'T>
     /// Removes duplicate elements.
     abstract usort: list: BeamList<'T> -> BeamList<'T>
     /// Returns a sublist (first N elements).
     abstract sublist: list: BeamList<'T> * len: int -> BeamList<'T>
     /// Returns true if all elements satisfy the predicate.
-    abstract all: pred: System.Func<'T, bool> * list: BeamList<'T> -> bool
+    abstract all: pred: ('T -> bool) * list: BeamList<'T> -> bool
     /// Returns true if any element satisfies the predicate.
-    abstract any: pred: System.Func<'T, bool> * list: BeamList<'T> -> bool
+    abstract any: pred: ('T -> bool) * list: BeamList<'T> -> bool
 
     /// Returns the sum of all numbers in the list.
     abstract sum: list: BeamList<int> -> int
@@ -72,11 +72,11 @@ type IExports =
     abstract duplicate: n: int * elem: 'T -> BeamList<'T>
 
     /// Returns elements from the front of the list as long as Pred returns true.
-    abstract takewhile: pred: System.Func<'T, bool> * list: BeamList<'T> -> BeamList<'T>
+    abstract takewhile: pred: ('T -> bool) * list: BeamList<'T> -> BeamList<'T>
     /// Drops elements from the front of the list while Pred returns true.
-    abstract dropwhile: pred: System.Func<'T, bool> * list: BeamList<'T> -> BeamList<'T>
+    abstract dropwhile: pred: ('T -> bool) * list: BeamList<'T> -> BeamList<'T>
     /// Splits a list into {TakeWhile, Rest} at the first element for which Pred returns false.
-    abstract splitwith: pred: System.Func<'T, bool> * list: BeamList<'T> -> BeamList<'T> * BeamList<'T>
+    abstract splitwith: pred: ('T -> bool) * list: BeamList<'T> -> BeamList<'T> * BeamList<'T>
 
     /// Deletes the first occurrence of Elem from the list.
     abstract delete: elem: 'T * list: BeamList<'T> -> BeamList<'T>
@@ -94,9 +94,9 @@ type IExports =
 
     /// Combines map and left fold: applies Fun to each element and an accumulator,
     /// returning a new list of the first Fun results and the final accumulator.
-    abstract mapfoldl: f: System.Func<'T, 'Acc, 'U * 'Acc> * acc: 'Acc * list: BeamList<'T> -> BeamList<'U> * 'Acc
+    abstract mapfoldl: f: ('T -> 'Acc -> 'U * 'Acc) * acc: 'Acc * list: BeamList<'T> -> BeamList<'U> * 'Acc
     /// Combines map and right fold.
-    abstract mapfoldr: f: System.Func<'T, 'Acc, 'U * 'Acc> * acc: 'Acc * list: BeamList<'T> -> BeamList<'U> * 'Acc
+    abstract mapfoldr: f: ('T -> 'Acc -> 'U * 'Acc) * acc: 'Acc * list: BeamList<'T> -> BeamList<'U> * 'Acc
 
 /// lists module
 [<ImportAll("lists")>]

@@ -48,11 +48,11 @@ type IExports =
     /// Merges two maps.
     abstract merge: map1: BeamMap<'K, 'V> * map2: BeamMap<'K, 'V> -> BeamMap<'K, 'V>
     /// Applies a function to each key-value pair.
-    abstract fold: f: System.Func<'K, 'V, 'Acc, 'Acc> * init: 'Acc * map: BeamMap<'K, 'V> -> 'Acc
+    abstract fold: f: ('K -> 'V -> 'Acc -> 'Acc) * init: 'Acc * map: BeamMap<'K, 'V> -> 'Acc
     /// Applies a function to each value, returning a new map.
-    abstract map: f: System.Func<'K, 'V, 'V2> * map: BeamMap<'K, 'V> -> BeamMap<'K, 'V2>
+    abstract map: f: ('K -> 'V -> 'V2) * map: BeamMap<'K, 'V> -> BeamMap<'K, 'V2>
     /// Filters key-value pairs by a predicate.
-    abstract filter: pred: System.Func<'K, 'V, bool> * map: BeamMap<'K, 'V> -> BeamMap<'K, 'V>
+    abstract filter: pred: ('K -> 'V -> bool) * map: BeamMap<'K, 'V> -> BeamMap<'K, 'V>
     /// Returns {ok, Value} if key is in the map, or the atom error if not.
     /// Prefer tryFind for type-safe optional lookup.
     abstract find: key: 'K * map: BeamMap<'K, 'V> -> obj

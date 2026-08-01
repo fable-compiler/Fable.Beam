@@ -47,29 +47,29 @@ module Decode =
 
     /// Extract a field from an Erlang map and decode it with the given decoder.
     /// Returns Error if the map doesn't contain the key or the inner decoder fails.
-    /// Uses System.Func for the decoder for consistency with the Lists.fs callback
-    /// convention. (A raw `Dynamic -> Result<_,_>` param also substitutes correctly
-    /// in the Emit — System.Func is a style choice here, not a correctness requirement.)
+    ///
+    /// The decoder is a plain F# function. On BEAM a function value compiles to an
+    /// Erlang fun of its remaining arity, so no `System.Func` wrapper is needed to get
+    /// the 1-arity fun the Emit applies — see "Callbacks: plain F# function types work
+    /// at any arity" in BINDINGS-GUIDE.md.
     [<Emit("(fun() -> case maps:find($0, $2) of {ok, FieldVal__} -> $1(FieldVal__); error -> {error, erlang:list_to_binary(io_lib:format(<<\"missing field ~p\">>, [$0]))} end end)()")>]
-    let field (key: Atom) (decoder: System.Func<Dynamic, Result<'V, string>>) (d: Dynamic) : Result<'V, string> =
-        nativeOnly
+    let field (key: Atom) (decoder: Dynamic -> Result<'V, string>) (d: Dynamic) : Result<'V, string> = nativeOnly
 
     /// Decode a Dynamic as a list of values, decoding each element with `decoder`.
     /// Short-circuits on the first decode error.
     [<Emit("(fun() -> case erlang:is_list($1) of true -> DecodeListFold__ = fun (_, {error, _} = E__) -> E__; (Elem__, {ok, Acc__}) -> case $0(Elem__) of {ok, V__} -> {ok, [V__ | Acc__]}; {error, _} = E__ -> E__ end end, case lists:foldl(DecodeListFold__, {ok, []}, $1) of {ok, Rev__} -> {ok, fable_utils:new_ref(lists:reverse(Rev__))}; {error, _} = E__ -> E__ end; false -> {error, <<\"expected list\">>} end end)()")>]
-    let list (decoder: System.Func<Dynamic, Result<'V, string>>) (d: Dynamic) : Result<'V array, string> = nativeOnly
+    let list (decoder: Dynamic -> Result<'V, string>) (d: Dynamic) : Result<'V array, string> = nativeOnly
 
     /// Decode a Dynamic that may be the atom `undefined` (mapped to None) or
     /// a value decoded by the inner decoder (mapped to Some).
     [<Emit("(fun() -> case $1 of undefined -> {ok, undefined}; V__ -> case $0(V__) of {ok, V2__} -> {ok, V2__}; {error, _} = E__ -> E__ end end end)()")>]
-    let optional (decoder: System.Func<Dynamic, Result<'V, string>>) (d: Dynamic) : Result<'V option, string> =
-        nativeOnly
+    let optional (decoder: Dynamic -> Result<'V, string>) (d: Dynamic) : Result<'V option, string> = nativeOnly
 
     /// Decode a 2-tuple by applying each decoder to the corresponding element.
     [<Emit("(fun() -> case erlang:is_tuple($2) andalso erlang:tuple_size($2) =:= 2 of true -> case $0(erlang:element(1, $2)) of {ok, A__} -> case $1(erlang:element(2, $2)) of {ok, B__} -> {ok, {A__, B__}}; {error, _} = E__ -> E__ end; {error, _} = E__ -> E__ end; false -> {error, <<\"expected 2-tuple\">>} end end)()")>]
     let tuple2
-        (decA: System.Func<Dynamic, Result<'A, string>>)
-        (decB: System.Func<Dynamic, Result<'B, string>>)
+        (decA: Dynamic -> Result<'A, string>)
+        (decB: Dynamic -> Result<'B, string>)
         (d: Dynamic)
         : Result<'A * 'B, string> =
         nativeOnly

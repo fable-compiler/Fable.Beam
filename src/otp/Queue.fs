@@ -62,7 +62,7 @@ type IExports =
     abstract join: q1: Queue<'a> * q2: Queue<'a> -> Queue<'a>
 
     /// Returns a queue of all elements of Q for which Pred(Elem) returns true.
-    abstract filter: pred: System.Func<'a, bool> * q: Queue<'a> -> Queue<'a>
+    abstract filter: pred: ('a -> bool) * q: Queue<'a> -> Queue<'a>
 
 /// queue module
 [<ImportAll("queue")>]

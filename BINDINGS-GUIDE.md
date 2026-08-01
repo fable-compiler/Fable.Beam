@@ -18,7 +18,7 @@ When writing or reviewing a binding, check:
 - **Arity** — ensure all arities of a function are covered or the most common ones are bound
 - **Charlist vs binary** — the docs say `string()` for charlists; F# strings are binaries, so convert
 - **Discrete atom sets** — model as plain DUs with no fields (add `[<CompiledName>]` for snake_case atoms)
-- **Callbacks** — `System.Func<>` / `System.Action<>` is the house style for `ImportAll` callback params (raw F# function types also work in curried Emits — it's a consistency choice, not a correctness fix)
+- **Callbacks** — use plain F# function types (`'T -> 'Acc -> 'Acc`); they compile to an Erlang fun of the right arity everywhere, so `System.Func<>` is never required
 
 ## Quick Reference
 
@@ -30,7 +30,7 @@ When writing or reviewing a binding, check:
 | `[<Erase>]` on generic DU | Typed Erlang containers (maps, lists) | `BeamMap<'K,'V>`, `BeamList<'T>` |
 | Flattened default + `*Raw` variant | Functions returning chardata/iodata or raw lists | `string:pad` (→ `string`) + `padRaw` (→ `BeamChardata`) — see "Dual API" |
 | `[<Emit>]` on abstract member | Override `ImportAll` codegen for specific methods | `fable_utils:new_ref(...)` wrapping |
-| `System.Func<>` / `System.Action` | Typed callbacks in `ImportAll` interfaces | `fold`, `filter`, `foreach` |
+| Plain F# function type | Typed callbacks, in `ImportAll` interfaces and Emits alike | `fold`, `filter`, `foreach` |
 | `U2<>` / `U3<>` / erased union | Parameters or returns that accept multiple types | timeout: `int` or `infinity` |
 | Regular DU (no fields) | Discrete atom sets (table types, log levels) | `type EtsTableType = Set \| Bag \| ...` |
 | `Dynamic` + `Decode` combinators | Genuinely unknown Erlang terms | `binaryToTerm`, `application:get_env` |
@@ -308,23 +308,25 @@ Available combinators (see `src/otp/Dynamic.fs`):
 | --- | --- |
 | `Decode.int` / `float` / `bool` / `atom` / `string` | `Dynamic -> Result<T, string>` |
 | `Decode.dynamic` | `Dynamic -> Result<Dynamic, string>` (identity) |
-| `Decode.field` | `Atom -> Func<Dynamic, Result<V, string>> -> Dynamic -> Result<V, string>` |
-| `Decode.list` | `Func<Dynamic, Result<V, string>> -> Dynamic -> Result<V array, string>` |
-| `Decode.optional` | `Func<Dynamic, Result<V, string>> -> Dynamic -> Result<V option, string>` |
-| `Decode.tuple2` | `Func<..A..> -> Func<..B..> -> Dynamic -> Result<A * B, string>` |
+| `Decode.field` | `Atom -> (Dynamic -> Result<V, string>) -> Dynamic -> Result<V, string>` |
+| `Decode.list` | `(Dynamic -> Result<V, string>) -> Dynamic -> Result<V array, string>` |
+| `Decode.optional` | `(Dynamic -> Result<V, string>) -> Dynamic -> Result<V option, string>` |
+| `Decode.tuple2` | `(Dynamic -> Result<A,_>) -> (Dynamic -> Result<B,_>) -> Dynamic -> Result<A * B, string>` |
 | `Decode.succeed` / `map` / `andThen` | Result combinators |
 
 Composing a record decoder:
 
 ```fsharp
 let userDecoder (d: Dynamic) : Result<User, string> =
-    Decode.field (Atom "name") (System.Func<_, _> Decode.string) d
+    Decode.field (Atom.ofString "name") Decode.string d
     |> Result.bind (fun name ->
-        Decode.field (Atom "age") (System.Func<_, _> Decode.int) d
+        Decode.field (Atom.ofString "age") Decode.int d
         |> Result.map (fun age -> { Name = name; Age = age }))
 ```
 
-`System.Func` is used for decoder callbacks — see "Curried Emit gotcha" below.
+Note `Atom.ofString`, not `Atom "name"` — see "Erased constructors do not convert". Decoder
+callbacks are plain F# functions; no `System.Func` wrapper is needed at any arity — see
+"Callbacks: plain F# function types work at any arity" below.
 
 ### Functions: use F# function types for callbacks
 
@@ -340,28 +342,33 @@ let spawn (f: unit -> unit) : Pid = nativeOnly
 
 Note: `unit` compiles to the atom `ok`, so `$0(ok)` calls the F# function with unit.
 
-For `[<ImportAll>]` interfaces, use `System.Func<>` and `System.Action<>`
-to type callback parameters. Fable compiles these to Erlang funs:
+`[<ImportAll>]` interfaces use plain F# function types for callback parameters too. Fable
+compiles them to Erlang funs of the matching arity:
 
 ```fsharp
 [<Erase>]
 type IExports =
     /// Filters elements by a predicate.
-    abstract filter: pred: System.Func<'T, bool> * list: BeamList<'T> -> BeamList<'T>
+    abstract filter: pred: ('T -> bool) * list: BeamList<'T> -> BeamList<'T>
     /// Left fold over a list.
-    abstract foldl: f: System.Func<'T, 'Acc, 'Acc> * acc: 'Acc * list: BeamList<'T> -> 'Acc
+    abstract foldl: f: ('T -> 'Acc -> 'Acc) * acc: 'Acc * list: BeamList<'T> -> 'Acc
     /// Applies a function to each element for side effects.
-    abstract foreach: f: System.Action<'T> * list: BeamList<'T> -> unit
+    abstract foreach: f: ('T -> unit) * list: BeamList<'T> -> unit
     /// Applies a function to each key-value pair in a map.
-    abstract fold: f: System.Func<'K, 'V, 'Acc, 'Acc> * init: 'Acc * map: BeamMap<'K, 'V> -> 'Acc
+    abstract fold: f: ('K -> 'V -> 'Acc -> 'Acc) * init: 'Acc * map: BeamMap<'K, 'V> -> 'Acc
 ```
 
-Usage — pass an F# lambda wrapped in `System.Func`:
+Usage — pass the lambda directly. Note the extra parentheses: the callback is one element of
+a *tupled* member's argument list, so an unparenthesised `fun` would swallow the rest.
 
 ```fsharp
-lists.filter (System.Func<_, _>(fun x -> x > 3), xs)
-lists.foldl (System.Func<_, _, _>(fun x acc -> acc + x), 0, xs)
+lists.filter ((fun x -> x > 3), xs)
+lists.foldl ((fun x acc -> acc + x), 0, xs)
 ```
+
+`System.Func<>` / `System.Action<>` also work and generate identical Erlang — see "Callbacks:
+plain F# function types work at any arity" for the evidence. Prefer the plain form in new
+bindings; it costs the call site nothing.
 
 ### Erased unions: use for parameters or results with multiple types
 
@@ -449,7 +456,7 @@ Is the Erlang type...
 ├── a list of tuples?           → BeamList<A * B>
 ├── an opaque handle?           → [<Erase>] type Foo<'phantom> = Foo of obj
 ├── one of N known types?       → U2<A,B> / U3<A,B,C> or custom erased union + op_ErasedCast
-├── a callback fun?             → System.Func<...> or System.Action<...>
+├── a callback fun?             → plain F# function type ('T -> 'U); any arity
 ├── a heterogeneous tagged tuple? → [<Erase>] DU + [<Emit>] constructors (see WsFrame, ServerName)
 ├── a discrete atom enumeration? → plain DU (no fields); see RandAlg, EtsTableType
 ├── genuinely unknown at runtime? → Dynamic + Decode combinators (never bare obj)
@@ -657,8 +664,9 @@ type Pid<'Msg> = Pid of obj
 type Ref<'Tag> = Ref of obj
 
 /// Erlang atom. (Atom does not need a phantom — all atoms are the same kind.)
+/// The constructor is private: see "Erased constructors do not convert" below.
 [<Erase>]
-type Atom = Atom of obj
+type Atom = private Atom of obj
 
 /// ETS table identifier. 'Key and 'Row capture the stored tuple shape.
 [<Erase>]
@@ -727,6 +735,37 @@ Many OTP functions expect charlists, so you need to convert:
 | charlist → F# string  | `erlang:list_to_binary(...)`                         |
 | F# string → atom      | `binary_to_atom($0)` or `erlang:binary_to_atom($0)`  |
 | atom → F# string      | `erlang:atom_to_binary($0)`                          |
+
+### Erased constructors do not convert
+
+`Atom` is an **erased** single-case DU (`[<Erase>] type Atom = private Atom of obj`), so the
+constructor is not a conversion — it disappears at compile time and leaves the payload exactly
+as it was. Writing `Atom "name"` would therefore produce the **binary** `<<"name"/utf8>>`, which
+never matches an atom-keyed term (`maps:find`, `ets:info`, a gen_server tag) and fails silently
+rather than loudly. That is why the constructor is private.
+
+Build atoms through the companion module, which emits the real BIF:
+
+```fsharp
+Atom.ofString "name"      // erlang:binary_to_atom(<<"name"/utf8>>)  → the atom 'name'
+Atom.toString someAtom    // erlang:atom_to_binary(SomeAtom)         → an F# string
+```
+
+`Erlang.binaryToAtom` / `Erlang.atomToBinary` are the same two BIFs bound at the `erlang`
+module level; use whichever reads better at the call site.
+
+Atoms are never garbage collected and the atom table is bounded, so only convert names from a
+known, finite set — never unbounded runtime input. When the set of names is fixed and known at
+compile time, prefer a **plain nullary DU**, whose cases compile straight to atom literals with
+no runtime conversion at all:
+
+```fsharp
+type EtsTableType = Set | OrderedSet | Bag | DuplicateBag   // → set | ordered_set | ...
+```
+
+The same reasoning applies to every erased type: `BeamChardata.ofString` exists for exactly this
+reason, and any new `[<Erase>]` type whose payload needs a real conversion should hide its
+constructor and expose a companion module instead.
 
 Example — an Erlang function that takes a charlist path and returns a
 charlist result:
@@ -952,27 +991,46 @@ wrappers around private Emit functions. Fable compiles cross-module
 non-Emit calls as Erlang module calls (e.g., `httpc:get/3`), which won't
 exist in the target Erlang module.
 
-### Curried Emit + function-valued param: `System.Func` is optional (style, not correctness)
+### Callbacks: plain F# function types work at any arity
 
-A curried `[<Emit>]` binding that takes a **function-valued argument** substitutes its
-positional `$N` **correctly** — including when an earlier `$N` is referenced after a later
-one in the body. There is no `$1`/`$2` swap. This was verified on Fable 5.1.0 for a raw
-curried `'a -> 'b` parameter:
+Erlang funs have a fixed arity, and `lists:foldl/3` applies its callback as `F(Elem, Acc)` — all
+arguments in one call. It is tempting to conclude that a *curried* F# callback compiles to nested
+1-arity funs and needs `System.Func` to be uncurried. **It does not.** On BEAM an F# function value
+compiles to an Erlang fun of its remaining arity, so `'T -> 'Acc -> 'Acc` becomes `fun(X, Acc) -> …`
+directly.
 
 ```fsharp
-// Generates CORRECT Erlang: maps:find(Key, D) with $1 applied to the {ok, _} value.
-[<Emit("(fun() -> case maps:find($0, $2) of {ok, FieldVal__} -> $1(FieldVal__); error -> ... end end)()")>]
-let field (key: Atom) (decoder: Dynamic -> Result<'V, string>) (d: Dynamic) : Result<'V, string>
+// Both of these generate exactly the same Erlang: lists:foldl(fun(X, Acc) -> … end, 0, L)
+[<Emit("lists:foldl($0, $1, $2)")>]
+let foldlCurried (f: 'T -> 'Acc -> 'Acc) (acc: 'Acc) (l: BeamList<'T>) : 'Acc = nativeOnly
+
+[<Emit("lists:foldl($0, $1, $2)")>]
+let foldlFunc (f: System.Func<'T, 'Acc, 'Acc>) (acc: 'Acc) (l: BeamList<'T>) : 'Acc = nativeOnly
 ```
 
-So you may use either a raw `'a -> 'b` parameter or `System.Func<>`. The `Decode` and
-`Lists` modules use `System.Func<>` purely for **stylistic consistency** (all callback-taking
-bindings look the same, and call sites read uniformly), not because a raw function type is
-broken. Pick whichever fits; don't add `System.Func` believing it's required for correctness.
+Verified on Fable 5.13.0 for every form worth worrying about — lambda literal, named function,
+function returned from a function, curried `[<Emit>]` binding, tupled `[<ImportAll>]` interface
+member, and a callback passed through an `obj`-typed parameter. Partial application is handled the
+same way: `foldlCurried (add3 10) 0 l` emits `fun(B, C) -> add3(10, B, C) end`, still 2-arity.
 
-> Historical note: earlier revisions of this guide claimed curried Emit + raw function args
-> caused positional-substitution swaps (`{badmap, #Fun<...>}` / `badarity`). That does not
-> reproduce on Fable 5.x — the claim was stale and has been removed.
+So `System.Func` is a **style choice, not a correctness requirement**, at any arity.
+
+Recommendation for new bindings: use plain F# function types. They read better at the call site —
+`Decode.field key Decode.string d`, not `Decode.field key (System.Func<_, _> Decode.string) d`.
+`Lists`, `Maps`, `Queue` and `Decode` all use plain function types. `Logger.Filter.addPrimary` is
+the one remaining `System.Func` in the bindings.
+
+`test/TestCallbacks.fs` pins this contract: if a future Fable stops eta-expanding, those tests
+fail with `badarity` before any binding does.
+
+Positional `$N` substitution in a curried Emit is correct regardless — including when an earlier
+`$N` is referenced after a later one in the body.
+
+> Historical note: two claims have been retired here. First, that curried Emit + raw function args
+> caused positional-substitution swaps (`{badmap, #Fun<...>}` / `badarity`) — stale, does not
+> reproduce on Fable 5.x. Second, that `System.Func` was required for multi-argument callbacks to
+> get the right arity — **wrong**, as the probe above shows; the two forms are indistinguishable in
+> the generated Erlang.
 
 ## Anti-patterns
 
@@ -1015,11 +1073,18 @@ options including tuples like `{keypos, N}`):
 ```fsharp
 type IEtsOption = interface end
 
+/// Bare flag atoms, as nullary DU cases so they compile to atom literals.
+type EtsFlag = NamedTable | Public | Protected | Private
+
 [<Erase>]
 type EtsOption =
-    static member inline named_table: IEtsOption = unbox "named_table"
+    // `unbox "named_table"` would produce the BINARY <<"named_table">>, not an atom —
+    // ets:new/2 would reject it. Go through a nullary DU case (an atom literal, free) or
+    // Atom.ofString (binary_to_atom at runtime).
+    static member inline named_table: IEtsOption = unbox NamedTable
+    static member inline flag (f: EtsFlag): IEtsOption = unbox f
     static member inline tableType (t: EtsTableType): IEtsOption = unbox t
-    static member inline keypos (n: int): IEtsOption = unbox (box (Atom "keypos", n))
+    static member inline keypos (n: int): IEtsOption = unbox (box (Atom.ofString "keypos", n))
 ```
 
 ### Anti-pattern: `obj` as handler state
