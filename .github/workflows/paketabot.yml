@@ -1,0 +1,22 @@
+name: PaketaBot
+
+on:
+  schedule:
+    - cron: "17 4 * * 1"
+      timezone: "Europe/Oslo"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: paketabot-weekly
+  cancel-in-progress: false
+
+jobs:
+  update:
+    uses: cardamomcode/paketabot/.github/workflows/paketabot.yml@v1.0.0
+    permissions:
+      contents: read
+    secrets:
+      paketabot_token: ${{ secrets.PAKETABOT_TOKEN }}
