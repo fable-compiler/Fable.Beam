@@ -65,68 +65,86 @@ type Message =
 /// A down notification emitted for a monitored port.
 type Down = Down of reason: string
 
-// The emitted code is deliberately the only raw OTP boundary. It constructs
-// `open_port` option tuples and decodes native port mailbox tuples before they
-// reach consuming F# code.
+// The emitted code is deliberately the only raw OTP boundary. Small helpers
+// construct OTP-only atoms and tuples; F# composes them into the option list.
+
+[<Emit("binary")>]
+let private binaryOption: obj = nativeOnly
+
+[<Emit("{line, $0}")>]
+let private lineOption (maxLineLength: int) : obj = nativeOnly
+
+[<Emit("{args, [binary_to_list(PortArg__) || PortArg__ <- $0]}")>]
+let private argumentsOption (arguments: string list) : obj = nativeOnly
+
+[<Emit("exit_status")>]
+let private exitStatusOption: obj = nativeOnly
+
+[<Emit("use_stdio")>]
+let private useStdioOption: obj = nativeOnly
+
+[<Emit("stderr_to_stdout")>]
+let private stderrToStdoutOption: obj = nativeOnly
+
+[<Emit("link")>]
+let private linkOption: obj = nativeOnly
+
+[<Emit("{cd, binary_to_list($0)}")>]
+let private workingDirectoryOption (path: string) : obj = nativeOnly
+
+[<Emit("{env, [{binary_to_list(PortEnvironmentKey__), binary_to_list(PortEnvironmentValue__)} || {PortEnvironmentKey__, PortEnvironmentValue__} <- $0]}")>]
+let private environmentOption (environment: (string * string) list) : obj = nativeOnly
+
+[<Emit("filename:pathtype(binary_to_list($0)) =:= absolute")>]
+let private isAbsolutePath (path: string) : bool = nativeOnly
+
+[<Emit("(fun() -> case os:find_executable(binary_to_list($0)) of false -> undefined; PortPath__ -> erlang:list_to_binary(PortPath__) end end)()")>]
+let private findExecutable (name: string) : string option = nativeOnly
+
+[<Emit("(fun() -> try {ok, erlang:open_port({spawn_executable, binary_to_list($0)}, $1)} catch error:PortStartReason__ -> {error, erlang:iolist_to_binary(io_lib:format(\"~p\", [PortStartReason__]))} end end)()")>]
+let private openExecutable (path: string) (options: obj list) : Result<Port, string> = nativeOnly
+
+let private launchOptions (options: PortOptions) =
+    let optional enabled option = if enabled then [ option ] else []
+
+    let workingDirectory =
+        match options.workingDirectory with
+        | Some path -> [ workingDirectoryOption path ]
+        | None -> []
+
+    [ binaryOption
+      lineOption options.maxLineLength
+      argumentsOption options.arguments ]
+    @ optional options.exitStatus exitStatusOption
+    @ optional options.useStdio useStdioOption
+    @ optional options.stderrToStdout stderrToStdoutOption
+    @ workingDirectory
+    @ optional (not options.environment.IsEmpty) (environmentOption options.environment)
+    @ optional options.linkOwner linkOption
+
+let private hasValidOptions (options: PortOptions) =
+    options.maxLineLength > 0 && (not options.stderrToStdout || options.useStdio)
 
 /// Starts an executable at an absolute path using explicit port options.
 /// `maxLineLength` must be positive. `stderrToStdout` requires `useStdio`.
-[<Emit("(fun() -> case $2 > 0 andalso filename:pathtype(binary_to_list($0)) =:= absolute andalso (not $5 orelse $4) of false -> {error, <<\"path must be absolute, maxLineLength must be positive, and stderrToStdout requires useStdio\">>}; true -> PortDirectoryOpts__ = case $6 of undefined -> []; PortWorkingDirectory__ -> [{cd, binary_to_list(PortWorkingDirectory__)}] end, PortEnvironmentOpts__ = case $7 of [] -> []; PortEnvironment__ -> [{env, [{binary_to_list(PortEnvironmentKey__), binary_to_list(PortEnvironmentValue__)} || {PortEnvironmentKey__, PortEnvironmentValue__} <- PortEnvironment__]}] end, PortExitStatusOpts__ = case $3 of true -> [exit_status]; false -> [] end, PortStdioOpts__ = case $4 of true -> [use_stdio]; false -> [] end, PortStderrOpts__ = case $5 of true -> [stderr_to_stdout]; false -> [] end, PortLinkOpts__ = case $8 of true -> [link]; false -> [] end, PortOpts__ = [binary, {line, $2}, {args, [binary_to_list(PortArg__) || PortArg__ <- $1]}] ++ PortExitStatusOpts__ ++ PortStdioOpts__ ++ PortStderrOpts__ ++ PortDirectoryOpts__ ++ PortEnvironmentOpts__ ++ PortLinkOpts__, try {ok, erlang:open_port({spawn_executable, binary_to_list($0)}, PortOpts__)} catch error:PortStartReason__ -> {error, erlang:iolist_to_binary(io_lib:format(\"~p\", [PortStartReason__]))} end end end)()")>]
-let private startAbsoluteImpl
-    (path: string)
-    (arguments: string list)
-    (maxLineLength: int)
-    (exitStatus: bool)
-    (useStdio: bool)
-    (stderrToStdout: bool)
-    (workingDirectory: string option)
-    (environment: (string * string) list)
-    (linkOwner: bool)
-    : Result<Port, string> =
-    nativeOnly
-
 let startAbsolute (path: string) (options: PortOptions) : Result<Port, string> =
-    startAbsoluteImpl
-        path
-        options.arguments
-        options.maxLineLength
-        options.exitStatus
-        options.useStdio
-        options.stderrToStdout
-        options.workingDirectory
-        options.environment
-        options.linkOwner
+    if not (isAbsolutePath path && hasValidOptions options) then
+        Error "path must be absolute, maxLineLength must be positive, and stderrToStdout requires useStdio"
+    else
+        openExecutable path (launchOptions options)
 
 /// Finds an executable on `PATH` and starts it with separate argument values.
 ///
 /// Resolution uses `os:find_executable/1`; the resolved file is then started
 /// with `spawn_executable`, so this does not invoke a shell or interpolate
 /// argument text. See `startAbsolute` for runtime and line-mode details.
-[<Emit("(fun() -> case $2 > 0 andalso (not $5 orelse $4) of false -> {error, <<\"maxLineLength must be positive and stderrToStdout requires useStdio\">>}; true -> case os:find_executable(binary_to_list($0)) of false -> {error, <<\"executable not found on PATH\">>}; PortPath__ -> PortDirectoryOpts__ = case $6 of undefined -> []; PortWorkingDirectory__ -> [{cd, binary_to_list(PortWorkingDirectory__)}] end, PortEnvironmentOpts__ = case $7 of [] -> []; PortEnvironment__ -> [{env, [{binary_to_list(PortEnvironmentKey__), binary_to_list(PortEnvironmentValue__)} || {PortEnvironmentKey__, PortEnvironmentValue__} <- PortEnvironment__]}] end, PortExitStatusOpts__ = case $3 of true -> [exit_status]; false -> [] end, PortStdioOpts__ = case $4 of true -> [use_stdio]; false -> [] end, PortStderrOpts__ = case $5 of true -> [stderr_to_stdout]; false -> [] end, PortLinkOpts__ = case $8 of true -> [link]; false -> [] end, PortOpts__ = [binary, {line, $2}, {args, [binary_to_list(PortArg__) || PortArg__ <- $1]}] ++ PortExitStatusOpts__ ++ PortStdioOpts__ ++ PortStderrOpts__ ++ PortDirectoryOpts__ ++ PortEnvironmentOpts__ ++ PortLinkOpts__, try {ok, erlang:open_port({spawn_executable, PortPath__}, PortOpts__)} catch error:PortStartReason__ -> {error, erlang:iolist_to_binary(io_lib:format(\"~p\", [PortStartReason__]))} end end end end)()")>]
-let private startOnPathImpl
-    (name: string)
-    (arguments: string list)
-    (maxLineLength: int)
-    (exitStatus: bool)
-    (useStdio: bool)
-    (stderrToStdout: bool)
-    (workingDirectory: string option)
-    (environment: (string * string) list)
-    (linkOwner: bool)
-    : Result<Port, string> =
-    nativeOnly
-
 let startOnPath (name: string) (options: PortOptions) : Result<Port, string> =
-    startOnPathImpl
-        name
-        options.arguments
-        options.maxLineLength
-        options.exitStatus
-        options.useStdio
-        options.stderrToStdout
-        options.workingDirectory
-        options.environment
-        options.linkOwner
+    if not (hasValidOptions options) then
+        Error "maxLineLength must be positive and stderrToStdout requires useStdio"
+    else
+        match findExecutable name with
+        | Some path -> openExecutable path (launchOptions options)
+        | None -> Error "executable not found on PATH"
 
 /// Sends binary data to the process's standard input.
 ///
