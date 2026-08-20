@@ -1,11 +1,19 @@
 ---
-last_commit_released: 26bd6095487c724848be52473a2b761087af8724
+last_commit_released: ed1f9c4a2fd7f530ff559ba9cdc3e282cc3fc499
 name: Fable.Beam
 ---
 
 # Changelog
 
 All notable changes to this project will be documented in this file.
+
+## 5.0.0-rc.35 - 2026-08-20
+
+### 🚀 Features
+
+* Add typed bindings for OTP ports (external processes) (#139) ([dbeddb9](https://github.com/fable-compiler/Fable.Beam/commit/dbeddb90035fdb183d71f1bade81481dd16897f7))
+
+<strong><small>[View changes on Github](https://github.com/fable-compiler/Fable.Beam/compare/26bd6095487c724848be52473a2b761087af8724..ed1f9c4a2fd7f530ff559ba9cdc3e282cc3fc499)</small></strong>
 
 ## 5.0.0-rc.34 - 2026-08-01
 
