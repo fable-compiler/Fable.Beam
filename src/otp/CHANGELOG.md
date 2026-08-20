@@ -1,11 +1,19 @@
 ---
-last_commit_released: ed1f9c4a2fd7f530ff559ba9cdc3e282cc3fc499
+last_commit_released: 1b26bcae954bdd1c1aed62ac1e0b42eadb0b8601
 name: Fable.Beam
 ---
 
 # Changelog
 
 All notable changes to this project will be documented in this file.
+
+## 5.0.0-rc.36 - 2026-08-20
+
+### 🚀 Features
+
+* Expand OTP port lifecycle API (#141) ([1b26bca](https://github.com/fable-compiler/Fable.Beam/commit/1b26bcae954bdd1c1aed62ac1e0b42eadb0b8601))
+
+<strong><small>[View changes on Github](https://github.com/fable-compiler/Fable.Beam/compare/ed1f9c4a2fd7f530ff559ba9cdc3e282cc3fc499..1b26bcae954bdd1c1aed62ac1e0b42eadb0b8601)</small></strong>
 
 ## 5.0.0-rc.35 - 2026-08-20
 
