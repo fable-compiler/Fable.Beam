@@ -35,6 +35,7 @@
     <Compile Include="TestCalendar.fs" />
     <Compile Include="TestUriString.fs" />
     <Compile Include="TestOs.fs" />
+    <Compile Include="TestPort.fs" />
     <Compile Include="TestFile.fs" />
     <Compile Include="TestLogger.fs" />
     <Compile Include="TestJsx.fs" />

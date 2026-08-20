@@ -55,6 +55,7 @@ Libraries built on top of Fable.Beam:
 | `Fable.Beam.Logger` | `logger` | OTP logger |
 | `Fable.Beam.File` | `file` | File system operations |
 | `Fable.Beam.Os` | `os` | OS interaction, env vars, system time |
+| `Fable.Beam.Port` | `erlang:open_port` | External process ports (line-mode stdio, exit status) |
 | `Fable.Beam.Httpc` | `httpc` | HTTP client (inets) |
 | `Fable.Beam.Init` | `init` | Runtime system control |
 | `Fable.Beam.Testing` | - | Test helpers (Fact, assertions) |
@@ -142,6 +143,37 @@ let valid = jsx.is_json (json, [strict])
 let mini = jsx.minify """{ "key" : "value" }"""
 ```
 
+### Ports (external processes)
+
+Open an external OS process as a typed port. Output is read from the
+process's standard output as newline-delimited lines, and its exit status is
+reported. Arguments are passed as an argument vector — never interpolated
+into a shell command.
+
+```fsharp
+open Fable.Beam.Port
+
+// Resolve the executable on PATH and start it with separate arguments.
+match startOnPath "cat" [] 1024 with
+| Ok port ->
+    send port "hello\n" |> ignore
+    match receive port 1000 with
+    | Some (Line line) -> printfn "%s" line
+    | Some (IncompleteLine frag) -> printfn "partial: %s" frag
+    | Some (ExitStatus code) -> printfn "exited %d" code
+    | None -> printfn "timed out"
+    close port
+| Error reason -> printfn "failed to start: %s" reason
+```
+
+`receive` is a *selective* receive: it only consumes messages from this port
+and leaves unrelated mailbox messages in place, so it composes with
+`Fable.Actor` and other process protocols. Call it from the process that
+opened the port, since ERTS delivers port messages to the opening process.
+Note that when a process ends mid-line, the `ExitStatus` message arrives
+*before* the trailing `IncompleteLine` fragment — keep receiving once more
+if you need that fragment.
+
 ## Prerequisites
 
 - [.NET SDK](https://dotnet.microsoft.com/) 10+
@@ -194,7 +226,7 @@ src/
   otp/             # Fable.Beam — OTP stdlib bindings
     Erlang.fs, GenServer.fs, Supervisor.fs, Timer.fs,
     Ets.fs, Maps.fs, Lists.fs, Io.fs, Logger.fs,
-    File.fs, Os.fs, Httpc.fs, Application.fs, Init.fs,
+    File.fs, Os.fs, Port.fs, Httpc.fs, Application.fs, Init.fs,
     Binary.fs, Math.fs, Proplists.fs, String.fs, Queue.fs,
     Base64.fs, Rand.fs, Testing.fs
   cowboy/          # Fable.Beam.Cowboy — HTTP server bindings
