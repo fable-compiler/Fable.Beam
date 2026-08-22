@@ -28,7 +28,7 @@ When writing or reviewing a binding, check:
 | `[<Erase>] + [<ImportAll>]` | Binding an Erlang module with multiple functions | `timer`, `gen_server` |
 | `[<Erase>]` on DU | Opaque Erlang types (compile-time safety, no runtime cost) | `Pid`, `Ref`, `TableId` |
 | `[<Erase>]` on generic DU | Typed Erlang containers (maps, lists) | `BeamMap<'K,'V>`, `BeamList<'T>` |
-| Flattened default + `*Raw` variant | Functions returning chardata/iodata or raw lists | `string:pad` (→ `string`) + `padRaw` (→ `BeamChardata`) — see "Dual API" |
+| Flattened default + `*Raw` variant | Functions returning chardata/iodata or raw lists | `string:pad` (→ `string`) + `padEndRaw` (→ `BeamChardata`) — see "Dual API" |
 | `[<Emit>]` on abstract member | Override `ImportAll` codegen for specific methods | `fable_utils:new_ref(...)` wrapping |
 | Plain F# function type | Typed callbacks, in `ImportAll` interfaces and Emits alike | `fold`, `filter`, `foreach` |
 | `U2<>` / `U3<>` / erased union | Parameters or returns that accept multiple types | timeout: `int` or `infinity` |
@@ -807,11 +807,11 @@ For these, bind the function **twice**:
 ```fsharp
 /// Pads String on the trailing side to at least Length grapheme clusters.
 [<Emit("unicode:characters_to_binary(string:pad($0, $1))")>]
-let pad (s: string) (length: int) : string = nativeOnly
+let padEnd (s: string) (length: int) : string = nativeOnly
 
-/// Like `pad`, but returns the raw chardata without flattening. See `BeamChardata`.
+/// Like `padEnd`, but returns the raw chardata without flattening. See `BeamChardata`.
 [<Emit("string:pad($0, $1)")>]
-let padRaw (s: string) (length: int) : BeamChardata = nativeOnly
+let padEndRaw (s: string) (length: int) : BeamChardata = nativeOnly
 ```
 
 `BeamChardata` (in `Types.fs`) is an erased `unicode:chardata()` with two conversions:
