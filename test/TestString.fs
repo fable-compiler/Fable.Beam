@@ -10,64 +10,67 @@ open Fable.Beam.String
 open Fable.Beam.Lists
 #endif
 
+// Keep test assertions unambiguous now that String exposes its own `equal` binding.
+let private equal = Fable.Beam.Testing.equal
+
 [<Fact>]
-let ``test str.is_empty returns true for empty`` () =
+let ``test isEmpty returns true for empty`` () =
 #if FABLE_COMPILER
-    str.is_empty "" |> equal true
+    isEmpty "" |> equal true
 #else
     ()
 #endif
 
 [<Fact>]
-let ``test str.is_empty returns false for non-empty`` () =
+let ``test isEmpty returns false for non-empty`` () =
 #if FABLE_COMPILER
-    str.is_empty "hello" |> equal false
+    isEmpty "hello" |> equal false
 #else
     ()
 #endif
 
 [<Fact>]
-let ``test str.length returns grapheme count`` () =
+let ``test length returns grapheme count`` () =
 #if FABLE_COMPILER
-    str.length "hello" |> equal 5
+    length "hello" |> equal 5
 #else
     ()
 #endif
 
 [<Fact>]
-let ``test str.lowercase converts to lowercase`` () =
+let ``test lowercase converts to lowercase`` () =
 #if FABLE_COMPILER
-    str.lowercase "HELLO" |> equal "hello"
+    lowercase "HELLO" |> equal "hello"
 #else
     ()
 #endif
 
 [<Fact>]
-let ``test str.uppercase converts to uppercase`` () =
+let ``test uppercase converts to uppercase`` () =
 #if FABLE_COMPILER
-    str.uppercase "hello" |> equal "HELLO"
+    uppercase "hello" |> equal "HELLO"
 #else
     ()
 #endif
 
 [<Fact>]
-let ``test str.titlecase capitalises first grapheme`` () =
+let ``test titlecase capitalises first grapheme`` () =
 #if FABLE_COMPILER
-    str.titlecase "hello world" |> equal "Hello world"
+    titlecase "hello world" |> equal "Hello world"
 #else
     ()
 #endif
 
 [<Fact>]
-let ``test str.casefold lowercases for comparison`` () =
+let ``test casefold lowercases for comparison`` () =
 #if FABLE_COMPILER
-    str.casefold "HELLO" |> equal "hello"
+    casefold "HELLO" |> equal "hello"
 #else
     ()
 #endif
 
 [<Fact>]
-let ``test str.reverse reverses string`` () =
+let ``test reverse reverses string`` () =
 #if FABLE_COMPILER
     reverse "hello" |> equal "olleh"
 #else
@@ -75,53 +78,73 @@ let ``test str.reverse reverses string`` () =
 #endif
 
 [<Fact>]
-let ``test str.trim strips whitespace`` () =
+let ``test trim strips whitespace`` () =
 #if FABLE_COMPILER
-    str.trim "  hello  " |> equal "hello"
+    trim "  hello  " |> equal "hello"
 #else
     ()
 #endif
 
 [<Fact>]
-let ``test str.trim with leading direction`` () =
+let ``test trimStart strips leading whitespace`` () =
 #if FABLE_COMPILER
-    let leading = Erlang.binaryToAtom "leading"
-    str.trim ("  hello  ", leading) |> equal "hello  "
+    trimStart "  hello  " |> equal "hello  "
 #else
     ()
 #endif
 
 [<Fact>]
-let ``test str.trim with trailing direction`` () =
+let ``test trimEnd strips trailing whitespace`` () =
 #if FABLE_COMPILER
-    let trailing = Erlang.binaryToAtom "trailing"
-    str.trim ("  hello  ", trailing) |> equal "  hello"
+    trimEnd "  hello  " |> equal "  hello"
 #else
     ()
 #endif
 
 [<Fact>]
-let ``test str.pad trailing to length`` () =
+let ``test padEnd pads trailing to length`` () =
 #if FABLE_COMPILER
-    pad "hi" 5 |> equal "hi   "
+    padEnd "hi" 5 |> equal "hi   "
 #else
     ()
 #endif
 
 [<Fact>]
-let ``test str.pad leading with direction`` () =
+let ``test padStart pads leading to length`` () =
 #if FABLE_COMPILER
-    let leading = Erlang.binaryToAtom "leading"
-    padDir "hi" 5 leading |> equal "   hi"
+    padStart "hi" 5 |> equal "   hi"
 #else
     ()
 #endif
 
 [<Fact>]
-let ``test str.pad with custom character`` () =
+let ``test padStartWith pads with custom character`` () =
 #if FABLE_COMPILER
-    let leading = Erlang.binaryToAtom "leading"
-    padWith "7" 3 leading "0" |> equal "007"
+    padStartWith "7" 3 "0" |> equal "007"
+#else
+    ()
+#endif
+
+[<Fact>]
+let ``test padEndWith pads with custom character`` () =
+#if FABLE_COMPILER
+    padEndWith "7" 3 "0" |> equal "700"
+#else
+    ()
+#endif
+
+[<Fact>]
+let ``test padBoth pads both sides`` () =
+#if FABLE_COMPILER
+    padBoth "hi" 6 |> equal "  hi  "
+#else
+    ()
+#endif
+
+[<Fact>]
+let ``test padBothWith pads both sides with custom character`` () =
+#if FABLE_COMPILER
+    padBothWith "7" 5 "0" |> equal "00700"
 #else
     ()
 #endif
@@ -137,13 +160,33 @@ let private isList (x: BeamChardata) : bool = nativeOnly
 #endif
 
 [<Fact>]
-let ``test padRaw returns unflattened chardata that flattens to pad`` () =
+let ``test padEndRaw returns unflattened chardata that flattens to padEnd`` () =
 #if FABLE_COMPILER
-    let raw = padRaw "hi" 5
+    let raw = padEndRaw "hi" 5
     // proves it is genuinely raw: string:pad yields an iolist ([<<"hi">>,32,32,32]), not a binary
     isList raw |> equal true
     BeamChardata.toString raw |> equal "hi   "
-    BeamChardata.toString raw |> equal (pad "hi" 5)
+    BeamChardata.toString raw |> equal (padEnd "hi" 5)
+#else
+    ()
+#endif
+
+[<Fact>]
+let ``test padStartRaw returns unflattened chardata that flattens to padStart`` () =
+#if FABLE_COMPILER
+    let raw = padStartRaw "hi" 5
+    isList raw |> equal true
+    BeamChardata.toString raw |> equal (padStart "hi" 5)
+#else
+    ()
+#endif
+
+[<Fact>]
+let ``test padBothRaw returns unflattened chardata that flattens to padBoth`` () =
+#if FABLE_COMPILER
+    let raw = padBothRaw "hi" 6
+    isList raw |> equal true
+    BeamChardata.toString raw |> equal (padBoth "hi" 6)
 #else
     ()
 #endif
@@ -177,35 +220,35 @@ let ``test BeamChardata ofString roundtrips through toString`` () =
 #endif
 
 [<Fact>]
-let ``test str.slice from position`` () =
+let ``test slice from position`` () =
 #if FABLE_COMPILER
-    str.slice ("hello world", 6) |> equal "world"
+    slice "hello world" 6 |> equal "world"
 #else
     ()
 #endif
 
 [<Fact>]
-let ``test str.slice with length`` () =
+let ``test sliceLen with length`` () =
 #if FABLE_COMPILER
-    str.slice ("hello world", 0, 5) |> equal "hello"
+    sliceLen "hello world" 0 5 |> equal "hello"
 #else
     ()
 #endif
 
 [<Fact>]
-let ``test str.equal compares strings`` () =
+let ``test equal compares strings`` () =
 #if FABLE_COMPILER
-    str.equal ("hello", "hello") |> equal true
-    str.equal ("hello", "world") |> equal false
+    Fable.Beam.String.equal "hello" "hello" |> equal true
+    Fable.Beam.String.equal "hello" "world" |> equal false
 #else
     ()
 #endif
 
 [<Fact>]
-let ``test str.equal case-insensitive`` () =
+let ``test equalCaseInsensitive compares strings`` () =
 #if FABLE_COMPILER
-    str.equal ("Hello", "hello", true) |> equal true
-    str.equal ("Hello", "world", true) |> equal false
+    equalCaseInsensitive "Hello" "hello" |> equal true
+    equalCaseInsensitive "Hello" "world" |> equal false
 #else
     ()
 #endif
@@ -227,10 +270,9 @@ let ``test find returns None when not found`` () =
 #endif
 
 [<Fact>]
-let ``test findFrom trailing finds last occurrence`` () =
+let ``test findLast finds last occurrence`` () =
 #if FABLE_COMPILER
-    let trailing = Erlang.binaryToAtom "trailing"
-    findFrom "a-b-c" "-" trailing |> equal (Some "-c")
+    findLast "a-b-c" "-" |> equal (Some "-c")
 #else
     ()
 #endif
