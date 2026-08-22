@@ -1,9 +1,12 @@
-#if FABLE_COMPILER
-module Program
+module Fable.Beam.Tests.Main
 
-()
-#else
-module Program =
-    [<EntryPoint>]
-    let main _ = 0
-#endif
+open Scriptorium.Quill
+open type Scriptorium.Quill.Runner
+
+// Quill is the entry point here (not an Erlang test_runner): Fable emits this as main:main/1, and
+// Quill runs the registered suites then halts the VM with its exit code -- non-zero on failure.
+// This is a BEAM-only subset for now: only the modules converted off [<Fact>] are registered.
+// Add more `.tests` below as each remaining file migrates over to Scriptorium.
+[<EntryPoint>]
+let main _ =
+    runTests [ Timer.tests; Maps.tests; GenServer.tests ]

@@ -1,39 +1,19 @@
 module Fable.Beam.Tests.Timer
 
-open Fable.Beam.Testing
+open Scriptorium.Quill
+open Scriptorium.Nib.Assertion
+open type Scriptorium.Quill.Test
 
-#if FABLE_COMPILER
 open Fable.Beam.Timer
-#endif
 
-[<Fact>]
-let ``test timer.hours converts correctly`` () =
-#if FABLE_COMPILER
-    timer.hours 1 |> equal 3600000
-#else
-    ()
-#endif
+let tests =
+    testList (
+        "Timer",
+        [ test ("hours converts correctly", fun _ -> assertThat (timer.hours 1) (isEqualTo 3600000))
 
-[<Fact>]
-let ``test timer.minutes converts correctly`` () =
-#if FABLE_COMPILER
-    timer.minutes 1 |> equal 60000
-#else
-    ()
-#endif
+          test ("minutes converts correctly", fun _ -> assertThat (timer.minutes 1) (isEqualTo 60000))
 
-[<Fact>]
-let ``test timer.seconds converts correctly`` () =
-#if FABLE_COMPILER
-    timer.seconds 1 |> equal 1000
-#else
-    ()
-#endif
+          test ("seconds converts correctly", fun _ -> assertThat (timer.seconds 1) (isEqualTo 1000))
 
-[<Fact>]
-let ``test timer.sleep works`` () =
-#if FABLE_COMPILER
-    timer.sleep 10
-#else
-    ()
-#endif
+          test ("sleep does not crash", fun _ -> timer.sleep 10) ]
+    )
