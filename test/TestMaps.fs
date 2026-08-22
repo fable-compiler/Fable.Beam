@@ -1,193 +1,163 @@
 module Fable.Beam.Tests.Maps
 
-open Fable.Beam.Testing
+open Scriptorium.Quill
+open Scriptorium.Nib.Assertion
+open type Scriptorium.Quill.Test
 
-#if FABLE_COMPILER
 open Fable.Core
 open Fable.Beam.Lists
 open Fable.Beam.Maps
 
 [<Emit("length($0)")>]
 let private listLen (xs: BeamList<'T>) : int = nativeOnly
-#endif
 
-[<Fact>]
-let ``test maps.new_ creates empty map`` () =
-#if FABLE_COMPILER
-    let m: BeamMap<string, int> = maps.new_ ()
-    maps.size m |> equal 0
-#else
-    ()
-#endif
+let tests =
+    testList (
+        "Maps",
+        [ test (
+              "new_ creates an empty map",
+              fun _ ->
+                  let m: BeamMap<string, int> = maps.new_ ()
+                  assertThat (maps.size m) (isEqualTo 0)
+          )
 
-[<Fact>]
-let ``test maps.put and get`` () =
-#if FABLE_COMPILER
-    let m: BeamMap<string, string> = maps.new_ ()
-    let m = maps.put ("key", "value", m)
-    maps.get ("key", m) |> equal "value"
-#else
-    ()
-#endif
+          test (
+              "put and get round-trip",
+              fun _ ->
+                  let m: BeamMap<string, string> = maps.new_ ()
+                  let m = maps.put ("key", "value", m)
+                  assertThat (maps.get ("key", m)) (isEqualTo "value")
+          )
 
-[<Fact>]
-let ``test maps.is_key works`` () =
-#if FABLE_COMPILER
-    let m: BeamMap<string, int> = maps.new_ ()
-    let m = maps.put ("a", 1, m)
-    maps.is_key ("a", m) |> equal true
-    maps.is_key ("b", m) |> equal false
-#else
-    ()
-#endif
+          test (
+              "is_key works",
+              fun _ ->
+                  let m: BeamMap<string, int> = maps.new_ ()
+                  let m = maps.put ("a", 1, m)
+                  assertThat (maps.is_key ("a", m)) (isEqualTo true)
+                  assertThat (maps.is_key ("b", m)) (isEqualTo false)
+          )
 
-[<Fact>]
-let ``test maps.remove works`` () =
-#if FABLE_COMPILER
-    let m: BeamMap<string, int> = maps.new_ ()
-    let m = maps.put ("a", 1, m)
-    let m = maps.remove ("a", m)
-    maps.size m |> equal 0
-#else
-    ()
-#endif
+          test (
+              "remove works",
+              fun _ ->
+                  let m: BeamMap<string, int> = maps.new_ ()
+                  let m = maps.put ("a", 1, m)
+                  let m = maps.remove ("a", m)
+                  assertThat (maps.size m) (isEqualTo 0)
+          )
 
-[<Fact>]
-let ``test maps.size works`` () =
-#if FABLE_COMPILER
-    let m: BeamMap<string, int> = maps.new_ ()
-    let m = maps.put ("a", 1, m)
-    let m = maps.put ("b", 2, m)
-    maps.size m |> equal 2
-#else
-    ()
-#endif
+          test (
+              "size works",
+              fun _ ->
+                  let m: BeamMap<string, int> = maps.new_ ()
+                  let m = maps.put ("a", 1, m)
+                  let m = maps.put ("b", 2, m)
+                  assertThat (maps.size m) (isEqualTo 2)
+          )
 
-[<Fact>]
-let ``test maps.merge works`` () =
-#if FABLE_COMPILER
-    let m1: BeamMap<string, int> = maps.put ("a", 1, maps.new_ ())
-    let m2 = maps.put ("b", 2, maps.new_ ())
-    let merged = maps.merge (m1, m2)
-    maps.size merged |> equal 2
-#else
-    ()
-#endif
+          test (
+              "merge works",
+              fun _ ->
+                  let m1: BeamMap<string, int> = maps.put ("a", 1, maps.new_ ())
+                  let m2 = maps.put ("b", 2, maps.new_ ())
+                  let merged = maps.merge (m1, m2)
+                  assertThat (maps.size merged) (isEqualTo 2)
+          )
 
-[<Fact>]
-let ``test maps.keys and values`` () =
-#if FABLE_COMPILER
-    let m: BeamMap<string, int> = maps.new_ ()
-    let m = maps.put ("a", 1, m)
-    let m = maps.put ("b", 2, m)
-    maps.keys m |> Array.length |> equal 2
-    maps.values m |> Array.length |> equal 2
-#else
-    ()
-#endif
+          test (
+              "keys and values",
+              fun _ ->
+                  let m: BeamMap<string, int> = maps.new_ ()
+                  let m = maps.put ("a", 1, m)
+                  let m = maps.put ("b", 2, m)
+                  assertThat (maps.keys m |> Array.length) (isEqualTo 2)
+                  assertThat (maps.values m |> Array.length) (isEqualTo 2)
+          )
 
-[<Fact>]
-let ``test maps.get with default`` () =
-#if FABLE_COMPILER
-    let m: BeamMap<string, int> = maps.new_ ()
-    maps.get ("missing", m, 42) |> equal 42
-#else
-    ()
-#endif
+          test (
+              "get with default",
+              fun _ ->
+                  let m: BeamMap<string, int> = maps.new_ ()
+                  assertThat (maps.get ("missing", m, 42)) (isEqualTo 42)
+          )
 
-[<Fact>]
-let ``test maps.to_list and from_list`` () =
-#if FABLE_COMPILER
-    let m: BeamMap<string, int> = maps.new_ ()
-    let m = maps.put ("a", 1, m)
-    let lst = maps.to_list m
-    Array.length lst |> equal 1
-    let m2 = maps.from_list lst
-    maps.size m2 |> equal 1
-#else
-    ()
-#endif
+          test (
+              "to_list and from_list",
+              fun _ ->
+                  let m: BeamMap<string, int> = maps.new_ ()
+                  let m = maps.put ("a", 1, m)
+                  let lst = maps.to_list m
+                  assertThat (Array.length lst) (isEqualTo 1)
+                  let m2 = maps.from_list lst
+                  assertThat (maps.size m2) (isEqualTo 1)
+          )
 
-[<Fact>]
-let ``test tryFind returns Some for existing key`` () =
-#if FABLE_COMPILER
-    let m: BeamMap<string, int> = maps.put ("x", 99, maps.new_ ())
-    tryFind "x" m |> equal (Some 99)
-#else
-    ()
-#endif
+          test (
+              "tryFind returns Some for existing key",
+              fun _ ->
+                  let m: BeamMap<string, int> = maps.put ("x", 99, maps.new_ ())
+                  assertThat (tryFind "x" m) (isEqualTo (Some 99))
+          )
 
-[<Fact>]
-let ``test tryFind returns None for missing key`` () =
-#if FABLE_COMPILER
-    let m: BeamMap<string, int> = maps.new_ ()
-    tryFind "missing" m |> equal None
-#else
-    ()
-#endif
+          test (
+              "tryFind returns None for missing key",
+              fun _ ->
+                  let m: BeamMap<string, int> = maps.new_ ()
+                  assertThat (tryFind "missing" m) (isEqualTo None)
+          )
 
-[<Fact>]
-let ``test ofList builds a map from a literal list`` () =
-#if FABLE_COMPILER
-    let headers: BeamMap<string, string> =
-        ofList [ "content-type", "text/html"; "server", "cowboy" ]
+          test (
+              "ofList builds a map from a literal list",
+              fun _ ->
+                  let headers: BeamMap<string, string> =
+                      ofList [ "content-type", "text/html"; "server", "cowboy" ]
 
-    maps.size headers |> equal 2
-    maps.get ("content-type", headers) |> equal "text/html"
-    tryFind "server" headers |> equal (Some "cowboy")
-#else
-    ()
-#endif
+                  assertThat (maps.size headers) (isEqualTo 2)
+                  assertThat (maps.get ("content-type", headers)) (isEqualTo "text/html")
+                  assertThat (tryFind "server" headers) (isEqualTo (Some "cowboy"))
+          )
 
-[<Fact>]
-let ``test keysRaw and valuesRaw return native lists matching keys and values`` () =
-#if FABLE_COMPILER
-    let m: BeamMap<string, int> = ofList [ "a", 1; "b", 2; "c", 3 ]
-    // native lists carry the same data as the array-returning members, without the ref-wrap
-    keysRaw m |> listLen |> equal (maps.keys m |> Array.length)
-    valuesRaw m |> listLen |> equal (maps.values m |> Array.length)
-    keysRaw m |> listLen |> equal 3
-#else
-    ()
-#endif
+          test (
+              "keysRaw and valuesRaw return native lists matching keys and values",
+              fun _ ->
+                  let m: BeamMap<string, int> = ofList [ "a", 1; "b", 2; "c", 3 ]
+                  // native lists carry the same data as the array-returning members, without the ref-wrap
+                  assertThat (keysRaw m |> listLen) (isEqualTo (maps.keys m |> Array.length))
+                  assertThat (valuesRaw m |> listLen) (isEqualTo (maps.values m |> Array.length))
+                  assertThat (keysRaw m |> listLen) (isEqualTo 3)
+          )
 
-[<Fact>]
-let ``test toListRaw returns native list of pairs`` () =
-#if FABLE_COMPILER
-    let m: BeamMap<string, int> = ofList [ "a", 1; "b", 2 ]
-    toListRaw m |> listLen |> equal 2
-#else
-    ()
-#endif
+          test (
+              "toListRaw returns native list of pairs",
+              fun _ ->
+                  let m: BeamMap<string, int> = ofList [ "a", 1; "b", 2 ]
+                  assertThat (toListRaw m |> listLen) (isEqualTo 2)
+          )
 
-[<Fact>]
-let ``test maps.fold accumulates over key-value pairs`` () =
-#if FABLE_COMPILER
-    // maps:fold/3 applies F(K, V, Acc) — the only 3-arity callback in the bindings.
-    let m: BeamMap<string, int> = ofList [ ("a", 1); ("b", 2); ("c", 3) ]
-    maps.fold ((fun _k v acc -> v + acc), 0, m) |> equal 6
-#else
-    ()
-#endif
+          test (
+              "maps.fold accumulates over key-value pairs",
+              fun _ ->
+                  // maps:fold/3 applies F(K, V, Acc) — the only 3-arity callback in the bindings.
+                  let m: BeamMap<string, int> = ofList [ ("a", 1); ("b", 2); ("c", 3) ]
+                  assertThat (maps.fold ((fun _k v acc -> v + acc), 0, m)) (isEqualTo 6)
+          )
 
-[<Fact>]
-let ``test maps.map transforms each value`` () =
-#if FABLE_COMPILER
-    let m: BeamMap<string, int> = ofList [ ("a", 1); ("b", 2) ]
-    let doubled = maps.map ((fun _k v -> v * 2), m)
-    maps.get ("a", doubled) |> equal 2
-    maps.get ("b", doubled) |> equal 4
-#else
-    ()
-#endif
+          test (
+              "maps.map transforms each value",
+              fun _ ->
+                  let m: BeamMap<string, int> = ofList [ ("a", 1); ("b", 2) ]
+                  let doubled = maps.map ((fun _k v -> v * 2), m)
+                  assertThat (maps.get ("a", doubled)) (isEqualTo 2)
+                  assertThat (maps.get ("b", doubled)) (isEqualTo 4)
+          )
 
-[<Fact>]
-let ``test maps.filter keeps matching pairs`` () =
-#if FABLE_COMPILER
-    let m: BeamMap<string, int> = ofList [ ("a", 1); ("b", 2); ("c", 3) ]
-    let big = maps.filter ((fun _k v -> v > 1), m)
-    maps.size big |> equal 2
-    maps.is_key ("a", big) |> equal false
-#else
-    ()
-#endif
+          test (
+              "maps.filter keeps matching pairs",
+              fun _ ->
+                  let m: BeamMap<string, int> = ofList [ ("a", 1); ("b", 2); ("c", 3) ]
+                  let big = maps.filter ((fun _k v -> v > 1), m)
+                  assertThat (maps.size big) (isEqualTo 2)
+                  assertThat (maps.is_key ("a", big)) (isEqualTo false)
+          ) ]
+    )
