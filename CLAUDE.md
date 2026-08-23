@@ -17,7 +17,6 @@ just setup          # Install .NET tools (Fable, Paket, Fantomas, ShipIt)
 just restore        # Restore NuGet dependencies
 just build          # Build F# source
 just test           # Full pipeline: F# → Erlang → compile → run on BEAM
-just test-dotnet    # Verify F# compiles (no BEAM needed)
 just format         # Format with Fantomas
 just format-check   # Check formatting
 just dev=true test  # Test against local ../fable repo instead of dotnet tool

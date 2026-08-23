@@ -59,22 +59,6 @@ test: build-beam
         -eval 'main:main([])' \
         -s init stop
 
-# Run only the dotnet build (verify F# compiles)
-test-dotnet:
-    dotnet build {{test_path}}
-    dotnet run --project {{test_path}}
-
-# Spike: run the Scriptorium test framework (Nib + Quill) on the BEAM.
-# No test_runner.erl and no [<Fact>]: Quill's runner is the [<EntryPoint>], which Fable emits as
-# main:main/1. It halts the VM with the suite's exit code, so a failing test fails this recipe.
-spike:
-    dotnet build spike/scriptorium
-    {{fable}} spike/scriptorium --lang beam -o spike/scriptorium/beam-build
-    cd spike/scriptorium/beam-build && rebar3 compile
-    @echo ""
-    cd spike/scriptorium/beam-build && \
-        ERL_LIBS="$(pwd)/_build/default/lib" erl -noshell -eval 'main:main([])' -s init stop
-
 # Create NuGet packages with versions from changelogs
 pack:
     #!/usr/bin/env bash

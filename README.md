@@ -219,9 +219,6 @@ just
 # Build and run tests on BEAM
 just test
 
-# Verify F# compiles (without BEAM)
-just test-dotnet
-
 # Format code
 just format
 
