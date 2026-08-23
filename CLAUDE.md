@@ -17,7 +17,6 @@ just setup          # Install .NET tools (Fable, Paket, Fantomas, ShipIt)
 just restore        # Restore NuGet dependencies
 just build          # Build F# source
 just test           # Full pipeline: F# → Erlang → compile → run on BEAM
-just test-dotnet    # Verify F# compiles (no BEAM needed)
 just format         # Format with Fantomas
 just format-check   # Check formatting
 just dev=true test  # Test against local ../fable repo instead of dotnet tool
@@ -26,29 +25,53 @@ just dev=true test  # Test against local ../fable repo instead of dotnet tool
 ### Test pipeline detail (`just test`)
 
 1. `dotnet build test/` — compile F# to IL
-2. `dotnet fable test/ --lang Erlang --outDir build/tests` — transpile to `.erl`
-3. Copy `test/test_runner.erl` into `build/tests/src/`
+2. `dotnet fable test/ --lang Erlang --outDir build/tests` — transpile to `.erl` (Quill's
+   `[<EntryPoint>]` in `Main.fs` becomes `main:main/1`)
+3. Copy the helper servers (`test_counter_server.erl`, `test_basic_sup.erl`) + `rebar.config`
+   into `build/tests/src/`
 4. `cd build/tests && rebar3 compile` — compile Erlang to BEAM bytecode
-5. `erl -noshell ...` — run test_runner which discovers and executes all `test_*` functions
+5. `erl -noshell ...` — run `main:main([])`, the Scriptorium (Quill) runner, which executes the
+   registered suites and halts the VM with its exit code (non-zero on failure)
+
+The test project consumes Scriptorium from NuGet (`Scriptorium.Quill` + `Scriptorium.Nib`) via
+explicit `PackageReference`s, pinned to the same versions as `../Fable.Actor`. Fable.Core is also
+pinned explicitly — an unpinned, paket-injected Fable.Core left `Compiler.isDotnet` undefined when
+Fable transpiled Scriptorium's shipped source and failed the BEAM build.
 
 ## Writing Tests
 
-Tests live in `test/Test*.fs`. Each test function is marked `[<Fact>]` and uses `equal` for assertions:
+Tests live in `test/Test*.fs` and use the Scriptorium test framework: **Nib** for assertions and
+the **Quill** runner to execute them. Each file exposes a `tests` value and registers itself in
+`Main.fs`:
 
 ```fsharp
-open Fable.Beam.Testing
+module Fable.Beam.Tests.Foo
 
-[<Fact>]
-let ``test something works`` () =
-    let result = 2 + 2
-    result |> equal 4
+open Scriptorium.Quill
+open Scriptorium.Nib.Assertion
+open type Scriptorium.Quill.Test
+
+let tests =
+    testList (
+        "Foo",
+        [ test ("something works", fun _ ->
+                let result = 2 + 2
+                assertThat result (isEqualTo 4) ) ]
+    )
 ```
 
-The test runner discovers functions prefixed with `test_` in modules prefixed with `test_`.
-F# test names like `` ``test something works`` `` compile to `test_something_works` in Erlang.
+- `test ("desc", fun _ -> ...)` registers one test; `testList` groups them.
+- `assertThat actual (expected)` is the Nib assertion; chain with `>>` (e.g. `isGreaterThan 0 >> isEven`).
+- No `#if FABLE_COMPILER` needed — Scriptorium runs directly on the BEAM (Fable.Beam's target platform), so write each test body once.
+- Quill halts the VM with a non-zero exit code on failure, so a failing test fails `just test`.
 
-To add a new test file: create `test/TestFoo.fs` and add `<Compile Include="TestFoo.fs" />`
-to `test/Fable.Beam.Test.fsproj` (order matters — put before `Main.fs`).
+To add a new test file: create `test/TestFoo.fs`, expose `let tests = ...`, then add
+`<Compile Include="TestFoo.fs" />` to `test/Fable.Beam.Test.fsproj` (order matters — put before
+`Main.fs`) and register `Foo.tests` in `Main.fs`.
+
+> **Migration status:** the suite is migrating from the old `[<Fact>]` + Erlang `test_runner.erl`
+> discovery to Scriptorium. Only the files that expose a `tests` value are compiled (see the fsproj);
+> re-add each remaining file as it migrates.
 
 ## Writing Bindings
 
@@ -70,7 +93,7 @@ Key rules:
 src/
   otp/         — Bindings for OTP stdlib modules (Erlang.fs, GenServer.fs, Ets.fs, ...)
   cowboy/      — Bindings for Cowboy HTTP framework (separate NuGet package)
-test/          — Test files (Test*.fs) + test_runner.erl
+test/          — Test files (Test*.fs) using Scriptorium; helper .erl servers for gen_server/supervisor tests
 build/tests/   — Generated: transpiled .erl files, rebar3 project, compiled BEAM
 ```
 

@@ -1,102 +1,53 @@
 module Fable.Beam.Tests.Base64
 
-open Fable.Beam.Testing
+open Scriptorium.Quill
+open Scriptorium.Nib.Assertion
+open type Scriptorium.Quill.Test
 
-#if FABLE_COMPILER
 open Fable.Core
 open Fable.Core.BeamInterop
 open Fable.Beam.Base64
-#endif
 
-[<Fact>]
-let ``test base64.encode produces non-empty string`` () =
-#if FABLE_COMPILER
-    let encoded = base64.encode "hello"
-    (encoded.Length > 0) |> equal true
-#else
-    ()
-#endif
+let tests =
+    testList (
+        "Base64",
+        [ test ("encode produces non-empty string", fun _ ->
+                let encoded = base64.encode "hello"
+                assertThat (encoded.Length > 0) (isTrue))
 
-[<Fact>]
-let ``test base64.encode of hello`` () =
-#if FABLE_COMPILER
-    base64.encode "hello" |> equal "aGVsbG8="
-#else
-    ()
-#endif
+          test ("encode of hello", fun _ -> assertThat (base64.encode "hello") (isEqualTo "aGVsbG8="))
 
-[<Fact>]
-let ``test base64.encode of empty string`` () =
-#if FABLE_COMPILER
-    base64.encode "" |> equal ""
-#else
-    ()
-#endif
+          test ("encode of empty string", fun _ -> assertThat (base64.encode "") (isEqualTo ""))
 
-[<Fact>]
-let ``test base64.decode reverses encode`` () =
-#if FABLE_COMPILER
-    let original = "hello world"
-    let encoded = base64.encode original
-    let decoded = base64.decode encoded
-    decoded |> equal original
-#else
-    ()
-#endif
+          test ("decode reverses encode", fun _ ->
+                  let original = "hello world"
+                  let encoded = base64.encode original
+                  let decoded = base64.decode encoded
+                  assertThat decoded (isEqualTo original))
 
-[<Fact>]
-let ``test base64.decode of known value`` () =
-#if FABLE_COMPILER
-    base64.decode "aGVsbG8=" |> equal "hello"
-#else
-    ()
-#endif
+          test ("decode of known value", fun _ ->
+                  assertThat (base64.decode "aGVsbG8=") (isEqualTo "hello"))
 
-[<Fact>]
-let ``test base64.encode decode roundtrip with binary data`` () =
-#if FABLE_COMPILER
-    let data = "Fable.Beam rocks!"
-    let encoded = base64.encode data
-    let decoded = base64.decode encoded
-    decoded |> equal data
-#else
-    ()
-#endif
+          test ("encode decode roundtrip with binary data", fun _ ->
+                  let data = "Fable.Beam rocks!"
+                  let encoded = base64.encode data
+                  let decoded = base64.decode encoded
+                  assertThat decoded (isEqualTo data))
 
-[<Fact>]
-let ``test base64.mime_decode handles whitespace`` () =
-#if FABLE_COMPILER
-    // MIME base64 tolerates embedded whitespace
-    let encoded = base64.encode "hello"
-    let decoded = base64.mime_decode encoded
-    decoded |> equal "hello"
-#else
-    ()
-#endif
+          test ("mime_decode handles whitespace", fun _ ->
+                  let encoded = base64.encode "hello"
+                  let decoded = base64.mime_decode encoded
+                  assertThat decoded (isEqualTo "hello"))
 
-[<Fact>]
-let ``test tryDecode returns Some for valid base64`` () =
-#if FABLE_COMPILER
-    let result = tryDecode "aGVsbG8="
-    result |> equal (Some "hello")
-#else
-    ()
-#endif
+          test ("tryDecode returns Some for valid base64", fun _ ->
+                  let result = tryDecode "aGVsbG8="
+                  assertThat result (isEqualTo (Some "hello")))
 
-[<Fact>]
-let ``test tryDecode returns None for invalid base64`` () =
-#if FABLE_COMPILER
-    let result = tryDecode "not!valid@base64#"
-    result |> equal None
-#else
-    ()
-#endif
+          test ("tryDecode returns None for invalid base64", fun _ ->
+                  let result = tryDecode "not!valid@base64#"
+                  assertThat result (isEqualTo None))
 
-[<Fact>]
-let ``test tryMimeDecode returns Some for valid input`` () =
-#if FABLE_COMPILER
-    let result = tryMimeDecode "aGVsbG8="
-    result |> equal (Some "hello")
-#else
-    ()
-#endif
+          test ("tryMimeDecode returns Some for valid input", fun _ ->
+                  let result = tryMimeDecode "aGVsbG8="
+                  assertThat result (isEqualTo (Some "hello"))) ]
+    )

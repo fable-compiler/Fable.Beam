@@ -1,31 +1,20 @@
 module Fable.Beam.Tests.Io
 
-open Fable.Beam.Testing
+open Scriptorium.Quill
+open Scriptorium.Nib.Assertion
+open type Scriptorium.Quill.Test
 
-#if FABLE_COMPILER
 open Fable.Beam.Io
-#endif
 
-[<Fact>]
-let ``test io.put_chars works`` () =
-#if FABLE_COMPILER
-    io.put_chars "test output\n"
-#else
-    ()
-#endif
+let tests =
+    testList (
+        "Io",
+        [ test ("put_chars works", fun _ ->
+                assertThat (fun () -> io.put_chars "test output\n") doesNotThrow)
 
-[<Fact>]
-let ``test putChars does not crash`` () =
-#if FABLE_COMPILER
-    putChars "typed putChars test\n"
-#else
-    ()
-#endif
+          test ("putChars does not crash", fun _ ->
+                  assertThat (fun () -> putChars "typed putChars test\n") doesNotThrow)
 
-[<Fact>]
-let ``test format does not crash`` () =
-#if FABLE_COMPILER
-    format "hello ~s~n" [ box "beam" ]
-#else
-    ()
-#endif
+          test ("format does not crash", fun _ ->
+                  assertThat (fun () -> format "hello ~s~n" [ box "beam" ]) doesNotThrow) ]
+    )

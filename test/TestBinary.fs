@@ -1,247 +1,136 @@
 module Fable.Beam.Tests.Binary
 
-open Fable.Beam.Testing
+open Scriptorium.Quill
+open Scriptorium.Nib.Assertion
+open type Scriptorium.Quill.Test
 
-#if FABLE_COMPILER
 open Fable.Core
 open Fable.Core.BeamInterop
 open Fable.Beam
 open Fable.Beam.Binary
 open Fable.Beam.Lists
-#endif
 
-[<Fact>]
-let ``test binary.copy makes a copy`` () =
-#if FABLE_COMPILER
-    let b = "hello"
-    binary.copy b |> equal "hello"
-#else
-    ()
-#endif
+let tests =
+    testList (
+        "Binary",
+        [ test ("copy makes a copy", fun _ ->
+                  let b = "hello"
+                  assertThat (binary.copy b) (isEqualTo "hello"))
 
-[<Fact>]
-let ``test binary.copy N times concatenates`` () =
-#if FABLE_COMPILER
-    binary.copy ("ab", 3) |> equal "ababab"
-#else
-    ()
-#endif
+          test ("copy N times concatenates", fun _ ->
+                  assertThat (binary.copy ("ab", 3)) (isEqualTo "ababab"))
 
-[<Fact>]
-let ``test binary.at returns byte at position`` () =
-#if FABLE_COMPILER
-    // 'A' = 65, 'B' = 66
-    binary.at ("AB", 0) |> equal 65
-    binary.at ("AB", 1) |> equal 66
-#else
-    ()
-#endif
+          test ("at returns byte at position", fun _ ->
+                  // 'A' = 65, 'B' = 66
+                  assertThat (binary.at ("AB", 0)) (isEqualTo 65)
+                  assertThat (binary.at ("AB", 1)) (isEqualTo 66)
+                  )
 
-[<Fact>]
-let ``test binary.first returns first byte`` () =
-#if FABLE_COMPILER
-    // 'h' = 104
-    binary.first "hello" |> equal 104
-#else
-    ()
-#endif
+          test ("first returns first byte", fun _ ->
+                  // 'h' = 104
+                  assertThat (binary.first "hello") (isEqualTo 104))
 
-[<Fact>]
-let ``test binary.last returns last byte`` () =
-#if FABLE_COMPILER
-    // 'o' = 111
-    binary.last "hello" |> equal 111
-#else
-    ()
-#endif
+          test ("last returns last byte", fun _ ->
+                  // 'o' = 111
+                  assertThat (binary.last "hello") (isEqualTo 111))
 
-[<Fact>]
-let ``test binary.part extracts subbinary`` () =
-#if FABLE_COMPILER
-    binary.part ("hello world", 6, 5) |> equal "world"
-#else
-    ()
-#endif
+          test ("part extracts subbinary", fun _ ->
+                  assertThat (binary.part ("hello world", 6, 5)) (isEqualTo "world"))
 
-[<Fact>]
-let ``test matchFirst returns Some on match`` () =
-#if FABLE_COMPILER
-    matchFirst "hello" "ll" |> equal (Some(2, 2))
-#else
-    ()
-#endif
+          test ("matchFirst returns Some on match", fun _ ->
+                  assertThat (matchFirst "hello" "ll") (isEqualTo (Some (2, 2))))
 
-[<Fact>]
-let ``test matchFirst returns None when not found`` () =
-#if FABLE_COMPILER
-    matchFirst "hello" "xyz" |> equal None
-#else
-    ()
-#endif
+          test ("matchFirst returns None when not found", fun _ ->
+                  assertThat (matchFirst "hello" "xyz") (isEqualTo None))
 
-[<Fact>]
-let ``test matchAll returns all occurrences`` () =
-#if FABLE_COMPILER
-    let results = matchAll "abcabc" "b"
-    Array.length results |> equal 2
-#else
-    ()
-#endif
+          test ("matchAll returns all occurrences", fun _ ->
+                  let results = matchAll "abcabc" "b"
+                  assertThat (Array.length results) (isEqualTo 2))
 
-[<Fact>]
-let ``test splitFirst splits on first occurrence`` () =
-#if FABLE_COMPILER
-    let parts = splitFirst "hello world" " "
-    Array.length parts |> equal 2
-    parts.[0] |> equal "hello"
-    parts.[1] |> equal "world"
-#else
-    ()
-#endif
+          test ("splitFirst splits on first occurrence", fun _ ->
+                  let parts = splitFirst "hello world" " "
+                  assertThat (Array.length parts) (isEqualTo 2)
+                  assertThat (parts.[0]) (isEqualTo "hello")
+                  assertThat (parts.[1]) (isEqualTo "world")
+                  )
 
-[<Fact>]
-let ``test splitAll splits on all occurrences`` () =
-#if FABLE_COMPILER
-    let parts = splitAll "a,b,c" ","
-    Array.length parts |> equal 3
-    parts.[0] |> equal "a"
-    parts.[1] |> equal "b"
-    parts.[2] |> equal "c"
-#else
-    ()
-#endif
+          test ("splitAll splits on all occurrences", fun _ ->
+                  let parts = splitAll "a,b,c" ","
+                  assertThat (Array.length parts) (isEqualTo 3)
+                  assertThat (parts.[0]) (isEqualTo "a")
+                  assertThat (parts.[1]) (isEqualTo "b")
+                  assertThat (parts.[2]) (isEqualTo "c")
+                  )
 
-[<Fact>]
-let ``test replaceFirst replaces first occurrence`` () =
-#if FABLE_COMPILER
-    replaceFirst "aabbaa" "aa" "XX" |> equal "XXbbaa"
-#else
-    ()
-#endif
+          test ("replaceFirst replaces first occurrence", fun _ ->
+                  assertThat (replaceFirst "aabbaa" "aa" "XX") (isEqualTo "XXbbaa"))
 
-[<Fact>]
-let ``test replaceAll replaces all occurrences`` () =
-#if FABLE_COMPILER
-    replaceAll "aabbaa" "aa" "XX" |> equal "XXbbXX"
-#else
-    ()
-#endif
+          test ("replaceAll replaces all occurrences", fun _ ->
+                  assertThat (replaceAll "aabbaa" "aa" "XX") (isEqualTo "XXbbXX"))
 
-[<Fact>]
-let ``test binary.longest_common_prefix`` () =
-#if FABLE_COMPILER
-    // "foo" is the longest prefix common to *all three* ("foobar"/"foobaz" share "fooba",
-    // but "fooqux" diverges at the 4th byte).
-    binary.longest_common_prefix ([ "foobar"; "foobaz"; "fooqux" ]) |> equal 3
-#else
-    ()
-#endif
+          test ("longest_common_prefix", fun _ ->
+                  // "foo" is the longest prefix common to *all three* ("foobar"/"foobaz" share "fooba",
+                  // but "fooqux" diverges at the 4th byte).
+                  assertThat (binary.longest_common_prefix ([ "foobar"; "foobaz"; "fooqux" ])) (isEqualTo 3))
 
-[<Fact>]
-let ``test binary.longest_common_suffix`` () =
-#if FABLE_COMPILER
-    binary.longest_common_suffix ([ "foobar"; "bazbar"; "quuxbar" ]) |> equal 3
-#else
-    ()
-#endif
+          test ("longest_common_suffix", fun _ ->
+                  assertThat (binary.longest_common_suffix ([ "foobar"; "bazbar"; "quuxbar" ])) (isEqualTo 3))
 
-[<Fact>]
-let ``test binary.bin_to_list returns list of bytes`` () =
-#if FABLE_COMPILER
-    // "ABC" = [65, 66, 67]
-    let bytes = binary.bin_to_list "ABC"
-    lists.nth (1, bytes) |> equal 65
-    lists.nth (2, bytes) |> equal 66
-    lists.nth (3, bytes) |> equal 67
-#else
-    ()
-#endif
+          test ("bin_to_list returns list of bytes", fun _ ->
+                  // "ABC" = [65, 66, 67]
+                  let bytes = binary.bin_to_list "ABC"
+                  assertThat (lists.nth (1, bytes)) (isEqualTo 65)
+                  assertThat (lists.nth (2, bytes)) (isEqualTo 66)
+                  assertThat (lists.nth (3, bytes)) (isEqualTo 67)
+                  )
 
-[<Fact>]
-let ``test binary.list_to_bin converts bytes to binary`` () =
-#if FABLE_COMPILER
-    // [104, 105] = "hi"
-    let bytes: BeamList<int> = emitErlExpr () "[104, 105]"
-    binary.list_to_bin bytes |> equal "hi"
-#else
-    ()
-#endif
+          test ("list_to_bin converts bytes to binary", fun _ ->
+                  // [104, 105] = "hi"
+                  let bytes: BeamList<int> = emitErlExpr () "[104, 105]"
+                  assertThat (binary.list_to_bin bytes) (isEqualTo "hi"))
 
-[<Fact>]
-let ``test binary.bin_to_list and list_to_bin roundtrip`` () =
-#if FABLE_COMPILER
-    let original = "hello"
-    let bytes = binary.bin_to_list original
-    binary.list_to_bin bytes |> equal original
-#else
-    ()
-#endif
+          test ("bin_to_list and list_to_bin roundtrip", fun _ ->
+                  let original = "hello"
+                  let bytes = binary.bin_to_list original
+                  assertThat (binary.list_to_bin bytes) (isEqualTo original))
 
-[<Fact>]
-let ``test binary.encode_unsigned and decode_unsigned roundtrip`` () =
-#if FABLE_COMPILER
-    let n = 12345
-    let encoded = binary.encode_unsigned n
-    binary.decode_unsigned encoded |> equal n
-#else
-    ()
-#endif
+          test ("encode_unsigned and decode_unsigned roundtrip", fun _ ->
+                  let n = 12345
+                  let encoded = binary.encode_unsigned n
+                  assertThat (binary.decode_unsigned encoded) (isEqualTo n))
 
-[<Fact>]
-let ``test binary.encode_unsigned of zero roundtrips`` () =
-#if FABLE_COMPILER
-    let encoded = binary.encode_unsigned 0
-    binary.decode_unsigned encoded |> equal 0
-#else
-    ()
-#endif
+          test ("encode_unsigned of zero roundtrips", fun _ ->
+                  let encoded = binary.encode_unsigned 0
+                  assertThat (binary.decode_unsigned encoded) (isEqualTo 0))
 
-[<Fact>]
-let ``test binary.decode_unsigned with little endian`` () =
-#if FABLE_COMPILER
-    let little = Erlang.binaryToAtom "little"
-    let big = Erlang.binaryToAtom "big"
-    // Big-endian encoding of 256 is <<1, 0>>.
-    // Decoded as little-endian, those bytes read as 1.
-    let encoded_big = binary.encode_unsigned (256, big)
-    binary.decode_unsigned (encoded_big, little) |> equal 1
-    // Roundtrip via little endian preserves the value.
-    let encoded_little = binary.encode_unsigned (256, little)
-    binary.decode_unsigned (encoded_little, little) |> equal 256
-#else
-    ()
-#endif
+          test ("decode_unsigned with little endian", fun _ ->
+                  let little = Erlang.binaryToAtom "little"
+                  let big = Erlang.binaryToAtom "big"
+                  // Big-endian encoding of 256 is <<1, 0>>.
+                  // Decoded as little-endian, those bytes read as 1.
+                  let encoded_big = binary.encode_unsigned (256, big)
+                  assertThat (binary.decode_unsigned (encoded_big, little)) (isEqualTo 1)
+                  // Roundtrip via little endian preserves the value.
+                  let encoded_little = binary.encode_unsigned (256, little)
+                  assertThat (binary.decode_unsigned (encoded_little, little)) (isEqualTo 256)
+                  )
 
-[<Fact>]
-let ``test binary.referenced_byte_size is at least the logical size`` () =
-#if FABLE_COMPILER
-    // referenced_byte_size reports the size of the *underlying* memory a (sub-)binary points into,
-    // which OTP's own docs call "a hint for optimization, not exact": for a plain binary it varies
-    // with how the binary was constructed and the OTP release (5 on OTP 25, 40 on OTP 27, 256 for a
-    // shell literal). The only portable guarantee is that it references at least what it contains.
-    let s = "hello"
-    (binary.referenced_byte_size s >= Erlang.byteSize s) |> equal true
-    (binary.referenced_byte_size "" >= 0) |> equal true
-#else
-    ()
-#endif
+          test ("referenced_byte_size is at least the logical size", fun _ ->
+                  // referenced_byte_size reports the size of the *underlying* memory a (sub-)binary points into,
+                  // which OTP's own docs call "a hint for optimization, not exact": for a plain binary it varies
+                  // with how the binary was constructed and the OTP release (5 on OTP 25, 40 on OTP 27, 256 for a
+                  // shell literal). The only portable guarantee is that it references at least what it contains.
+                  let s = "hello"
+                  assertThat (binary.referenced_byte_size s >= Erlang.byteSize s) (isTrue)
+                  assertThat (binary.referenced_byte_size "" >= 0) (isTrue))
 
-[<Fact>]
-let ``test binary.splitAllRaw returns the native list form of splitAll`` () =
-#if FABLE_COMPILER
-    let parts: BeamList<string> = splitAllRaw "a-b-c" "-"
-    let expected: BeamList<string> = emitErlExpr () "[<<\"a\">>, <<\"b\">>, <<\"c\">>]"
-    parts |> equal expected
-#else
-    ()
-#endif
+          test ("splitAllRaw returns the native list form of splitAll", fun _ ->
+                  let parts: BeamList<string> = splitAllRaw "a-b-c" "-"
+                  let expected: BeamList<string> = emitErlExpr () "[<<\"a\">>, <<\"b\">>, <<\"c\">>]"
+                  assertThat parts (isEqualTo expected))
 
-[<Fact>]
-let ``test binary.splitFirstRaw returns the native list form of splitFirst`` () =
-#if FABLE_COMPILER
-    let parts: BeamList<string> = splitFirstRaw "a-b-c" "-"
-    let expected: BeamList<string> = emitErlExpr () "[<<\"a\">>, <<\"b-c\">>]"
-    parts |> equal expected
-#else
-    ()
-#endif
+          test ("splitFirstRaw returns the native list form of splitFirst", fun _ ->
+                  let parts: BeamList<string> = splitFirstRaw "a-b-c" "-"
+                  let expected: BeamList<string> = emitErlExpr () "[<<\"a\">>, <<\"b-c\">>]"
+                  assertThat parts (isEqualTo expected)) ]
+    )

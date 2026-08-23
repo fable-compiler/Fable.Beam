@@ -1,134 +1,14 @@
 module Fable.Beam.Tests.String
 
-open Fable.Beam.Testing
+open Scriptorium.Quill
+open Scriptorium.Nib.Assertion
+open type Scriptorium.Quill.Test
 
-#if FABLE_COMPILER
 open Fable.Core
 open Fable.Core.BeamInterop
 open Fable.Beam
 open Fable.Beam.String
 open Fable.Beam.Lists
-#endif
-
-[<Fact>]
-let ``test str.is_empty returns true for empty`` () =
-#if FABLE_COMPILER
-    str.is_empty "" |> equal true
-#else
-    ()
-#endif
-
-[<Fact>]
-let ``test str.is_empty returns false for non-empty`` () =
-#if FABLE_COMPILER
-    str.is_empty "hello" |> equal false
-#else
-    ()
-#endif
-
-[<Fact>]
-let ``test str.length returns grapheme count`` () =
-#if FABLE_COMPILER
-    str.length "hello" |> equal 5
-#else
-    ()
-#endif
-
-[<Fact>]
-let ``test str.lowercase converts to lowercase`` () =
-#if FABLE_COMPILER
-    str.lowercase "HELLO" |> equal "hello"
-#else
-    ()
-#endif
-
-[<Fact>]
-let ``test str.uppercase converts to uppercase`` () =
-#if FABLE_COMPILER
-    str.uppercase "hello" |> equal "HELLO"
-#else
-    ()
-#endif
-
-[<Fact>]
-let ``test str.titlecase capitalises first grapheme`` () =
-#if FABLE_COMPILER
-    str.titlecase "hello world" |> equal "Hello world"
-#else
-    ()
-#endif
-
-[<Fact>]
-let ``test str.casefold lowercases for comparison`` () =
-#if FABLE_COMPILER
-    str.casefold "HELLO" |> equal "hello"
-#else
-    ()
-#endif
-
-[<Fact>]
-let ``test str.reverse reverses string`` () =
-#if FABLE_COMPILER
-    reverse "hello" |> equal "olleh"
-#else
-    ()
-#endif
-
-[<Fact>]
-let ``test str.trim strips whitespace`` () =
-#if FABLE_COMPILER
-    str.trim "  hello  " |> equal "hello"
-#else
-    ()
-#endif
-
-[<Fact>]
-let ``test str.trim with leading direction`` () =
-#if FABLE_COMPILER
-    let leading = Erlang.binaryToAtom "leading"
-    str.trim ("  hello  ", leading) |> equal "hello  "
-#else
-    ()
-#endif
-
-[<Fact>]
-let ``test str.trim with trailing direction`` () =
-#if FABLE_COMPILER
-    let trailing = Erlang.binaryToAtom "trailing"
-    str.trim ("  hello  ", trailing) |> equal "  hello"
-#else
-    ()
-#endif
-
-[<Fact>]
-let ``test str.pad trailing to length`` () =
-#if FABLE_COMPILER
-    pad "hi" 5 |> equal "hi   "
-#else
-    ()
-#endif
-
-[<Fact>]
-let ``test str.pad leading with direction`` () =
-#if FABLE_COMPILER
-    let leading = Erlang.binaryToAtom "leading"
-    padDir "hi" 5 leading |> equal "   hi"
-#else
-    ()
-#endif
-
-[<Fact>]
-let ``test str.pad with custom character`` () =
-#if FABLE_COMPILER
-    let leading = Erlang.binaryToAtom "leading"
-    padWith "7" 3 leading "0" |> equal "007"
-#else
-    ()
-#endif
-
-// ----------------------------------------------------------------------------
-// Raw chardata variants (BeamChardata)
-// ----------------------------------------------------------------------------
 
 #if FABLE_COMPILER
 // The raw variants return unflattened chardata: an iolist/charlist, i.e. a *list*, never a binary.
@@ -136,220 +16,166 @@ let ``test str.pad with custom character`` () =
 let private isList (x: BeamChardata) : bool = nativeOnly
 #endif
 
-[<Fact>]
-let ``test padRaw returns unflattened chardata that flattens to pad`` () =
-#if FABLE_COMPILER
-    let raw = padRaw "hi" 5
-    // proves it is genuinely raw: string:pad yields an iolist ([<<"hi">>,32,32,32]), not a binary
-    isList raw |> equal true
-    BeamChardata.toString raw |> equal "hi   "
-    BeamChardata.toString raw |> equal (pad "hi" 5)
-#else
-    ()
-#endif
+let tests =
+    testList (
+        "String",
+        [ test ("is_empty returns true for empty", fun _ ->
+                  assertThat (str.is_empty "") (isTrue))
 
-[<Fact>]
-let ``test reverseRaw flattens back to reverse`` () =
-#if FABLE_COMPILER
-    let raw = reverseRaw "hello"
-    isList raw |> equal true
-    BeamChardata.toString raw |> equal "olleh"
-#else
-    ()
-#endif
+          test ("is_empty returns false for non-empty", fun _ ->
+                  assertThat (str.is_empty "hello") (isFalse))
 
-[<Fact>]
-let ``test replaceAllRaw flattens back to replaceAll`` () =
-#if FABLE_COMPILER
-    let raw = replaceAllRaw "aXbXa" "X" "Y"
-    BeamChardata.toString raw |> equal "aYbYa"
-    BeamChardata.toString raw |> equal (replaceAll "aXbXa" "X" "Y")
-#else
-    ()
-#endif
+          test ("length returns grapheme count", fun _ ->
+                  assertThat (str.length "hello") (isEqualTo 5))
 
-[<Fact>]
-let ``test BeamChardata ofString roundtrips through toString`` () =
-#if FABLE_COMPILER
-    "hi" |> BeamChardata.ofString |> BeamChardata.toString |> equal "hi"
-#else
-    ()
-#endif
+          test ("lowercase converts to lowercase", fun _ ->
+                  assertThat (str.lowercase "HELLO") (isEqualTo "hello"))
 
-[<Fact>]
-let ``test str.slice from position`` () =
-#if FABLE_COMPILER
-    str.slice ("hello world", 6) |> equal "world"
-#else
-    ()
-#endif
+          test ("uppercase converts to uppercase", fun _ ->
+                  assertThat (str.uppercase "hello") (isEqualTo "HELLO"))
 
-[<Fact>]
-let ``test str.slice with length`` () =
-#if FABLE_COMPILER
-    str.slice ("hello world", 0, 5) |> equal "hello"
-#else
-    ()
-#endif
+          test ("titlecase capitalises first grapheme", fun _ ->
+                  assertThat (str.titlecase "hello world") (isEqualTo "Hello world"))
 
-[<Fact>]
-let ``test str.equal compares strings`` () =
-#if FABLE_COMPILER
-    str.equal ("hello", "hello") |> equal true
-    str.equal ("hello", "world") |> equal false
-#else
-    ()
-#endif
+          test ("casefold lowercases for comparison", fun _ ->
+                  assertThat (str.casefold "HELLO") (isEqualTo "hello"))
 
-[<Fact>]
-let ``test str.equal case-insensitive`` () =
-#if FABLE_COMPILER
-    str.equal ("Hello", "hello", true) |> equal true
-    str.equal ("Hello", "world", true) |> equal false
-#else
-    ()
-#endif
+          test ("reverse reverses string", fun _ ->
+                  assertThat (reverse "hello") (isEqualTo "olleh"))
 
-[<Fact>]
-let ``test find returns Some on match`` () =
-#if FABLE_COMPILER
-    find "hello world" "world" |> equal (Some "world")
-#else
-    ()
-#endif
+          test ("trim strips whitespace", fun _ ->
+                  assertThat (str.trim "  hello  ") (isEqualTo "hello"))
 
-[<Fact>]
-let ``test find returns None when not found`` () =
-#if FABLE_COMPILER
-    find "hello world" "xyz" |> equal None
-#else
-    ()
-#endif
+          test ("trim with leading direction", fun _ ->
+                  let leading = Erlang.binaryToAtom "leading"
+                  assertThat (str.trim ("  hello  ", leading)) (isEqualTo "hello  ")
+                  )
 
-[<Fact>]
-let ``test findFrom trailing finds last occurrence`` () =
-#if FABLE_COMPILER
-    let trailing = Erlang.binaryToAtom "trailing"
-    findFrom "a-b-c" "-" trailing |> equal (Some "-c")
-#else
-    ()
-#endif
+          test ("trim with trailing direction", fun _ ->
+                  let trailing = Erlang.binaryToAtom "trailing"
+                  assertThat (str.trim ("  hello  ", trailing)) (isEqualTo "  hello")
+                  )
 
-[<Fact>]
-let ``test prefix returns Some rest when prefix matches`` () =
-#if FABLE_COMPILER
-    prefix "hello world" "hello " |> equal (Some "world")
-#else
-    ()
-#endif
+          test ("pad trailing to length", fun _ ->
+                  assertThat (pad "hi" 5) (isEqualTo "hi   "))
 
-[<Fact>]
-let ``test prefix returns None when no match`` () =
-#if FABLE_COMPILER
-    prefix "hello world" "xyz" |> equal None
-#else
-    ()
-#endif
+          test ("pad leading with direction", fun _ ->
+                  let leading = Erlang.binaryToAtom "leading"
+                  assertThat (padDir "hi" 5 leading) (isEqualTo "   hi"))
 
-[<Fact>]
-let ``test splitFirst splits at first occurrence`` () =
-#if FABLE_COMPILER
-    let parts = splitFirst "hello world" " "
-    Array.length parts |> equal 2
-    parts.[0] |> equal "hello"
-    parts.[1] |> equal "world"
-#else
-    ()
-#endif
+          test ("pad with custom character", fun _ ->
+                  let leading = Erlang.binaryToAtom "leading"
+                  assertThat (padWith "7" 3 leading "0") (isEqualTo "007"))
 
-[<Fact>]
-let ``test splitAll splits at all occurrences`` () =
-#if FABLE_COMPILER
-    let parts = splitAll "a,b,c" ","
-    Array.length parts |> equal 3
-    parts.[0] |> equal "a"
-    parts.[1] |> equal "b"
-    parts.[2] |> equal "c"
-#else
-    ()
-#endif
+          test ("padRaw returns unflattened chardata that flattens to pad", fun _ ->
+                  let raw = padRaw "hi" 5
+                  // proves it is genuinely raw: string:pad yields an iolist ([<<"hi">>,32,32,32]), not a binary
+                  assertThat (isList raw) (isTrue)
+                  assertThat (BeamChardata.toString raw) (isEqualTo "hi   ")
+                  assertThat (BeamChardata.toString raw) (isEqualTo (pad "hi" 5))
+                  )
 
-[<Fact>]
-let ``test replaceFirst replaces first occurrence`` () =
-#if FABLE_COMPILER
-    replaceFirst "aabbaa" "aa" "XX" |> equal "XXbbaa"
-#else
-    ()
-#endif
+          test ("reverseRaw flattens back to reverse", fun _ ->
+                  let raw = reverseRaw "hello"
+                  assertThat (isList raw) (isTrue)
+                  assertThat (BeamChardata.toString raw) (isEqualTo "olleh")
+                  )
 
-[<Fact>]
-let ``test replaceAll replaces all occurrences`` () =
-#if FABLE_COMPILER
-    replaceAll "aabbaa" "aa" "XX" |> equal "XXbbXX"
-#else
-    ()
-#endif
+          test ("replaceAllRaw flattens back to replaceAll", fun _ ->
+                  let raw = replaceAllRaw "aXbXa" "X" "Y"
+                  assertThat (BeamChardata.toString raw) (isEqualTo "aYbYa")
+                  assertThat (BeamChardata.toString raw) (isEqualTo (replaceAll "aXbXa" "X" "Y"))
+                  )
 
-[<Fact>]
-let ``test toInteger parses valid integer`` () =
-#if FABLE_COMPILER
-    match toInteger "42abc" with
-    | Ok(n, rest) ->
-        n |> equal 42
-        rest |> equal "abc"
-    | Error _ -> equal true false
-#else
-    ()
-#endif
+          test ("BeamChardata ofString roundtrips through toString", fun _ ->
+                  let result = "hi" |> BeamChardata.ofString |> BeamChardata.toString
+                  assertThat result (isEqualTo "hi"))
 
-[<Fact>]
-let ``test toInteger returns error for non-integer`` () =
-#if FABLE_COMPILER
-    match toInteger "abc" with
-    | Error _ -> equal true true
-    | Ok _ -> equal true false
-#else
-    ()
-#endif
+          test ("slice from position", fun _ ->
+                  assertThat (str.slice ("hello world", 6)) (isEqualTo "world"))
 
-[<Fact>]
-let ``test toFloat parses valid float`` () =
-#if FABLE_COMPILER
-    match toFloat "3.14rest" with
-    | Ok(f, _) -> (f > 3.13 && f < 3.15) |> equal true
-    | Error _ -> equal true false
-#else
-    ()
-#endif
+          test ("slice with length", fun _ ->
+                  assertThat (str.slice ("hello world", 0, 5)) (isEqualTo "hello"))
 
-[<Fact>]
-let ``test toGraphemes splits into grapheme clusters`` () =
-#if FABLE_COMPILER
-    let graphemes = toGraphemes "abc"
-    Array.length graphemes |> equal 3
-    graphemes.[0] |> equal "a"
-    graphemes.[1] |> equal "b"
-    graphemes.[2] |> equal "c"
-#else
-    ()
-#endif
+          test ("equal compares strings", fun _ ->
+                  assertThat (str.equal ("hello", "hello")) (isTrue)
+                  assertThat (str.equal ("hello", "world")) (isFalse)
+                  )
 
-[<Fact>]
-let ``test splitAllRaw returns the native list form of splitAll`` () =
-#if FABLE_COMPILER
-    let parts: BeamList<string> = splitAllRaw "a,b,c" ","
-    let expected: BeamList<string> = emitErlExpr () "[<<\"a\">>, <<\"b\">>, <<\"c\">>]"
-    parts |> equal expected
-#else
-    ()
-#endif
+          test ("equal case-insensitive", fun _ ->
+                  assertThat (str.equal ("Hello", "hello", true)) (isTrue)
+                  assertThat (str.equal ("Hello", "world", true)) (isFalse)
+                  )
 
-[<Fact>]
-let ``test splitFirstRaw returns the native list form of splitFirst`` () =
-#if FABLE_COMPILER
-    let parts: BeamList<string> = splitFirstRaw "hello world" " "
-    let expected: BeamList<string> = emitErlExpr () "[<<\"hello\">>, <<\"world\">>]"
-    parts |> equal expected
-#else
-    ()
-#endif
+          test ("find returns Some on match", fun _ ->
+                  assertThat (find "hello world" "world") (isEqualTo (Some "world")))
+
+          test ("find returns None when not found", fun _ ->
+                  assertThat (find "hello world" "xyz") (isEqualTo None))
+
+          test ("findFrom trailing finds last occurrence", fun _ ->
+                  let trailing = Erlang.binaryToAtom "trailing"
+                  assertThat (findFrom "a-b-c" "-" trailing) (isEqualTo (Some "-c")))
+
+          test ("prefix returns Some rest when prefix matches", fun _ ->
+                  assertThat (prefix "hello world" "hello ") (isEqualTo (Some "world")))
+
+          test ("prefix returns None when no match", fun _ ->
+                  assertThat (prefix "hello world" "xyz") (isEqualTo None))
+
+          test ("splitFirst splits at first occurrence", fun _ ->
+                  let parts = splitFirst "hello world" " "
+                  assertThat (Array.length parts) (isEqualTo 2)
+                  assertThat (parts.[0]) (isEqualTo "hello")
+                  assertThat (parts.[1]) (isEqualTo "world")
+                  )
+
+          test ("splitAll splits at all occurrences", fun _ ->
+                  let parts = splitAll "a,b,c" ","
+                  assertThat (Array.length parts) (isEqualTo 3)
+                  assertThat (parts.[0]) (isEqualTo "a")
+                  assertThat (parts.[1]) (isEqualTo "b")
+                  assertThat (parts.[2]) (isEqualTo "c")
+                  )
+
+          test ("replaceFirst replaces first occurrence", fun _ ->
+                  assertThat (replaceFirst "aabbaa" "aa" "XX") (isEqualTo "XXbbaa"))
+
+          test ("replaceAll replaces all occurrences", fun _ ->
+                  assertThat (replaceAll "aabbaa" "aa" "XX") (isEqualTo "XXbbXX"))
+
+          test ("toInteger parses valid integer", fun _ ->
+                  match toInteger "42abc" with
+                  | Ok (n, rest) ->
+                      assertThat n (isEqualTo 42)
+                      assertThat rest (isEqualTo "abc")
+                  | Error _ -> assertThat false (isTrue))
+
+          test ("toInteger returns error for non-integer", fun _ ->
+                  match toInteger "abc" with
+                  | Error _ -> assertThat true (isTrue)
+                  | Ok _ -> assertThat false (isTrue))
+
+          test ("toFloat parses valid float", fun _ ->
+                  match toFloat "3.14rest" with
+                  | Ok (f, _) -> assertThat ((f > 3.13 && f < 3.15)) (isTrue)
+                  | Error _ -> assertThat false (isTrue))
+
+          test ("toGraphemes splits into grapheme clusters", fun _ ->
+                  let graphemes = toGraphemes "abc"
+                  assertThat (Array.length graphemes) (isEqualTo 3)
+                  assertThat (graphemes.[0]) (isEqualTo "a")
+                  assertThat (graphemes.[1]) (isEqualTo "b")
+                  assertThat (graphemes.[2]) (isEqualTo "c")
+                  )
+
+          test ("splitAllRaw returns the native list form of splitAll", fun _ ->
+                  let parts: BeamList<string> = splitAllRaw "a,b,c" ","
+                  let expected: BeamList<string> = emitErlExpr () "[<<\"a\">>, <<\"b\">>, <<\"c\">>]"
+                  assertThat parts (isEqualTo expected))
+
+          test ("splitFirstRaw returns the native list form of splitFirst", fun _ ->
+                  let parts: BeamList<string> = splitFirstRaw "hello world" " "
+                  let expected: BeamList<string> = emitErlExpr () "[<<\"hello\">>, <<\"world\">>]"
+                  assertThat parts (isEqualTo expected)) ]
+    )

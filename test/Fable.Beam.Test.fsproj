@@ -4,7 +4,6 @@
     <TargetFramework>net10.0</TargetFramework>
     <IsPackable>false</IsPackable>
     <GenerateProgramFile>false</GenerateProgramFile>
-    <DisableImplicitFSharpCoreReference>true</DisableImplicitFSharpCoreReference>
     <LangVersion>preview</LangVersion>
     <OutputType>Exe</OutputType>
     <NoWarn>NU1510</NoWarn>
@@ -14,34 +13,44 @@
     <ProjectReference Include="../src/Fable.Beam.fsproj" />
     <ProjectReference Include="../src/jsx/Fable.Beam.Jsx.fsproj" />
   </ItemGroup>
+  <!-- Scriptorium consumed from NuGet (cached + on nuget.org), exactly like Fable.Actor. Fable.Core
+       is pinned to the same version so Fable transpiles Scriptorium's shipped source against a
+       known runtime. An unpinned, paket-injected Fable.Core left Compiler.isDotnet undefined when
+       Fable transpiled Quill's Prelude and failed the BEAM build. -->
   <ItemGroup>
-    <Compile Include="TestErlang.fs" />
-    <Compile Include="TestGenServer.fs" />
-    <Compile Include="TestSupervisor.fs" />
+    <PackageReference Include="Fable.Core" Version="5.2.0" />
+    <PackageReference Include="Scriptorium.Quill" Version="0.5.1" />
+    <PackageReference Include="Scriptorium.Nib" Version="0.4.1" />
+  </ItemGroup>
+  <!-- Scriptorium migration: only modules converted to Quill/Nib are compiled. Each remaining
+       file is re-added here (before Main.fs) as it is migrated off [<Fact>]. -->
+  <ItemGroup>
     <Compile Include="TestTimer.fs" />
-    <Compile Include="TestEts.fs" />
+    <Compile Include="TestMaps.fs" />
+    <Compile Include="TestGenServer.fs" />
+    <Compile Include="TestBase64.fs" />
+    <Compile Include="TestMath.fs" />
     <Compile Include="TestIo.fs" />
     <Compile Include="TestIoLib.fs" />
-    <Compile Include="TestLists.fs" />
-    <Compile Include="TestMaps.fs" />
-    <Compile Include="TestBinary.fs" />
-    <Compile Include="TestMath.fs" />
-    <Compile Include="TestProplists.fs" />
-    <Compile Include="TestString.fs" />
-    <Compile Include="TestQueue.fs" />
-    <Compile Include="TestBase64.fs" />
     <Compile Include="TestRand.fs" />
-    <Compile Include="TestRe.fs" />
+    <Compile Include="TestProplists.fs" />
+    <Compile Include="TestBinary.fs" />
     <Compile Include="TestCalendar.fs" />
+    <Compile Include="TestQueue.fs" />
+    <Compile Include="TestLists.fs" />
+    <Compile Include="TestString.fs" />
+    <Compile Include="TestErlang.fs" />
+    <Compile Include="TestRe.fs" />
+    <Compile Include="TestDynamic.fs" />
     <Compile Include="TestUriString.fs" />
+    <Compile Include="TestCallbacks.fs" />
     <Compile Include="TestOs.fs" />
     <Compile Include="TestPort.fs" />
-    <Compile Include="TestFile.fs" />
+    <Compile Include="TestSupervisor.fs" />
     <Compile Include="TestLogger.fs" />
+    <Compile Include="TestFile.fs" />
+    <Compile Include="TestEts.fs" />
     <Compile Include="TestJsx.fs" />
-    <Compile Include="TestDynamic.fs" />
-    <Compile Include="TestCallbacks.fs" />
     <Compile Include="Main.fs" />
   </ItemGroup>
-  <Import Project="..\.paket\Paket.Restore.targets" />
 </Project>

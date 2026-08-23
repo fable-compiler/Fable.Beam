@@ -33,39 +33,31 @@ clean-all: clean
 build:
     dotnet build {{src_path}}
 
-# Transpile tests to Erlang and compile with rebar3
+# Transpile tests to Erlang and compile with rebar3. The entry point is Quill (Main.fs), which
+# Fable emits as main:main/1 -- there is no test_runner.erl anymore.
 build-beam:
     dotnet build {{test_path}}
     {{fable}} {{test_path}} --lang Erlang --outDir {{build_path}}/tests
-    cp {{test_path}}/test_runner.erl {{test_path}}/test_counter_server.erl {{test_path}}/test_basic_sup.erl {{build_path}}/tests/src/
+    cp {{test_path}}/test_counter_server.erl {{test_path}}/test_basic_sup.erl {{build_path}}/tests/src/
     cp {{test_path}}/rebar.config {{build_path}}/tests/rebar.config
     cd {{build_path}}/tests && rebar3 compile
 
-# Run BEAM tests (transpile F# to Erlang, compile, run on BEAM)
+# Run BEAM tests via the Scriptorium (Quill) runner. main:main/1 runs the registered suites and
+# halts the VM with its exit code, so a failing test fails this recipe. The scriptorium_* ebins are
+# needed on the code path -- Quill's DSL lives in scriptorium_quill_dsl etc., which erl will not
+# load unless their ebin dirs are on the path (an unloaded module shows up as an undef call).
 test: build-beam
     @echo ""
     cd {{build_path}}/tests && erl -noshell \
         -pa _build/default/lib/fable_beam_test/ebin \
         -pa _build/default/lib/fable_library_beam/ebin \
         -pa _build/default/lib/jsx/ebin \
-        -eval 'test_runner:main(["_build/default/lib/fable_beam_test/ebin"])' \
+        -pa _build/default/lib/scriptorium_quill/ebin \
+        -pa _build/default/lib/scriptorium_nib/ebin \
+        -pa _build/default/lib/scriptorium_parchment/ebin \
+        -pa _build/default/lib/scriptorium_ink/ebin \
+        -eval 'main:main([])' \
         -s init stop
-
-# Run only the dotnet build (verify F# compiles)
-test-dotnet:
-    dotnet build {{test_path}}
-    dotnet run --project {{test_path}}
-
-# Spike: run the Scriptorium test framework (Nib + Quill) on the BEAM.
-# No test_runner.erl and no [<Fact>]: Quill's runner is the [<EntryPoint>], which Fable emits as
-# main:main/1. It halts the VM with the suite's exit code, so a failing test fails this recipe.
-spike:
-    dotnet build spike/scriptorium
-    {{fable}} spike/scriptorium --lang beam -o spike/scriptorium/beam-build
-    cd spike/scriptorium/beam-build && rebar3 compile
-    @echo ""
-    cd spike/scriptorium/beam-build && \
-        ERL_LIBS="$(pwd)/_build/default/lib" erl -noshell -eval 'main:main([])' -s init stop
 
 # Create NuGet packages with versions from changelogs
 pack:
