@@ -1,11 +1,19 @@
 ---
-last_commit_released: d31ece8440aff76d160d29689eed22f0d85bdbe5
+last_commit_released: 3a761a26a81b85c9376767b94183aef56d521afb
 name: Fable.Beam.Jsx
 ---
 
 # Changelog
 
 All notable changes to this project will be documented in this file.
+
+## 5.0.0-rc.9 - 2026-08-23
+
+### 🚀 Features
+
+* Migrate bindings to curried API (#143) ([dc31680](https://github.com/fable-compiler/Fable.Beam/commit/dc3168073a363eb85695c571b85bc0f0563dcef7))
+
+<strong><small>[View changes on Github](https://github.com/fable-compiler/Fable.Beam/compare/d31ece8440aff76d160d29689eed22f0d85bdbe5..3a761a26a81b85c9376767b94183aef56d521afb)</small></strong>
 
 ## 5.0.0-rc.8 - 2026-04-25
 
