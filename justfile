@@ -72,8 +72,20 @@ pack:
     dotnet pack src/jsx -c Release -o ./nupkgs -p:PackageVersion=$JSX_VERSION -p:InformationalVersion=$JSX_VERSION
 
 # Pack and push all packages to NuGet (used in CI)
-release: pack
-    dotnet nuget push './nupkgs/*.nupkg' -s https://api.nuget.org/v3/index.json -k $NUGET_KEY --skip-duplicate
+release:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    get_version() { grep -m1 '^## ' "$1" | sed 's/^## \([^ ]*\).*/\1/'; }
+    BEAM_VERSION=$(get_version src/otp/CHANGELOG.md)
+    COWBOY_VERSION=$(get_version src/cowboy/CHANGELOG.md)
+    JSX_VERSION=$(get_version src/jsx/CHANGELOG.md)
+    dotnet pack src -c Release -o ./nupkgs -p:PackageVersion=$BEAM_VERSION -p:InformationalVersion=$BEAM_VERSION
+    dotnet pack src/cowboy -c Release -o ./nupkgs -p:PackageVersion=$COWBOY_VERSION -p:InformationalVersion=$COWBOY_VERSION
+    dotnet nuget push "./nupkgs/Fable.Beam.$BEAM_VERSION.nupkg" -s https://api.nuget.org/v3/index.json -k $NUGET_KEY --skip-duplicate
+    dotnet nuget push "./nupkgs/Fable.Beam.Cowboy.$COWBOY_VERSION.nupkg" -s https://api.nuget.org/v3/index.json -k $NUGET_KEY --skip-duplicate
+    dotnet paket update Fable.Beam --version $BEAM_VERSION --no-install
+    dotnet pack src/jsx -c Release -o ./nupkgs -p:PackageVersion=$JSX_VERSION -p:InformationalVersion=$JSX_VERSION
+    dotnet nuget push "./nupkgs/Fable.Beam.Jsx.$JSX_VERSION.nupkg" -s https://api.nuget.org/v3/index.json -k $NUGET_KEY --skip-duplicate
 
 # Format code with Fantomas
 format:

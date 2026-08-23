@@ -73,7 +73,7 @@ would shadow FSharp.Core: `BeamMaps`, `BeamLists`, `BeamMath`, and `BString`.
 
 ## Pair JSX with Beam
 
-`Fable.Beam.Jsx` has an explicit dependency on `Fable.Beam`. During the 5.0
-release-candidate series, pair `Fable.Beam 5.0.0-rc.37` with
-`Fable.Beam.Jsx 5.0.0-rc.9`. The package accepts `Fable.Beam >=
-5.0.0-rc.37` and `< 6.0.0`, and NuGet restores a compatible core package.
+`Fable.Beam.Jsx` has an explicit dependency on `Fable.Beam`. Pair
+`Fable.Beam 5.0.0` with `Fable.Beam.Jsx 5.0.0`. The package accepts
+`Fable.Beam >= 5.0.0` and `< 6.0.0`, and NuGet restores a compatible core
+package.

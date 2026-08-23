@@ -1,11 +1,17 @@
 ---
-last_commit_released: 3a761a26a81b85c9376767b94183aef56d521afb
+last_commit_released: 0b4f4912c8ff47f3a7d3561c59146626092d4e4f
 name: Fable.Beam
 ---
 
 # Changelog
 
 All notable changes to this project will be documented in this file.
+
+## 5.0.0 - 2026-08-24
+
+### 🚀 Features
+
+* Promote the curried binding API to a stable release.
 
 ## 5.0.0-rc.37 - 2026-08-23
 
