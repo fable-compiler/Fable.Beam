@@ -29,8 +29,8 @@ Libraries built on top of Fable.Beam:
 | `Fable.Beam.Cowboy` | Cowboy HTTP server bindings |
 | `Fable.Beam.Jsx` | jsx JSON library bindings |
 
-`Fable.Beam.Jsx` depends on `Fable.Beam`. During the v5 release candidates,
-install the paired versions: `Fable.Beam 5.0.0-rc.37` and
+`Fable.Beam.Jsx` depends on `Fable.Beam`. During the 5.0 release-candidate
+series, install the paired versions: `Fable.Beam 5.0.0-rc.37` and
 `Fable.Beam.Jsx 5.0.0-rc.9`. The JSX package requires `Fable.Beam >=
 5.0.0-rc.37` and `< 6.0.0`, so NuGet reports an incompatible selection at
 restore time.
@@ -144,8 +144,8 @@ For modules that collide with FSharp.Core names, use a short explicit alias in
 examples and application code: `BeamMaps`, `BeamLists`, `BeamMath`, and
 `BString` for `Fable.Beam.String`. All public binding functions are curried;
 the evolving collection or value is the final argument, so they compose with
-pipelines. See [the v5 migration guide](MIGRATING-TO-V5.md) for renamed and
-raw-value APIs.
+pipelines. See [the curried API migration guide](MIGRATING-TO-CURRIED-API.md)
+for renamed and raw-value APIs.
 
 ### JSON with jsx
 
