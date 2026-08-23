@@ -8,46 +8,65 @@ open Fable.Beam.Lists
 
 // fsharplint:disable MemberNames
 
-// ============================================================================
-// Raw bindings
-// ============================================================================
+/// Returns a copy of the binary.
+[<Emit("binary:copy($0)")>]
+let copy (subject: string) : string = nativeOnly
 
-[<Erase>]
-type IExports =
-    /// Returns a copy of the binary.
-    abstract copy: subject: string -> string
-    /// Returns N copies of the binary concatenated.
-    abstract copy: subject: string * n: int -> string
-    /// Returns the byte at 0-based position Pos in the binary.
-    abstract at: subject: string * pos: int -> int
-    /// Returns the first byte of the binary.
-    abstract first: subject: string -> int
-    /// Returns the last byte of the binary.
-    abstract last: subject: string -> int
-    /// Returns a subbinary starting at Pos with Len bytes.
-    abstract part: subject: string * pos: int * len: int -> string
-    /// Decodes a binary as a big-endian unsigned integer.
-    abstract decode_unsigned: subject: string -> int
-    /// Decodes a binary as an unsigned integer with the given endianness (big or little).
-    abstract decode_unsigned: subject: string * endianness: Atom -> int
-    /// Encodes an unsigned integer as a binary (big-endian).
-    abstract encode_unsigned: n: int -> string
-    /// Encodes an unsigned integer as a binary with the given endianness (big or little).
-    abstract encode_unsigned: n: int * endianness: Atom -> string
-    /// Converts a binary to a list of bytes (integers in 0..255).
-    abstract bin_to_list: subject: string -> BeamList<int>
-    /// Converts a list of bytes (integers in 0..255) to a binary.
-    abstract list_to_bin: byteList: BeamList<int> -> string
-    /// Returns the length of the longest common prefix of a list of binaries.
-    abstract longest_common_prefix: binaries: string list -> int
-    /// Returns the length of the longest common suffix of a list of binaries.
-    abstract longest_common_suffix: binaries: string list -> int
-    /// Returns the byte size of the underlying memory referenced by the binary.
-    abstract referenced_byte_size: subject: string -> int
+/// Returns N copies of the binary concatenated.
+[<Emit("binary:copy($0, $1)")>]
+let copyN (subject: string) (count: int) : string = nativeOnly
 
-/// binary module
-[<ImportAll("binary")>]
-let binary: IExports = nativeOnly
+/// Returns the byte at 0-based position Pos in the binary.
+[<Emit("binary:at($0, $1)")>]
+let at (subject: string) (position: int) : int = nativeOnly
+
+/// Returns the first byte of the binary.
+[<Emit("binary:first($0)")>]
+let first (subject: string) : int = nativeOnly
+
+/// Returns the last byte of the binary.
+[<Emit("binary:last($0)")>]
+let last (subject: string) : int = nativeOnly
+
+/// Returns a subbinary starting at Pos with Len bytes.
+[<Emit("binary:part($0, $1, $2)")>]
+let part (subject: string) (position: int) (length: int) : string = nativeOnly
+
+/// Decodes a binary as a big-endian unsigned integer.
+[<Emit("binary:decode_unsigned($0)")>]
+let decodeUnsigned (subject: string) : int = nativeOnly
+
+/// Decodes a binary as an unsigned integer with the given endianness (big or little).
+[<Emit("binary:decode_unsigned($0, $1)")>]
+let decodeUnsignedWithEndianness (subject: string) (endianness: Atom) : int = nativeOnly
+
+/// Encodes an unsigned integer as a binary (big-endian).
+[<Emit("binary:encode_unsigned($0)")>]
+let encodeUnsigned (value: int) : string = nativeOnly
+
+/// Encodes an unsigned integer as a binary with the given endianness (big or little).
+[<Emit("binary:encode_unsigned($0, $1)")>]
+let encodeUnsignedWithEndianness (value: int) (endianness: Atom) : string = nativeOnly
+
+/// Converts a binary to a list of bytes (integers in 0..255).
+[<Emit("binary:bin_to_list($0)")>]
+let toByteList (subject: string) : BeamList<int> = nativeOnly
+
+/// Converts a list of bytes (integers in 0..255) to a binary.
+[<Emit("binary:list_to_bin($0)")>]
+let ofByteList (bytes: BeamList<int>) : string = nativeOnly
+
+/// Returns the length of the longest common prefix of a list of binaries.
+[<Emit("binary:longest_common_prefix($0)")>]
+let longestCommonPrefix (binaries: string list) : int = nativeOnly
+
+/// Returns the length of the longest common suffix of a list of binaries.
+[<Emit("binary:longest_common_suffix($0)")>]
+let longestCommonSuffix (binaries: string list) : int = nativeOnly
+
+/// Returns the byte size of the underlying memory referenced by the binary.
+[<Emit("binary:referenced_byte_size($0)")>]
+let referencedByteSize (subject: string) : int = nativeOnly
 
 // ============================================================================
 // Typed API — match, matches, split, replace

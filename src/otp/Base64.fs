@@ -4,23 +4,18 @@ module Fable.Beam.Base64
 
 open Fable.Core
 
-// fsharplint:disable MemberNames
+/// Encodes Data as a base64 binary. Data can be a binary or a charlist.
+[<Emit("base64:encode($0)")>]
+let encode (data: string) : string = nativeOnly
 
-[<Erase>]
-type IExports =
-    /// Encodes Data as a base64 binary. Data can be a binary or a charlist.
-    abstract encode: data: string -> string
+/// Decodes a base64-encoded binary. Raises badarg if the input is not valid base64.
+[<Emit("base64:decode($0)")>]
+let decode (base64: string) : string = nativeOnly
 
-    /// Decodes a base64-encoded binary. Raises badarg if the input is not valid base64.
-    abstract decode: base64: string -> string
-
-    /// MIME-compatible decode: decodes a base64 binary, silently ignoring illegal characters
-    /// (whitespace, line breaks, etc.) that are valid in MIME base64.
-    abstract mime_decode: base64: string -> string
-
-/// base64 module
-[<ImportAll("base64")>]
-let base64: IExports = nativeOnly
+/// MIME-compatible decode: decodes a base64 binary, silently ignoring illegal characters
+/// (whitespace, line breaks, etc.) that are valid in MIME base64.
+[<Emit("base64:mime_decode($0)")>]
+let mimeDecode (base64: string) : string = nativeOnly
 
 // ============================================================================
 // Typed helpers — wrapping results for safe use from F#

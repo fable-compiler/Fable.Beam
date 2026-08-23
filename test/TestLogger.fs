@@ -57,7 +57,7 @@ let tests =
                           // OTP always stamps a `time` (system time in microseconds) onto the event.
                           Filter.msg ev |> ignore
                           let m = Filter.meta ev
-                          Erlang.put timeKey (maps.get (Erlang.binaryToAtom "time", m)) |> ignore
+                          Erlang.put timeKey (Maps.get (Erlang.binaryToAtom "time") m) |> ignore
                           Erlang.put seenKey (Filter.level ev) |> ignore
                           Filter.stop)
 

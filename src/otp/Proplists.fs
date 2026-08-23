@@ -7,50 +7,45 @@ open Fable.Beam
 open Fable.Beam.Lists
 open Fable.Beam.Maps
 
-// fsharplint:disable MemberNames
+/// Returns the value for Key if {Key, Value} is found in List, or None otherwise.
+[<Emit("proplists:get_value($0, $1)")>]
+let tryFind (key: 'K) (list: BeamList<obj>) : 'V option = nativeOnly
 
-[<Erase>]
-type IExports =
-    /// Returns the value for Key if {Key, Value} is found in List; the atom 'true' if
-    /// the bare atom Key is present (in that case 'V must accept a bool, or the result
-    /// is a runtime type mismatch); or undefined (None) if Key is not in List.
-    /// Note: a stored value equal to the atom 'undefined' is indistinguishable from "missing".
-    abstract get_value: key: 'K * list: BeamList<obj> -> 'V option
+/// Returns the value for Key if found in List, or Default otherwise.
+[<Emit("proplists:get_value($0, $1, $2)")>]
+let getOrDefault (key: 'K) (list: BeamList<obj>) (defaultValue: 'V) : 'V = nativeOnly
 
-    /// Returns the value for Key if found in List, or Default otherwise.
-    /// Note: same bare-atom and 'undefined' caveats as the 2-arity overload apply;
-    /// a stored atom 'undefined' is treated as "not found" and yields Default.
-    abstract get_value: key: 'K * list: BeamList<obj> * ``default``: 'V -> 'V
+/// Returns a list of all values associated with Key in List.
+[<Emit("proplists:get_all_values($0, $1)")>]
+let getAllValues (key: 'K) (list: BeamList<obj>) : BeamList<'V> = nativeOnly
 
-    /// Returns a list of all values associated with Key in List.
-    abstract get_all_values: key: 'K * list: BeamList<obj> -> BeamList<'V>
+/// Returns true if Key is present in List, otherwise false.
+[<Emit("proplists:is_defined($0, $1)")>]
+let containsKey (key: 'K) (list: BeamList<obj>) : bool = nativeOnly
 
-    /// Returns true if Key is present in List, otherwise false.
-    abstract is_defined: key: 'K * list: BeamList<obj> -> bool
+/// Deletes all entries with the given Key from List.
+[<Emit("proplists:delete($0, $1)")>]
+let remove (key: 'K) (list: BeamList<obj>) : BeamList<obj> = nativeOnly
 
-    /// Deletes all entries with the given Key from List.
-    abstract delete: key: 'K * list: BeamList<obj> -> BeamList<obj>
+/// Expands all bare atom entries in List to {Atom, true} pairs.
+[<Emit("proplists:unfold($0)")>]
+let unfold (list: BeamList<obj>) : BeamList<obj> = nativeOnly
 
-    /// Expands all bare atom entries in List to {Atom, true} pairs.
-    abstract unfold: list: BeamList<obj> -> BeamList<obj>
+/// Minimizes List by collapsing each {Key, true} pair (where Key is an atom) to bare atoms.
+[<Emit("proplists:compact($0)")>]
+let compact (list: BeamList<obj>) : BeamList<obj> = nativeOnly
 
-    /// Minimizes List by collapsing each {Key, true} pair (where Key is an atom) to
-    /// the bare atom Key. Inverse of unfold. Does not deduplicate or drop false values.
-    abstract compact: list: BeamList<obj> -> BeamList<obj>
+/// Returns an unordered array of all keys in List, without duplicates.
+[<Emit("fable_utils:new_ref(proplists:get_keys($0))")>]
+let keys (list: BeamList<obj>) : 'K array = nativeOnly
 
-    /// Returns an unordered list of all keys in List, without duplicates.
-    [<Emit("fable_utils:new_ref(proplists:get_keys($0))")>]
-    abstract get_keys: list: BeamList<obj> -> 'K array
+/// Converts a property list to a map. Requires OTP 24+.
+[<Emit("proplists:to_map($0)")>]
+let toMap (list: BeamList<obj>) : BeamMap<'K, 'V> = nativeOnly
 
-    /// Converts a property list to a map. Requires OTP 24+.
-    abstract to_map: list: BeamList<obj> -> BeamMap<'K, 'V>
-
-    /// Converts a map to a property list. Requires OTP 24+.
-    abstract from_map: map: BeamMap<'K, 'V> -> BeamList<obj>
-
-/// proplists module
-[<ImportAll("proplists")>]
-let proplists: IExports = nativeOnly
+/// Converts a map to a property list. Requires OTP 24+.
+[<Emit("proplists:from_map($0)")>]
+let ofMap (map: BeamMap<'K, 'V>) : BeamList<obj> = nativeOnly
 
 /// Like `proplists.get_keys`, but returns the native Erlang list instead of an F# array.
 /// See "Dual API" in BINDINGS-GUIDE.md.

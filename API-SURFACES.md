@@ -1,7 +1,7 @@
 # RFC: Reduce the per-module API surface count
 
-Status: **decided** — Option A is the v5.0 public-API direction. `String.fs` is the completed prototype;
-the remaining modules have not started.
+Status: **in progress** — Option A is the v5.0 public-API direction. `String.fs` is the completed
+prototype; `Base64.fs`, `Binary.fs`, `Maps.fs`, and `Proplists.fs` have been migrated.
 Prompted by review of #128 (the dual-API / `BeamChardata` work).
 
 ## The concern
@@ -255,8 +255,10 @@ wrapper on a curried `let`; B puts every wrapper on an interface member.
 - [x] Decide on the curried public API and semantic naming rules.
 - [x] Convert `src/otp/String.fs` and `test/TestString.fs` as the prototype.
 - [x] Verify the prototype's generated Erlang and BEAM behavior.
-- [ ] Inventory the remaining public `ImportAll` surfaces and their downstream call sites.
+- [x] Inventory the remaining public `ImportAll` surfaces and their downstream call sites.
 - [ ] Convert the remaining modules in reviewable commits while preserving intentional `*Raw` pairs.
+  - [x] `Base64.fs`, `Binary.fs`, `Maps.fs`, and `Proplists.fs`.
+  - [ ] `Lists.fs`, `Queue.fs`, and the remaining public `ImportAll` modules.
 - [ ] Update the bindings guide's general conventions, template, examples, and README call sites.
 - [ ] Migrate Synapse during the same release window and verify its build.
 - [ ] Publish the v5.0 release only after the repository and downstream migration are complete.

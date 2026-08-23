@@ -17,93 +17,93 @@ let tests =
         [ test (
               "new_ creates an empty map",
               fun _ ->
-                  let m: BeamMap<string, int> = maps.new_ ()
-                  assertThat (maps.size m) (isEqualTo 0)
+                  let m: BeamMap<string, int> = empty ()
+                  assertThat (size m) (isEqualTo 0)
           )
 
           test (
               "put and get round-trip",
               fun _ ->
-                  let m: BeamMap<string, string> = maps.new_ ()
-                  let m = maps.put ("key", "value", m)
-                  assertThat (maps.get ("key", m)) (isEqualTo "value")
+                  let m: BeamMap<string, string> = empty ()
+                  let m = put "key" "value" m
+                  assertThat (get "key" m) (isEqualTo "value")
           )
 
           test (
               "is_key works",
               fun _ ->
-                  let m: BeamMap<string, int> = maps.new_ ()
-                  let m = maps.put ("a", 1, m)
-                  assertThat (maps.is_key ("a", m)) (isEqualTo true)
-                  assertThat (maps.is_key ("b", m)) (isEqualTo false)
+                  let m: BeamMap<string, int> = empty ()
+                  let m = put "a" 1 m
+                  assertThat (containsKey "a" m) (isEqualTo true)
+                  assertThat (containsKey "b" m) (isEqualTo false)
           )
 
           test (
               "remove works",
               fun _ ->
-                  let m: BeamMap<string, int> = maps.new_ ()
-                  let m = maps.put ("a", 1, m)
-                  let m = maps.remove ("a", m)
-                  assertThat (maps.size m) (isEqualTo 0)
+                  let m: BeamMap<string, int> = empty ()
+                  let m = put "a" 1 m
+                  let m = remove "a" m
+                  assertThat (size m) (isEqualTo 0)
           )
 
           test (
               "size works",
               fun _ ->
-                  let m: BeamMap<string, int> = maps.new_ ()
-                  let m = maps.put ("a", 1, m)
-                  let m = maps.put ("b", 2, m)
-                  assertThat (maps.size m) (isEqualTo 2)
+                  let m: BeamMap<string, int> = empty ()
+                  let m = put "a" 1 m
+                  let m = put "b" 2 m
+                  assertThat (size m) (isEqualTo 2)
           )
 
           test (
               "merge works",
               fun _ ->
-                  let m1: BeamMap<string, int> = maps.put ("a", 1, maps.new_ ())
-                  let m2 = maps.put ("b", 2, maps.new_ ())
-                  let merged = maps.merge (m1, m2)
-                  assertThat (maps.size merged) (isEqualTo 2)
+                  let m1: BeamMap<string, int> = put "a" 1 (empty ())
+                  let m2 = put "b" 2 (empty ())
+                  let merged = merge m1 m2
+                  assertThat (size merged) (isEqualTo 2)
           )
 
           test (
               "keys and values",
               fun _ ->
-                  let m: BeamMap<string, int> = maps.new_ ()
-                  let m = maps.put ("a", 1, m)
-                  let m = maps.put ("b", 2, m)
-                  assertThat (maps.keys m |> Array.length) (isEqualTo 2)
-                  assertThat (maps.values m |> Array.length) (isEqualTo 2)
+                  let m: BeamMap<string, int> = empty ()
+                  let m = put "a" 1 m
+                  let m = put "b" 2 m
+                  assertThat (keys m |> Array.length) (isEqualTo 2)
+                  assertThat (values m |> Array.length) (isEqualTo 2)
           )
 
           test (
               "get with default",
               fun _ ->
-                  let m: BeamMap<string, int> = maps.new_ ()
-                  assertThat (maps.get ("missing", m, 42)) (isEqualTo 42)
+                  let m: BeamMap<string, int> = empty ()
+                  assertThat (getOrDefault "missing" m 42) (isEqualTo 42)
           )
 
           test (
               "to_list and from_list",
               fun _ ->
-                  let m: BeamMap<string, int> = maps.new_ ()
-                  let m = maps.put ("a", 1, m)
-                  let lst = maps.to_list m
+                  let m: BeamMap<string, int> = empty ()
+                  let m = put "a" 1 m
+                  let lst = toArray m
                   assertThat (Array.length lst) (isEqualTo 1)
-                  let m2 = maps.from_list lst
-                  assertThat (maps.size m2) (isEqualTo 1)
+                  let m2 = ofArray lst
+                  assertThat (size m2) (isEqualTo 1)
           )
 
           test (
               "tryFind returns Some for existing key",
               fun _ ->
-                  let m: BeamMap<string, int> = maps.put ("x", 99, maps.new_ ())
+                  let m: BeamMap<string, int> = put "x" 99 (empty ())
                   assertThat (tryFind "x" m) (isEqualTo (Some 99))
           )
 
           test (
               "tryFind returns None for missing key",
               fun _ ->
-                  let m: BeamMap<string, int> = maps.new_ ()
+                  let m: BeamMap<string, int> = empty ()
                   assertThat (tryFind "missing" m) (isEqualTo None)
           )
 
@@ -113,8 +113,8 @@ let tests =
                   let headers: BeamMap<string, string> =
                       ofList [ "content-type", "text/html"; "server", "cowboy" ]
 
-                  assertThat (maps.size headers) (isEqualTo 2)
-                  assertThat (maps.get ("content-type", headers)) (isEqualTo "text/html")
+                  assertThat (size headers) (isEqualTo 2)
+                  assertThat (get "content-type" headers) (isEqualTo "text/html")
                   assertThat (tryFind "server" headers) (isEqualTo (Some "cowboy"))
           )
 
@@ -123,8 +123,8 @@ let tests =
               fun _ ->
                   let m: BeamMap<string, int> = ofList [ "a", 1; "b", 2; "c", 3 ]
                   // native lists carry the same data as the array-returning members, without the ref-wrap
-                  assertThat (keysRaw m |> listLen) (isEqualTo (maps.keys m |> Array.length))
-                  assertThat (valuesRaw m |> listLen) (isEqualTo (maps.values m |> Array.length))
+                  assertThat (keysRaw m |> listLen) (isEqualTo (keys m |> Array.length))
+                  assertThat (valuesRaw m |> listLen) (isEqualTo (values m |> Array.length))
                   assertThat (keysRaw m |> listLen) (isEqualTo 3)
           )
 
@@ -140,24 +140,24 @@ let tests =
               fun _ ->
                   // maps:fold/3 applies F(K, V, Acc) — the only 3-arity callback in the bindings.
                   let m: BeamMap<string, int> = ofList [ ("a", 1); ("b", 2); ("c", 3) ]
-                  assertThat (maps.fold ((fun _k v acc -> v + acc), 0, m)) (isEqualTo 6)
+                  assertThat (fold (fun _k v acc -> v + acc) 0 m) (isEqualTo 6)
           )
 
           test (
               "maps.map transforms each value",
               fun _ ->
                   let m: BeamMap<string, int> = ofList [ ("a", 1); ("b", 2) ]
-                  let doubled = maps.map ((fun _k v -> v * 2), m)
-                  assertThat (maps.get ("a", doubled)) (isEqualTo 2)
-                  assertThat (maps.get ("b", doubled)) (isEqualTo 4)
+                  let doubled = map (fun _k v -> v * 2) m
+                  assertThat (get "a" doubled) (isEqualTo 2)
+                  assertThat (get "b" doubled) (isEqualTo 4)
           )
 
           test (
               "maps.filter keeps matching pairs",
               fun _ ->
                   let m: BeamMap<string, int> = ofList [ ("a", 1); ("b", 2); ("c", 3) ]
-                  let big = maps.filter ((fun _k v -> v > 1), m)
-                  assertThat (maps.size big) (isEqualTo 2)
-                  assertThat (maps.is_key ("a", big)) (isEqualTo false)
+                  let big = filter (fun _k v -> v > 1) m
+                  assertThat (size big) (isEqualTo 2)
+                  assertThat (containsKey "a" big) (isEqualTo false)
           ) ]
     )
