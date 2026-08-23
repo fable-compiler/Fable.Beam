@@ -6,6 +6,7 @@ open type Scriptorium.Quill.Test
 
 open Fable.Core
 open Fable.Core.BeamInterop
+
 module BMath = Fable.Beam.Math
 
 let tests =

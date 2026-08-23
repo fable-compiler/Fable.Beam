@@ -1,7 +1,8 @@
 # RFC: Reduce the per-module API surface count
 
-Status: **in progress** — Option A is the v5.0 public-API direction. The public binding modules
-have been migrated; remaining work is documentation and downstream adoption.
+Status: **complete** — Option A is the v5.0 public API, and all public binding modules have
+been migrated. Documentation, downstream adoption, and the v5.0 publication are release follow-up
+work rather than outstanding API-surface work.
 Prompted by review of #128 (the dual-API / `BeamChardata` work).
 
 ## The concern
@@ -250,7 +251,7 @@ wrapper on a curried `let`; B puts every wrapper on an interface member.
 3. Use one atomic PR, structured as reviewable per-module commits.
 4. Migrate Synapse in the same release window, before the v5.0 stable release.
 
-## Rollout checklist
+## Completed binding migration
 
 - [x] Decide on the curried public API and semantic naming rules.
 - [x] Convert `src/otp/String.fs` and `test/TestString.fs` as the prototype.
@@ -262,6 +263,9 @@ wrapper on a curried `let`; B puts every wrapper on an interface member.
   - [x] The remaining public `ImportAll` modules (`Timer`, `Io`, `GenServer`, `Supervisor`, `Ets`,
     `Logger`, and `Jsx`).
   - [x] `Math.fs`, `Queue.fs`, and `Rand.fs`.
+
+## Release follow-up
+
 - [ ] Update the bindings guide's general conventions, template, examples, and README call sites.
 - [ ] Migrate Synapse during the same release window and verify its build.
 - [ ] Publish the v5.0 release only after the repository and downstream migration are complete.

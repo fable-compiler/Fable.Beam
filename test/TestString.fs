@@ -29,7 +29,10 @@ let tests =
               fun _ -> assertThat (BString.titlecase "hello world") (isEqualTo "Hello world")
           )
 
-          test ("casefold lowercases for comparison", fun _ -> assertThat (BString.casefold "HELLO") (isEqualTo "hello"))
+          test (
+              "casefold lowercases for comparison",
+              fun _ -> assertThat (BString.casefold "HELLO") (isEqualTo "hello")
+          )
 
           test ("reverse reverses string", fun _ -> assertThat (BString.reverse "hello") (isEqualTo "olleh"))
 
@@ -40,7 +43,10 @@ let tests =
               fun _ -> assertThat (BString.trimStart "  hello  ") (isEqualTo "hello  ")
           )
 
-          test ("trimEnd strips trailing whitespace", fun _ -> assertThat (BString.trimEnd "  hello  ") (isEqualTo "  hello"))
+          test (
+              "trimEnd strips trailing whitespace",
+              fun _ -> assertThat (BString.trimEnd "  hello  ") (isEqualTo "  hello")
+          )
 
           test ("pad trailing to length", fun _ -> assertThat (BString.padEnd "hi" 5) (isEqualTo "hi   "))
 
@@ -125,16 +131,25 @@ let tests =
               fun _ -> assertThat (BString.find "hello world" "world") (isEqualTo (Some "world"))
           )
 
-          test ("find returns None when not found", fun _ -> assertThat (BString.find "hello world" "xyz") (isEqualTo None))
+          test (
+              "find returns None when not found",
+              fun _ -> assertThat (BString.find "hello world" "xyz") (isEqualTo None)
+          )
 
-          test ("findLast finds last occurrence", fun _ -> assertThat (BString.findLast "a-b-c" "-") (isEqualTo (Some "-c")))
+          test (
+              "findLast finds last occurrence",
+              fun _ -> assertThat (BString.findLast "a-b-c" "-") (isEqualTo (Some "-c"))
+          )
 
           test (
               "prefix returns Some rest when prefix matches",
               fun _ -> assertThat (BString.prefix "hello world" "hello ") (isEqualTo (Some "world"))
           )
 
-          test ("prefix returns None when no match", fun _ -> assertThat (BString.prefix "hello world" "xyz") (isEqualTo None))
+          test (
+              "prefix returns None when no match",
+              fun _ -> assertThat (BString.prefix "hello world" "xyz") (isEqualTo None)
+          )
 
           test (
               "splitFirst splits at first occurrence",

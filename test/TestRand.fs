@@ -7,6 +7,7 @@ open type Scriptorium.Quill.Test
 open Fable.Core
 open Fable.Core.BeamInterop
 open Fable.Beam
+
 module BRand = Fable.Beam.Rand
 
 let tests =
