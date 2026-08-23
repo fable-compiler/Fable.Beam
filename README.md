@@ -246,7 +246,6 @@ src/
     Jsx.fs
 test/
   Test*.fs           # Test files
-  test_runner.erl    # BEAM test runner
   rebar.config       # Erlang test dependencies
 ```
 
