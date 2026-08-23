@@ -24,60 +24,45 @@ type Time = int * int * int
 /// Erlang datetime: (Date, Time) = ((Year,Month,Day),(Hour,Min,Sec)).
 type DateTime = Date * Time
 
-// ============================================================================
-// Zero-arg and simple-arg functions via ImportAll
-// ============================================================================
+/// Returns the current local datetime as ((Year,Month,Day),(Hour,Min,Sec)).
+[<Emit("calendar:local_time()")>]
+let localTime () : DateTime = nativeOnly
 
-[<Erase>]
-type IExports =
-    // calendar:date/0 and calendar:time/0 do NOT exist in the calendar module
-    // (they live in the `erlang` module). Bind them via Fable.Beam.Erlang or
-    // re-add them here as Emit("erlang:date()") / Emit("erlang:time()").
-    //
-    // /// Returns the current local date as (Year, Month, Day).
-    // abstract date: unit -> Date
-    //
-    // /// Returns the current local time as (Hour, Min, Sec).
-    // abstract time: unit -> Time
+/// Returns the current UTC datetime as ((Year,Month,Day),(Hour,Min,Sec)).
+[<Emit("calendar:universal_time()")>]
+let universalTime () : DateTime = nativeOnly
 
-    /// Returns the current local datetime as ((Year,Month,Day),(Hour,Min,Sec)).
-    abstract local_time: unit -> DateTime
+/// Returns the day of the week: 1 = Monday, 7 = Sunday.
+[<Emit("calendar:day_of_the_week($0, $1, $2)")>]
+let dayOfWeek (year: int) (month: int) (day: int) : int = nativeOnly
 
-    /// Returns the current UTC datetime as ((Year,Month,Day),(Hour,Min,Sec)).
-    abstract universal_time: unit -> DateTime
+/// Returns true if Year is a leap year.
+[<Emit("calendar:is_leap_year($0)")>]
+let isLeapYear (year: int) : bool = nativeOnly
 
-    /// Returns the day of the week: 1 = Monday, 7 = Sunday.
-    abstract day_of_the_week: year: int * month: int * day: int -> int
+/// Returns the last day of Month in Year (e.g. 28, 29, 30, or 31).
+[<Emit("calendar:last_day_of_the_month($0, $1)")>]
+let lastDayOfMonth (year: int) (month: int) : int = nativeOnly
 
-    /// Returns true if Year is a leap year.
-    abstract is_leap_year: year: int -> bool
+/// Converts a date to the number of days since 0000-01-01 in the proleptic Gregorian calendar.
+[<Emit("calendar:date_to_gregorian_days($0, $1, $2)")>]
+let dateToGregorianDays (year: int) (month: int) (day: int) : int = nativeOnly
 
-    /// Returns the last day of Month in Year (e.g. 28, 29, 30, or 31).
-    abstract last_day_of_the_month: year: int * month: int -> int
+/// Converts a Gregorian day count back to (Year, Month, Day).
+[<Emit("calendar:gregorian_days_to_date($0)")>]
+let gregorianDaysToDate (days: int) : Date = nativeOnly
 
-    /// Converts a date to the number of days since 0000-01-01 in the proleptic Gregorian calendar.
-    /// Note: Erlang uses 0000-01-01 as epoch (not the ISO 8601 epoch of 0001-01-01).
-    abstract date_to_gregorian_days: year: int * month: int * day: int -> int
+/// Converts a Gregorian second count back to ((Year,Month,Day),(Hour,Min,Sec)).
+[<Emit("calendar:gregorian_seconds_to_datetime($0)")>]
+let gregorianSecondsToDateTime (seconds: int64) : DateTime = nativeOnly
 
-    /// Converts a Gregorian day count back to (Year, Month, Day).
-    abstract gregorian_days_to_date: days: int -> Date
+/// Converts an OS/system time to local datetime using the matching unit.
+[<Emit("calendar:system_time_to_local_time($0, $1)")>]
+let systemTimeToLocalTime (time: int64) (unit: TimeUnit) : DateTime = nativeOnly
 
-    /// Converts a Gregorian second count back to ((Year,Month,Day),(Hour,Min,Sec)).
-    abstract gregorian_seconds_to_datetime: seconds: int64 -> DateTime
-
-    /// Converts an OS/system time to local datetime ((Year,Month,Day),(Hour,Min,Sec)).
-    /// `time` is a system time (e.g. from `Os.systemTime`); `unit` is the matching
-    /// `TimeUnit` (e.g. `TimeUnit.Second`). Result depends on the system's time zone.
-    abstract system_time_to_local_time: time: int64 * unit: TimeUnit -> DateTime
-
-    /// Converts an OS/system time to UTC datetime ((Year,Month,Day),(Hour,Min,Sec)).
-    /// `time` is a system time (e.g. from `Os.systemTime`); `unit` is the matching
-    /// `TimeUnit` (e.g. `TimeUnit.Second`).
-    abstract system_time_to_universal_time: time: int64 * unit: TimeUnit -> DateTime
-
-/// calendar module
-[<ImportAll("calendar")>]
-let calendar: IExports = nativeOnly
+/// Converts an OS/system time to UTC datetime using the matching unit.
+[<Emit("calendar:system_time_to_universal_time($0, $1)")>]
+let systemTimeToUniversalTime (time: int64) (unit: TimeUnit) : DateTime = nativeOnly
 
 // ============================================================================
 // Single-tuple-argument functions via Emit

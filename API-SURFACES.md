@@ -258,7 +258,8 @@ wrapper on a curried `let`; B puts every wrapper on an interface member.
 - [x] Inventory the remaining public `ImportAll` surfaces and their downstream call sites.
 - [ ] Convert the remaining modules in reviewable commits while preserving intentional `*Raw` pairs.
   - [x] `Base64.fs`, `Binary.fs`, `Maps.fs`, and `Proplists.fs`.
-  - [ ] `Lists.fs` and the remaining public `ImportAll` modules.
+  - [x] `Lists.fs` and `Calendar.fs`.
+  - [ ] The remaining public `ImportAll` modules.
   - [x] `Math.fs`, `Queue.fs`, and `Rand.fs`.
 - [ ] Update the bindings guide's general conventions, template, examples, and README call sites.
 - [ ] Migrate Synapse during the same release window and verify its build.
