@@ -28,12 +28,12 @@ its own open decision, referenced below.
 
 Ordered by what would hurt most to get wrong, since semver locks these.
 
-### 1. Decide the API-surface RFC — blocking
+### 1. Implement the API-surface decision — blocking
 
-`API-SURFACES.md` is still marked *proposed, not started*, with four open questions: keep a raw
-`ImportAll` hatch per module? naming scheme for de-overloaded arities? one PR or a stack? synapse
-migration timing? Collapsing the arbitrary interface/module split is breaking, so it happens before
-the freeze or not at all. Everything else on this list is small by comparison.
+`API-SURFACES.md` adopts one public curried surface per module, with intentional `*Raw` escape hatches
+only. Collapsing the arbitrary interface/module split is breaking, so it happens before the freeze or
+not at all. Implement it as one atomic PR with reviewable per-module commits, and migrate Synapse in
+the same release window. Everything else on this list is small by comparison.
 
 ### 2. `obj` → `Dynamic` renames
 

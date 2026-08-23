@@ -99,7 +99,7 @@ open Fable.Beam.Maps
 let pid = self ()
 let ref = makeRef ()
 let child = spawn (fun () ->
-    timer.sleep 1000
+    Timer.sleep 1000
 )
 
 // Send and receive messages
@@ -121,8 +121,8 @@ let m = maps.put ("key", 42, m)
 let v = maps.get ("key", m)  // returns int
 
 // Timers
-timer.sleep 100
-let ms = timer.seconds 30  // 30000
+Timer.sleep 100
+let ms = Timer.seconds 30  // 30000
 
 // Process monitoring
 let monRef = monitor child
@@ -138,9 +138,9 @@ let value = get (box "my_key")
 ```fsharp
 open Fable.Beam.Jsx.Jsx
 
-let json = jsx.encode {| name = "world" |}
-let valid = jsx.is_json (json, [strict])
-let mini = jsx.minify """{ "key" : "value" }"""
+let json = encode {| name = "world" |}
+let valid = isJsonWith json [ strict ]
+let mini = minify """{ "key" : "value" }"""
 ```
 
 ### Ports (external processes)

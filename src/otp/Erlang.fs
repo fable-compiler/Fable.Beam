@@ -91,6 +91,10 @@ let makeRef<'Tag> () : Ref<'Tag> = nativeOnly
 [<Emit("$0 =:= $1")>]
 let exactEquals (a: 'T) (b: 'T) : bool = nativeOnly
 
+/// Returns true if Term is an Erlang list.
+[<Emit("erlang:is_list($0)")>]
+let isList (term: 'T) : bool = nativeOnly
+
 // ============================================================================
 // Time
 // ============================================================================

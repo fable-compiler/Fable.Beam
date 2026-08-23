@@ -9,7 +9,7 @@ open Fable.Beam.Maps
 // fsharplint:disable MemberNames
 
 [<Erase>]
-type IExports =
+type internal IExports =
     /// Log an emergency message.
     abstract emergency: msg: string -> unit
     /// Log an emergency message with metadata or format args.
@@ -84,9 +84,105 @@ type IExports =
     [<Emit("(fun() -> case logger:set_handler_config($0, $1, $2) of ok -> {ok, ok}; {error, LoggerSetHandlerCfg3Reason__} -> {error, LoggerSetHandlerCfg3Reason__} end end)()")>]
     abstract set_handler_config: handlerId: Atom * key: Atom * value: obj -> Result<unit, Dynamic>
 
-/// logger module
+/// Raw logger module binding used only to support implementation details.
 [<ImportAll("logger")>]
-let logger: IExports = nativeOnly
+let internal logger: IExports = nativeOnly
+
+/// Log an emergency message.
+[<Emit("logger:emergency($0)")>]
+let emergency (message: string) : unit = nativeOnly
+
+/// Log an emergency message with metadata or format arguments.
+[<Emit("logger:emergency($0, $1)")>]
+let emergencyWith (message: string) (metadataOrArgs: U2<BeamMap<Atom, obj>, obj list>) : unit = nativeOnly
+
+/// Log an alert message.
+[<Emit("logger:alert($0)")>]
+let alert (message: string) : unit = nativeOnly
+
+/// Log an alert message with metadata or format arguments.
+[<Emit("logger:alert($0, $1)")>]
+let alertWith (message: string) (metadataOrArgs: U2<BeamMap<Atom, obj>, obj list>) : unit = nativeOnly
+
+/// Log a critical message.
+[<Emit("logger:critical($0)")>]
+let critical (message: string) : unit = nativeOnly
+
+/// Log a critical message with metadata or format arguments.
+[<Emit("logger:critical($0, $1)")>]
+let criticalWith (message: string) (metadataOrArgs: U2<BeamMap<Atom, obj>, obj list>) : unit = nativeOnly
+
+/// Log an error message.
+[<Emit("logger:error($0)")>]
+let error (message: string) : unit = nativeOnly
+
+/// Log an error message with metadata or format arguments.
+[<Emit("logger:error($0, $1)")>]
+let errorWith (message: string) (metadataOrArgs: U2<BeamMap<Atom, obj>, obj list>) : unit = nativeOnly
+
+/// Log a warning message.
+[<Emit("logger:warning($0)")>]
+let warning (message: string) : unit = nativeOnly
+
+/// Log a warning message with metadata or format arguments.
+[<Emit("logger:warning($0, $1)")>]
+let warningWith (message: string) (metadataOrArgs: U2<BeamMap<Atom, obj>, obj list>) : unit = nativeOnly
+
+/// Log a notice message.
+[<Emit("logger:notice($0)")>]
+let notice (message: string) : unit = nativeOnly
+
+/// Log a notice message with metadata or format arguments.
+[<Emit("logger:notice($0, $1)")>]
+let noticeWith (message: string) (metadataOrArgs: U2<BeamMap<Atom, obj>, obj list>) : unit = nativeOnly
+
+/// Log an informational message.
+[<Emit("logger:info($0)")>]
+let info (message: string) : unit = nativeOnly
+
+/// Log an informational message with metadata or format arguments.
+[<Emit("logger:info($0, $1)")>]
+let infoWith (message: string) (metadataOrArgs: U2<BeamMap<Atom, obj>, obj list>) : unit = nativeOnly
+
+/// Log a debug message.
+[<Emit("logger:debug($0)")>]
+let debug (message: string) : unit = nativeOnly
+
+/// Log a debug message with metadata or format arguments.
+[<Emit("logger:debug($0, $1)")>]
+let debugWith (message: string) (metadataOrArgs: U2<BeamMap<Atom, obj>, obj list>) : unit = nativeOnly
+
+/// Sets a key in the primary logger configuration.
+[<Emit("(fun() -> case logger:set_primary_config($0, $1) of ok -> {ok, ok}; {error, LoggerSetPrimaryCfgReason__} -> {error, LoggerSetPrimaryCfgReason__} end end)()")>]
+let setPrimaryConfig (key: Atom) (value: Atom) : Result<unit, Dynamic> = nativeOnly
+
+/// Updates one key in a handler's configuration.
+[<Emit("(fun() -> case logger:update_handler_config($0, $1, $2) of ok -> {ok, ok}; {error, LoggerUpdateHandlerCfgReason__} -> {error, LoggerUpdateHandlerCfgReason__} end end)()")>]
+let updateHandlerConfig (handler: Atom) (key: Atom) (value: obj) : Result<unit, Dynamic> = nativeOnly
+
+/// Adds an opaque raw primary filter. Prefer `Filter.addPrimary`.
+[<Emit("(fun() -> case logger:add_primary_filter($0, $1) of ok -> {ok, ok}; {error, LoggerAddPrimaryFilterRawReason__} -> {error, LoggerAddPrimaryFilterRawReason__} end end)()")>]
+let addPrimaryFilterRaw (id: Atom) (filter: obj) : Result<unit, Dynamic> = nativeOnly
+
+/// Adds a logger handler.
+[<Emit("(fun() -> case logger:add_handler($0, $1, $2) of ok -> {ok, ok}; {error, LoggerAddHandlerReason__} -> {error, LoggerAddHandlerReason__} end end)()")>]
+let addHandler (handlerId: Atom) (``module``: Atom) (config: BeamMap<Atom, obj>) : Result<unit, Dynamic> = nativeOnly
+
+/// Removes a logger handler.
+[<Emit("(fun() -> case logger:remove_handler($0) of ok -> {ok, ok}; {error, LoggerRemoveHandlerReason__} -> {error, LoggerRemoveHandlerReason__} end end)()")>]
+let removeHandler (handlerId: Atom) : Result<unit, Dynamic> = nativeOnly
+
+/// Gets a handler's full configuration map.
+[<Emit("logger:get_handler_config($0)")>]
+let getHandlerConfig (handlerId: Atom) : Result<BeamMap<Atom, obj>, Dynamic> = nativeOnly
+
+/// Replaces a handler's complete configuration.
+[<Emit("(fun() -> case logger:set_handler_config($0, $1) of ok -> {ok, ok}; {error, LoggerSetHandlerCfg2Reason__} -> {error, LoggerSetHandlerCfg2Reason__} end end)()")>]
+let setHandlerConfig (handlerId: Atom) (config: BeamMap<Atom, obj>) : Result<unit, Dynamic> = nativeOnly
+
+/// Sets one key in a handler's configuration.
+[<Emit("(fun() -> case logger:set_handler_config($0, $1, $2) of ok -> {ok, ok}; {error, LoggerSetHandlerCfg3Reason__} -> {error, LoggerSetHandlerCfg3Reason__} end end)()")>]
+let setHandlerConfigValue (handlerId: Atom) (key: Atom) (value: obj) : Result<unit, Dynamic> = nativeOnly
 
 /// OTP log severity levels (logger:level/0). Each case compiles to the matching
 /// Erlang atom (`emergency`..`debug`). `RequireQualifiedAccess` avoids the clash

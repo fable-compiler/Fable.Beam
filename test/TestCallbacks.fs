@@ -52,32 +52,50 @@ let private nums () : Lists.BeamList<int> = emitErlExpr () "[1, 2, 3]"
 let tests =
     testList (
         "Callbacks",
-        [ test ("curried lambda literal reaches foldl as a 2-arity fun", fun _ ->
-                  assertThat (foldlCurried (fun x acc -> x + acc) 0 (nums ())) (isEqualTo 6))
+        [ test (
+              "curried lambda literal reaches foldl as a 2-arity fun",
+              fun _ -> assertThat (foldlCurried (fun x acc -> x + acc) 0 (nums ())) (isEqualTo 6)
+          )
 
-          test ("System.Func callback behaves identically to the curried form", fun _ ->
-                  assertThat (foldlFunc (System.Func<_, _, _>(fun x acc -> x + acc)) 0 (nums ())) (isEqualTo 6))
+          test (
+              "System.Func callback behaves identically to the curried form",
+              fun _ -> assertThat (foldlFunc (System.Func<_, _, _>(fun x acc -> x + acc)) 0 (nums ())) (isEqualTo 6)
+          )
 
-          test ("named curried function reaches foldl as a 2-arity fun", fun _ ->
-                  assertThat (foldlCurried addFn 0 (nums ())) (isEqualTo 6))
+          test (
+              "named curried function reaches foldl as a 2-arity fun",
+              fun _ -> assertThat (foldlCurried addFn 0 (nums ())) (isEqualTo 6)
+          )
 
-          test ("curried function returned from a function keeps its arity", fun _ ->
+          test (
+              "curried function returned from a function keeps its arity",
+              fun _ ->
                   // Arity is not syntactically visible at the call site.
-                  assertThat (foldlCurried (makeAdder ()) 0 (nums ())) (isEqualTo 6))
+                  assertThat (foldlCurried (makeAdder ()) 0 (nums ())) (isEqualTo 6)
+          )
 
-          test ("partially applied function passes its remaining arity", fun _ ->
+          test (
+              "partially applied function passes its remaining arity",
+              fun _ ->
                   // add3 10 has two arguments left, so it must arrive as a 2-arity fun.
-                  assertThat (foldlCurried (add3 10) 0 (nums ())) (isEqualTo 36))
+                  assertThat (foldlCurried (add3 10) 0 (nums ())) (isEqualTo 36)
+          )
 
-          test ("callback boxed through an obj-typed parameter keeps its arity", fun _ ->
-                  assertThat (foldlObj (box (fun x acc -> x + acc)) 0 (nums ())) (isEqualTo 6))
+          test (
+              "callback boxed through an obj-typed parameter keeps its arity",
+              fun _ -> assertThat (foldlObj (box (fun x acc -> x + acc)) 0 (nums ())) (isEqualTo 6)
+          )
 
-          test ("ImportAll interface member takes a curried 2-arg callback", fun _ ->
-                  assertThat (probeLists.foldl ((fun x acc -> x + acc), 0, nums ())) (isEqualTo 6))
+          test (
+              "ImportAll interface member takes a curried 2-arg callback",
+              fun _ -> assertThat (probeLists.foldl ((fun x acc -> x + acc), 0, nums ())) (isEqualTo 6)
+          )
 
-          test ("ImportAll interface member takes a curried 1-arg callback", fun _ ->
+          test (
+              "ImportAll interface member takes a curried 1-arg callback",
+              fun _ ->
                   let kept = probeLists.filter ((fun x -> x > 1), nums ())
                   let n: int = emitErlExpr kept "erlang:length($0)"
                   assertThat n (isEqualTo 2)
-                  ) ]
+          ) ]
     )

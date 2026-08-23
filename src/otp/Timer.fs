@@ -5,38 +5,40 @@ module Fable.Beam.Timer
 open Fable.Core
 open Fable.Beam
 
-// fsharplint:disable MemberNames
+/// Sends a message to a process after the delay in milliseconds.
+[<Emit("timer:send_after($0, $1, $2)")>]
+let sendAfter (time: int) (dest: Pid<'Msg>) (msg: 'Msg) : Result<TimerRef<'Msg>, Atom> = nativeOnly
 
-[<Erase>]
-type IExports =
-    /// Sends Msg to Dest after Time milliseconds.
-    abstract send_after: time: int * dest: Pid<'Msg> * msg: 'Msg -> Result<TimerRef<'Msg>, Atom>
-    /// Sends Msg to Dest repeatedly every Time milliseconds.
-    abstract send_interval: time: int * dest: Pid<'Msg> * msg: 'Msg -> Result<TimerRef<'Msg>, Atom>
+/// Sends a message to a process repeatedly after the interval in milliseconds.
+[<Emit("timer:send_interval($0, $1, $2)")>]
+let sendInterval (time: int) (dest: Pid<'Msg>) (msg: 'Msg) : Result<TimerRef<'Msg>, Atom> = nativeOnly
 
-    /// Evaluates Fun after Time milliseconds.
-    abstract apply_after:
-        time: int * ``module``: Atom * ``function``: Atom * args: obj list -> Result<TimerRef<'Msg>, Atom>
+/// Evaluates a function after the delay in milliseconds.
+[<Emit("timer:apply_after($0, $1, $2, $3)")>]
+let applyAfter (time: int) (``module``: Atom) (``function``: Atom) (args: obj list) : Result<TimerRef<'Msg>, Atom> =
+    nativeOnly
 
-    /// Evaluates Fun repeatedly every Time milliseconds.
-    abstract apply_interval:
-        time: int * ``module``: Atom * ``function``: Atom * args: obj list -> Result<TimerRef<'Msg>, Atom>
+/// Evaluates a function repeatedly after the interval in milliseconds.
+[<Emit("timer:apply_interval($0, $1, $2, $3)")>]
+let applyInterval (time: int) (``module``: Atom) (``function``: Atom) (args: obj list) : Result<TimerRef<'Msg>, Atom> =
+    nativeOnly
 
-    /// Cancels a previously started timer.
-    abstract cancel: timerRef: TimerRef<'Msg> -> Result<Atom, Atom>
-    /// Suspends the process for Time milliseconds.
-    abstract sleep: time: int -> unit
-    /// Converts hours to milliseconds.
-    abstract hours: hours: int -> int
-    /// Converts minutes to milliseconds.
-    abstract minutes: minutes: int -> int
-    /// Converts seconds to milliseconds.
-    abstract seconds: seconds: int -> int
-
-/// timer module
-[<ImportAll("timer")>]
-let timer: IExports = nativeOnly
+/// Cancels a previously started timer.
+[<Emit("timer:cancel($0)")>]
+let cancel (timerRef: TimerRef<'Msg>) : Result<Atom, Atom> = nativeOnly
 
 /// Suspends the process for the given number of milliseconds.
 [<Emit("timer:sleep($0)")>]
 let sleep (ms: int) : unit = nativeOnly
+
+/// Converts hours to milliseconds.
+[<Emit("timer:hours($0)")>]
+let hours (value: int) : int = nativeOnly
+
+/// Converts minutes to milliseconds.
+[<Emit("timer:minutes($0)")>]
+let minutes (value: int) : int = nativeOnly
+
+/// Converts seconds to milliseconds.
+[<Emit("timer:seconds($0)")>]
+let seconds (value: int) : int = nativeOnly
