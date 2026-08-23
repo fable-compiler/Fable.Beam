@@ -10,63 +10,69 @@ open Fable.Core
 [<Erase>]
 type Queue<'a> = Queue of obj
 
-[<Erase>]
-type IExports =
-    /// Creates a new empty queue.
-    abstract ``new``: unit -> Queue<'a>
+/// Creates a new empty queue.
+[<Emit("queue:new()")>]
+let empty<'a> () : Queue<'a> = nativeOnly
 
-    /// Tests if Q is an empty queue.
-    abstract is_empty: q: Queue<'a> -> bool
+/// Tests if Q is an empty queue.
+[<Emit("queue:is_empty($0)")>]
+let isEmpty (queue: Queue<'a>) : bool = nativeOnly
 
-    /// Tests if Term is a queue.
-    abstract is_queue: term: obj -> bool
+/// Tests if Term is a queue.
+[<Emit("queue:is_queue($0)")>]
+let isQueue (term: obj) : bool = nativeOnly
 
-    /// Returns the number of elements in queue Q. O(1) time.
-    abstract len: q: Queue<'a> -> int
+/// Returns the number of elements in Q. O(1) time.
+[<Emit("queue:len($0)")>]
+let length (queue: Queue<'a>) : int = nativeOnly
 
-    /// Inserts Item at the rear of queue Q. Returns the resulting queue. O(1) time.
-    abstract ``in``: item: 'a * q: Queue<'a> -> Queue<'a>
+/// Inserts an item at the rear. O(1) time.
+[<Emit("queue:in($0, $1)")>]
+let enqueue (item: 'a) (queue: Queue<'a>) : Queue<'a> = nativeOnly
 
-    /// Inserts Item at the front of queue Q. Returns the resulting queue. O(1) time.
-    abstract in_r: item: 'a * q: Queue<'a> -> Queue<'a>
+/// Inserts an item at the front. O(1) time.
+[<Emit("queue:in_r($0, $1)")>]
+let enqueueFront (item: 'a) (queue: Queue<'a>) : Queue<'a> = nativeOnly
 
-    /// Returns the front element of Q without removing it.
-    /// Raises an error on an empty queue — use peek for a safe alternative.
-    abstract head: q: Queue<'a> -> 'a
+/// Returns the front element. Raises an error on an empty queue — use peek for a safe alternative.
+[<Emit("queue:head($0)")>]
+let head (queue: Queue<'a>) : 'a = nativeOnly
 
-    /// Returns the rear element of Q without removing it.
-    /// Raises an error on an empty queue — use peekRear for a safe alternative.
-    abstract last: q: Queue<'a> -> 'a
+/// Returns the rear element. Raises an error on an empty queue — use peekRear for a safe alternative.
+[<Emit("queue:last($0)")>]
+let last (queue: Queue<'a>) : 'a = nativeOnly
 
-    /// Returns Q with the front element removed.
-    /// Raises an error on an empty queue.
-    abstract tail: q: Queue<'a> -> Queue<'a>
+/// Returns Q with the front element removed. Raises an error on an empty queue.
+[<Emit("queue:tail($0)")>]
+let tail (queue: Queue<'a>) : Queue<'a> = nativeOnly
 
-    /// Returns Q with the rear element removed.
-    /// Raises an error on an empty queue.
-    abstract init: q: Queue<'a> -> Queue<'a>
+/// Returns Q with the rear element removed. Raises an error on an empty queue.
+[<Emit("queue:init($0)")>]
+let init (queue: Queue<'a>) : Queue<'a> = nativeOnly
 
-    /// Converts the queue to a list, front first.
-    abstract to_list: q: Queue<'a> -> 'a list
+/// Converts the queue to a list, front first.
+[<Emit("queue:to_list($0)")>]
+let toList (queue: Queue<'a>) : 'a list = nativeOnly
 
-    /// Builds a queue from a list. The head of the list becomes the front element.
-    abstract from_list: l: 'a list -> Queue<'a>
+/// Builds a queue from a list. The head of the list becomes the front element.
+[<Emit("queue:from_list($0)")>]
+let ofList (items: 'a list) : Queue<'a> = nativeOnly
 
-    /// Returns true if Item is a member of Q, otherwise false. O(n) time.
-    abstract ``member``: item: 'a * q: Queue<'a> -> bool
+/// Returns true if Item is a member of Q, otherwise false. O(n) time.
+[<Emit("queue:member($0, $1)")>]
+let contains (item: 'a) (queue: Queue<'a>) : bool = nativeOnly
 
-    /// Returns a queue Q2 that is the reverse of Q1.
-    abstract reverse: q: Queue<'a> -> Queue<'a>
+/// Returns a queue with the reverse ordering.
+[<Emit("queue:reverse($0)")>]
+let reverse (queue: Queue<'a>) : Queue<'a> = nativeOnly
 
-    /// Joins Q1 and Q2. The rear of Q1 becomes the front of Q2. O(1) time.
-    abstract join: q1: Queue<'a> * q2: Queue<'a> -> Queue<'a>
+/// Joins Q1 and Q2. The rear of Q1 becomes the front of Q2. O(1) time.
+[<Emit("queue:join($0, $1)")>]
+let join (first: Queue<'a>) (second: Queue<'a>) : Queue<'a> = nativeOnly
 
-    /// Returns a queue of all elements of Q for which Pred(Elem) returns true.
-    abstract filter: pred: ('a -> bool) * q: Queue<'a> -> Queue<'a>
-
-/// queue module
-[<ImportAll("queue")>]
-let queue: IExports = nativeOnly
+/// Returns a queue of all elements for which the predicate returns true.
+[<Emit("queue:filter($0, $1)")>]
+let filter (predicate: 'a -> bool) (queue: Queue<'a>) : Queue<'a> = nativeOnly
 
 // ============================================================================
 // Typed API — functions with non-trivial Erlang return values
