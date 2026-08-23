@@ -1,364 +1,181 @@
 module Fable.Beam.Tests.Calendar
 
-open Fable.Beam.Testing
+open Scriptorium.Quill
+open Scriptorium.Nib.Assertion
+open type Scriptorium.Quill.Test
 
-#if FABLE_COMPILER
 open Fable.Core
 open Fable.Core.BeamInterop
 open Fable.Beam
 open Fable.Beam.Calendar
-#endif
 
-// ============================================================================
-// is_leap_year
-// ============================================================================
+let tests =
+    testList (
+        "Calendar",
+        [ test ("is_leap_year returns true for 2000", fun _ ->
+                assertThat (calendar.is_leap_year 2000) (isTrue))
 
-[<Fact>]
-let ``test calendar.is_leap_year returns true for 2000`` () =
-#if FABLE_COMPILER
-    calendar.is_leap_year 2000 |> equal true
-#else
-    ()
-#endif
+          test ("is_leap_year returns true for 2024", fun _ ->
+                  assertThat (calendar.is_leap_year 2024) (isTrue))
 
-[<Fact>]
-let ``test calendar.is_leap_year returns true for 2024`` () =
-#if FABLE_COMPILER
-    calendar.is_leap_year 2024 |> equal true
-#else
-    ()
-#endif
+          test ("is_leap_year returns false for 1900", fun _ ->
+                  // 1900 is divisible by 100 but not 400 — not a leap year
+                  assertThat (calendar.is_leap_year 1900) (isFalse))
 
-[<Fact>]
-let ``test calendar.is_leap_year returns false for 1900`` () =
-#if FABLE_COMPILER
-    // 1900 is divisible by 100 but not 400 — not a leap year
-    calendar.is_leap_year 1900 |> equal false
-#else
-    ()
-#endif
+          test ("is_leap_year returns false for 2023", fun _ ->
+                  assertThat (calendar.is_leap_year 2023) (isFalse))
 
-[<Fact>]
-let ``test calendar.is_leap_year returns false for 2023`` () =
-#if FABLE_COMPILER
-    calendar.is_leap_year 2023 |> equal false
-#else
-    ()
-#endif
+          test ("last_day_of_the_month returns 31 for January", fun _ ->
+                  assertThat (calendar.last_day_of_the_month (2024, 1)) (isEqualTo 31))
 
-// ============================================================================
-// last_day_of_the_month
-// ============================================================================
+          test ("last_day_of_the_month returns 29 for February in leap year", fun _ ->
+                  assertThat (calendar.last_day_of_the_month (2024, 2)) (isEqualTo 29))
 
-[<Fact>]
-let ``test calendar.last_day_of_the_month returns 31 for January`` () =
-#if FABLE_COMPILER
-    calendar.last_day_of_the_month (2024, 1) |> equal 31
-#else
-    ()
-#endif
+          test ("last_day_of_the_month returns 28 for February in non-leap year", fun _ ->
+                  assertThat (calendar.last_day_of_the_month (2023, 2)) (isEqualTo 28))
 
-[<Fact>]
-let ``test calendar.last_day_of_the_month returns 29 for February in leap year`` () =
-#if FABLE_COMPILER
-    calendar.last_day_of_the_month (2024, 2) |> equal 29
-#else
-    ()
-#endif
+          test ("last_day_of_the_month returns 30 for April", fun _ ->
+                  assertThat (calendar.last_day_of_the_month (2024, 4)) (isEqualTo 30))
 
-[<Fact>]
-let ``test calendar.last_day_of_the_month returns 28 for February in non-leap year`` () =
-#if FABLE_COMPILER
-    calendar.last_day_of_the_month (2023, 2) |> equal 28
-#else
-    ()
-#endif
+          test ("day_of_the_week returns 1 for Monday", fun _ ->
+                  // 2024-01-01 is a Monday
+                  assertThat (calendar.day_of_the_week (2024, 1, 1)) (isEqualTo 1))
 
-[<Fact>]
-let ``test calendar.last_day_of_the_month returns 30 for April`` () =
-#if FABLE_COMPILER
-    calendar.last_day_of_the_month (2024, 4) |> equal 30
-#else
-    ()
-#endif
+          test ("day_of_the_week returns 7 for Sunday", fun _ ->
+                  // 2024-01-07 is a Sunday
+                  assertThat (calendar.day_of_the_week (2024, 1, 7)) (isEqualTo 7))
 
-// ============================================================================
-// day_of_the_week
-// ============================================================================
+          test ("day_of_the_week returns 5 for Friday", fun _ ->
+                  // 2024-01-05 is a Friday
+                  assertThat (calendar.day_of_the_week (2024, 1, 5)) (isEqualTo 5))
 
-[<Fact>]
-let ``test calendar.day_of_the_week returns 1 for Monday`` () =
-#if FABLE_COMPILER
-    // 2024-01-01 is a Monday
-    calendar.day_of_the_week (2024, 1, 1) |> equal 1
-#else
-    ()
-#endif
+          test ("date_to_gregorian_days for known date", fun _ ->
+                  // Erlang epoch: 0000-01-01. Days to 2000-01-01 = 730485
+                  assertThat (calendar.date_to_gregorian_days (2000, 1, 1)) (isEqualTo 730485))
 
-[<Fact>]
-let ``test calendar.day_of_the_week returns 7 for Sunday`` () =
-#if FABLE_COMPILER
-    // 2024-01-07 is a Sunday
-    calendar.day_of_the_week (2024, 1, 7) |> equal 7
-#else
-    ()
-#endif
+          test ("gregorian_days_to_date roundtrip", fun _ ->
+                  let days = calendar.date_to_gregorian_days (2024, 3, 15)
+                  let (y, m, d) = calendar.gregorian_days_to_date days
+                  assertThat y (isEqualTo 2024)
+                  assertThat m (isEqualTo 3)
+                  assertThat d (isEqualTo 15))
 
-[<Fact>]
-let ``test calendar.day_of_the_week returns 5 for Friday`` () =
-#if FABLE_COMPILER
-    // 2024-01-05 is a Friday
-    calendar.day_of_the_week (2024, 1, 5) |> equal 5
-#else
-    ()
-#endif
+          test ("gregorian_days_to_date for known days", fun _ ->
+                  let (y, m, d) = calendar.gregorian_days_to_date 730485
+                  assertThat y (isEqualTo 2000)
+                  assertThat m (isEqualTo 1)
+                  assertThat d (isEqualTo 1))
 
-// ============================================================================
-// date_to_gregorian_days / gregorian_days_to_date roundtrip
-// ============================================================================
+          test ("timeToSeconds midnight is zero", fun _ ->
+                  assertThat (timeToSeconds (0, 0, 0)) (isEqualTo 0))
 
-[<Fact>]
-let ``test calendar.date_to_gregorian_days for known date`` () =
-#if FABLE_COMPILER
-    // Erlang epoch: 0000-01-01. Days to 2000-01-01 = 730485
-    calendar.date_to_gregorian_days (2000, 1, 1) |> equal 730485
-#else
-    ()
-#endif
+          test ("timeToSeconds for noon", fun _ ->
+                  // 12:00:00 = 12 * 3600 = 43200 seconds
+                  assertThat (timeToSeconds (12, 0, 0)) (isEqualTo 43200))
 
-[<Fact>]
-let ``test calendar.gregorian_days_to_date roundtrip`` () =
-#if FABLE_COMPILER
-    let days = calendar.date_to_gregorian_days (2024, 3, 15)
-    let (y, m, d) = calendar.gregorian_days_to_date days
-    y |> equal 2024
-    m |> equal 3
-    d |> equal 15
-#else
-    ()
-#endif
+          test ("timeToSeconds for 1:30:30", fun _ ->
+                  // 1*3600 + 30*60 + 30 = 5430
+                  assertThat (timeToSeconds (1, 30, 30)) (isEqualTo 5430))
 
-[<Fact>]
-let ``test calendar.gregorian_days_to_date for known days`` () =
-#if FABLE_COMPILER
-    let (y, m, d) = calendar.gregorian_days_to_date 730485
-    y |> equal 2000
-    m |> equal 1
-    d |> equal 1
-#else
-    ()
-#endif
+          test ("secondsToTime roundtrip", fun _ ->
+                  let (h, m, s) = secondsToTime 5430
+                  assertThat h (isEqualTo 1)
+                  assertThat m (isEqualTo 30)
+                  assertThat s (isEqualTo 30))
 
-// ============================================================================
-// timeToSeconds / secondsToTime roundtrip
-// ============================================================================
+          test ("secondsToTime for noon", fun _ ->
+                  let (h, m, s) = secondsToTime 43200
+                  assertThat h (isEqualTo 12)
+                  assertThat m (isEqualTo 0)
+                  assertThat s (isEqualTo 0))
 
-[<Fact>]
-let ``test calendar.timeToSeconds midnight is zero`` () =
-#if FABLE_COMPILER
-    timeToSeconds (0, 0, 0) |> equal 0
-#else
-    ()
-#endif
+          test ("datetimeToGregorianSeconds and back roundtrip", fun _ ->
+                  let dt: DateTime = (2024, 3, 15), (10, 30, 0)
+                  let secs = datetimeToGregorianSeconds dt
+                  let ((y, mo, d), (h, mi, s)) = calendar.gregorian_seconds_to_datetime secs
+                  assertThat y (isEqualTo 2024)
+                  assertThat mo (isEqualTo 3)
+                  assertThat d (isEqualTo 15)
+                  assertThat h (isEqualTo 10)
+                  assertThat mi (isEqualTo 30)
+                  assertThat s (isEqualTo 0))
 
-[<Fact>]
-let ``test calendar.timeToSeconds for noon`` () =
-#if FABLE_COMPILER
-    // 12:00:00 = 12 * 3600 = 43200 seconds
-    timeToSeconds (12, 0, 0) |> equal 43200
-#else
-    ()
-#endif
+          test ("datetimeToGregorianSeconds for known value", fun _ ->
+                  // 2000-01-01 00:00:00 = 730485 days * 86400 s/day = 63113904000
+                  let secs = datetimeToGregorianSeconds ((2000, 1, 1), (0, 0, 0))
+                  assertThat secs (isEqualTo 63113904000L))
 
-[<Fact>]
-let ``test calendar.timeToSeconds for 1:30:30`` () =
-#if FABLE_COMPILER
-    // 1*3600 + 30*60 + 30 = 5430
-    timeToSeconds (1, 30, 30) |> equal 5430
-#else
-    ()
-#endif
+          test ("local_time returns plausible datetime", fun _ ->
+                  let ((y, mo, d), (h, mi, s)) = calendar.local_time ()
+                  assertThat (y >= 2024) (isTrue)
+                  assertThat (mo >= 1 && mo <= 12) (isTrue)
+                  assertThat (d >= 1 && d <= 31) (isTrue)
+                  assertThat (h >= 0 && h <= 23) (isTrue)
+                  assertThat (mi >= 0 && mi <= 59) (isTrue)
+                  assertThat (s >= 0 && s <= 60) (isTrue))
 
-[<Fact>]
-let ``test calendar.secondsToTime roundtrip`` () =
-#if FABLE_COMPILER
-    let (h, m, s) = secondsToTime 5430
-    h |> equal 1
-    m |> equal 30
-    s |> equal 30
-#else
-    ()
-#endif
+          test ("universal_time returns plausible datetime", fun _ ->
+                  let ((y, _, _), _) = calendar.universal_time ()
+                  assertThat (y >= 2024) (isTrue))
 
-[<Fact>]
-let ``test calendar.secondsToTime for noon`` () =
-#if FABLE_COMPILER
-    let (h, m, s) = secondsToTime 43200
-    h |> equal 12
-    m |> equal 0
-    s |> equal 0
-#else
-    ()
-#endif
+          test ("localTimeToUniversalTime returns plausible datetime", fun _ ->
+                  let ((y, mo, d), (h, mi, s)) = localTimeToUniversalTime ((2024, 6, 15), (12, 0, 0))
+                  // Crossing tz can shift the date by one day, so we allow the year to differ by 1.
+                  assertThat (y >= 2023 && y <= 2025) (isTrue)
+                  assertThat (mo >= 1 && mo <= 12) (isTrue)
+                  assertThat (d >= 1 && d <= 31) (isTrue)
+                  assertThat (h >= 0 && h <= 23) (isTrue)
+                  assertThat (mi >= 0 && mi <= 59) (isTrue)
+                  assertThat (s >= 0 && s <= 60) (isTrue))
 
-// ============================================================================
-// datetimeToGregorianSeconds / gregorian_seconds_to_datetime roundtrip
-// ============================================================================
+          test ("universalTimeToLocalTime returns plausible datetime", fun _ ->
+                  let ((y, mo, d), (h, mi, s)) = universalTimeToLocalTime ((2024, 6, 15), (12, 0, 0))
+                  assertThat (y >= 2023 && y <= 2025) (isTrue)
+                  assertThat (mo >= 1 && mo <= 12) (isTrue)
+                  assertThat (d >= 1 && d <= 31) (isTrue)
+                  assertThat (h >= 0 && h <= 23) (isTrue)
+                  assertThat (mi >= 0 && mi <= 59) (isTrue)
+                  assertThat (s >= 0 && s <= 60) (isTrue))
 
-[<Fact>]
-let ``test calendar.datetimeToGregorianSeconds and back roundtrip`` () =
-#if FABLE_COMPILER
-    let dt: DateTime = (2024, 3, 15), (10, 30, 0)
-    let secs = datetimeToGregorianSeconds dt
-    let ((y, mo, d), (h, mi, s)) = calendar.gregorian_seconds_to_datetime secs
-    y |> equal 2024
-    mo |> equal 3
-    d |> equal 15
-    h |> equal 10
-    mi |> equal 30
-    s |> equal 0
-#else
-    ()
-#endif
+          test ("localTimeToUniversalTime then back roundtrips", fun _ ->
+                  let original: DateTime = (2024, 6, 15), (12, 0, 0)
+                  let utc = localTimeToUniversalTime original
+                  let roundtrip = universalTimeToLocalTime utc
+                  assertThat roundtrip (isEqualTo original))
 
-[<Fact>]
-let ``test calendar.datetimeToGregorianSeconds for known value`` () =
-#if FABLE_COMPILER
-    // 2000-01-01 00:00:00 = 730485 days * 86400 s/day = 63113904000
-    let secs = datetimeToGregorianSeconds ((2000, 1, 1), (0, 0, 0))
-    secs |> equal 63113904000L
-#else
-    ()
-#endif
+          test ("system_time_to_universal_time for unix epoch", fun _ ->
+                  // Unix epoch 0 seconds = 1970-01-01 00:00:00 UTC
+                  let ((y, mo, d), (h, mi, s)) =
+                      calendar.system_time_to_universal_time (0L, TimeUnit.Second)
 
-// ============================================================================
-// local_time / universal_time (sanity checks)
-// ----------------------------------------------------------------------------
-// `calendar:date/0` and `calendar:time/0` do NOT exist in the calendar module
-// (they live in `erlang`), so no tests for them here.
-// ============================================================================
+                  assertThat y (isEqualTo 1970)
+                  assertThat mo (isEqualTo 1)
+                  assertThat d (isEqualTo 1)
+                  assertThat h (isEqualTo 0)
+                  assertThat mi (isEqualTo 0)
+                  assertThat s (isEqualTo 0))
 
-[<Fact>]
-let ``test calendar.local_time returns plausible datetime`` () =
-#if FABLE_COMPILER
-    let ((y, mo, d), (h, mi, s)) = calendar.local_time ()
-    (y >= 2024) |> equal true
-    (mo >= 1 && mo <= 12) |> equal true
-    (d >= 1 && d <= 31) |> equal true
-    (h >= 0 && h <= 23) |> equal true
-    (mi >= 0 && mi <= 59) |> equal true
-    (s >= 0 && s <= 60) |> equal true
-#else
-    ()
-#endif
+          test ("system_time_to_universal_time for known second", fun _ ->
+                  // 1700000000 seconds since the Unix epoch = 2023-11-14 22:13:20 UTC
+                  let ((y, mo, d), (h, mi, s)) =
+                      calendar.system_time_to_universal_time (1700000000L, TimeUnit.Second)
 
-[<Fact>]
-let ``test calendar.universal_time returns plausible datetime`` () =
-#if FABLE_COMPILER
-    let ((y, _, _), _) = calendar.universal_time ()
-    (y >= 2024) |> equal true
-#else
-    ()
-#endif
+                  assertThat y (isEqualTo 2023)
+                  assertThat mo (isEqualTo 11)
+                  assertThat d (isEqualTo 14)
+                  assertThat h (isEqualTo 22)
+                  assertThat mi (isEqualTo 13)
+                  assertThat s (isEqualTo 20))
 
-// ============================================================================
-// localTimeToUniversalTime / universalTimeToLocalTime smoke tests
-// ----------------------------------------------------------------------------
-// Result depends on the system's time zone, so we only assert structural
-// validity (year preserved within ±1, month/day/hour/minute/second in range).
-// ============================================================================
+          test ("system_time_to_local_time returns plausible datetime", fun _ ->
+                  // Local time depends on the system time zone, so only assert structural validity.
+                  let ((y, mo, d), (h, mi, s)) =
+                      calendar.system_time_to_local_time (1700000000L, TimeUnit.Second)
 
-[<Fact>]
-let ``test calendar.localTimeToUniversalTime returns plausible datetime`` () =
-#if FABLE_COMPILER
-    let ((y, mo, d), (h, mi, s)) = localTimeToUniversalTime ((2024, 6, 15), (12, 0, 0))
-    // Crossing tz can shift the date by one day, so we allow the year to differ by 1.
-    (y >= 2023 && y <= 2025) |> equal true
-    (mo >= 1 && mo <= 12) |> equal true
-    (d >= 1 && d <= 31) |> equal true
-    (h >= 0 && h <= 23) |> equal true
-    (mi >= 0 && mi <= 59) |> equal true
-    (s >= 0 && s <= 60) |> equal true
-#else
-    ()
-#endif
-
-[<Fact>]
-let ``test calendar.universalTimeToLocalTime returns plausible datetime`` () =
-#if FABLE_COMPILER
-    let ((y, mo, d), (h, mi, s)) = universalTimeToLocalTime ((2024, 6, 15), (12, 0, 0))
-    (y >= 2023 && y <= 2025) |> equal true
-    (mo >= 1 && mo <= 12) |> equal true
-    (d >= 1 && d <= 31) |> equal true
-    (h >= 0 && h <= 23) |> equal true
-    (mi >= 0 && mi <= 59) |> equal true
-    (s >= 0 && s <= 60) |> equal true
-#else
-    ()
-#endif
-
-[<Fact>]
-let ``test calendar.localTimeToUniversalTime then back roundtrips`` () =
-#if FABLE_COMPILER
-    let original: DateTime = (2024, 6, 15), (12, 0, 0)
-    let utc = localTimeToUniversalTime original
-    let roundtrip = universalTimeToLocalTime utc
-    roundtrip |> equal original
-#else
-    ()
-#endif
-
-// ============================================================================
-// system_time_to_universal_time / system_time_to_local_time
-// ============================================================================
-
-[<Fact>]
-let ``test calendar.system_time_to_universal_time for unix epoch`` () =
-#if FABLE_COMPILER
-    // Unix epoch 0 seconds = 1970-01-01 00:00:00 UTC
-    let ((y, mo, d), (h, mi, s)) =
-        calendar.system_time_to_universal_time (0L, TimeUnit.Second)
-
-    y |> equal 1970
-    mo |> equal 1
-    d |> equal 1
-    h |> equal 0
-    mi |> equal 0
-    s |> equal 0
-#else
-    ()
-#endif
-
-[<Fact>]
-let ``test calendar.system_time_to_universal_time for known second`` () =
-#if FABLE_COMPILER
-    // 1700000000 seconds since the Unix epoch = 2023-11-14 22:13:20 UTC
-    let ((y, mo, d), (h, mi, s)) =
-        calendar.system_time_to_universal_time (1700000000L, TimeUnit.Second)
-
-    y |> equal 2023
-    mo |> equal 11
-    d |> equal 14
-    h |> equal 22
-    mi |> equal 13
-    s |> equal 20
-#else
-    ()
-#endif
-
-[<Fact>]
-let ``test calendar.system_time_to_local_time returns plausible datetime`` () =
-#if FABLE_COMPILER
-    // Local time depends on the system time zone, so only assert structural validity.
-    let ((y, mo, d), (h, mi, s)) =
-        calendar.system_time_to_local_time (1700000000L, TimeUnit.Second)
-
-    (y >= 2023 && y <= 2024) |> equal true
-    (mo >= 1 && mo <= 12) |> equal true
-    (d >= 1 && d <= 31) |> equal true
-    (h >= 0 && h <= 23) |> equal true
-    (mi >= 0 && mi <= 59) |> equal true
-    (s >= 0 && s <= 60) |> equal true
-#else
-    ()
-#endif
+                  assertThat (y >= 2023 && y <= 2024) (isTrue)
+                  assertThat (mo >= 1 && mo <= 12) (isTrue)
+                  assertThat (d >= 1 && d <= 31) (isTrue)
+                  assertThat (h >= 0 && h <= 23) (isTrue)
+                  assertThat (mi >= 0 && mi <= 59) (isTrue)
+                  assertThat (s >= 0 && s <= 60) (isTrue)) ]
+    )

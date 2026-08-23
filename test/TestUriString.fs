@@ -1,250 +1,116 @@
 module Fable.Beam.Tests.UriString
 
-open Fable.Beam.Testing
+open Scriptorium.Quill
+open Scriptorium.Nib.Assertion
+open type Scriptorium.Quill.Test
 
-#if FABLE_COMPILER
 open Fable.Core
 open Fable.Core.BeamInterop
 open Fable.Beam.UriString
-#endif
 
-// ============================================================================
-// parse + accessors
-// ============================================================================
+let tests =
+    testList (
+        "UriString",
+        [ test ("parse full uri", fun _ ->
+                  match parse "https://user:pass@example.com:8080/path?q=hello#frag" with
+                  | Ok uri ->
+                      assertThat (scheme uri) (isEqualTo (Some "https"))
+                      assertThat (userinfo uri) (isEqualTo (Some "user:pass"))
+                      assertThat (host uri) (isEqualTo (Some "example.com"))
+                      assertThat (port uri) (isEqualTo (Some 8080))
+                      assertThat (path uri) (isEqualTo (Some "/path"))
+                      assertThat (query uri) (isEqualTo (Some "q=hello"))
+                      assertThat (fragment uri) (isEqualTo (Some "frag"))
+                  | Error _ -> failwith "expected a parsed uri"
+                  )
 
-[<Fact>]
-let ``test parse full uri`` () =
-#if FABLE_COMPILER
-    match parse "https://user:pass@example.com:8080/path?q=hello#frag" with
-    | Ok uri ->
-        scheme uri |> equal (Some "https")
-        userinfo uri |> equal (Some "user:pass")
-        host uri |> equal (Some "example.com")
-        port uri |> equal (Some 8080)
-        path uri |> equal (Some "/path")
-        query uri |> equal (Some "q=hello")
-        fragment uri |> equal (Some "frag")
-    | Error _ -> false |> equal true
-#else
-    ()
-#endif
+          test ("parse minimal uri", fun _ ->
+                  match parse "https://example.com" with
+                  | Ok uri ->
+                      assertThat (scheme uri) (isEqualTo (Some "https"))
+                      assertThat (host uri) (isEqualTo (Some "example.com"))
+                      assertThat (port uri) (isEqualTo None)
+                      assertThat (query uri) (isEqualTo None)
+                      assertThat (fragment uri) (isEqualTo None)
+                  | Error _ -> failwith "expected a parsed uri"
+                  )
 
-[<Fact>]
-let ``test parse minimal uri`` () =
-#if FABLE_COMPILER
-    match parse "https://example.com" with
-    | Ok uri ->
-        scheme uri |> equal (Some "https")
-        host uri |> equal (Some "example.com")
-        port uri |> equal None
-        query uri |> equal None
-        fragment uri |> equal None
-    | Error _ -> false |> equal true
-#else
-    ()
-#endif
+          test ("parse relative uri has no scheme or host", fun _ ->
+                  match parse "/relative/path" with
+                  | Ok uri ->
+                      assertThat (scheme uri) (isEqualTo None)
+                      assertThat (host uri) (isEqualTo None)
+                      assertThat (path uri) (isEqualTo (Some "/relative/path"))
+                  | Error _ -> failwith "expected a parsed uri"
+                  )
 
-[<Fact>]
-let ``test parse relative uri has no scheme or host`` () =
-#if FABLE_COMPILER
-    match parse "/relative/path" with
-    | Ok uri ->
-        scheme uri |> equal None
-        host uri |> equal None
-        path uri |> equal (Some "/relative/path")
-    | Error _ -> false |> equal true
-#else
-    ()
-#endif
+          test ("parse path only uri", fun _ ->
+                  match parse "just/a/path" with
+                  | Ok uri ->
+                      assertThat (scheme uri) (isEqualTo None)
+                      assertThat (host uri) (isEqualTo None)
+                      assertThat (path uri) (isEqualTo (Some "just/a/path"))
+                  | Error _ -> failwith "expected a parsed uri"
+                  )
 
-[<Fact>]
-let ``test parse path only uri`` () =
-#if FABLE_COMPILER
-    match parse "just/a/path" with
-    | Ok uri ->
-        scheme uri |> equal None
-        host uri |> equal None
-        path uri |> equal (Some "just/a/path")
-    | Error _ -> false |> equal true
-#else
-    ()
-#endif
+          test ("normalize lowercases scheme and host", fun _ ->
+                  assertThat (normalize "HTTP://EXAMPLE.COM/path") (isEqualTo (Ok "http://example.com/path")))
 
-// ============================================================================
-// normalize
-// ============================================================================
+          test ("normalize removes default http port", fun _ ->
+                  assertThat (normalize "http://example.com:80/path") (isEqualTo (Ok "http://example.com/path")))
 
-[<Fact>]
-let ``test normalize lowercases scheme and host`` () =
-#if FABLE_COMPILER
-    normalize "HTTP://EXAMPLE.COM/path" |> equal (Ok "http://example.com/path")
-#else
-    ()
-#endif
+          test ("normalize removes default https port", fun _ ->
+                  assertThat (normalize "https://example.com:443/path") (isEqualTo (Ok "https://example.com/path")))
 
-[<Fact>]
-let ``test normalize removes default http port`` () =
-#if FABLE_COMPILER
-    normalize "http://example.com:80/path" |> equal (Ok "http://example.com/path")
-#else
-    ()
-#endif
+          test ("normalize resolves dot segments", fun _ ->
+                  assertThat (normalize "http://example.com/a/b/../c") (isEqualTo (Ok "http://example.com/a/c")))
 
-[<Fact>]
-let ``test normalize removes default https port`` () =
-#if FABLE_COMPILER
-    normalize "https://example.com:443/path"
-    |> equal (Ok "https://example.com/path")
-#else
-    ()
-#endif
+          test ("resolve absolute path reference", fun _ ->
+                  assertThat (resolve "/new" "https://example.com/old/page") (isEqualTo (Ok "https://example.com/new")))
 
-[<Fact>]
-let ``test normalize resolves dot segments`` () =
-#if FABLE_COMPILER
-    normalize "http://example.com/a/b/../c" |> equal (Ok "http://example.com/a/c")
-#else
-    ()
-#endif
+          test ("resolve relative path reference", fun _ ->
+                  assertThat (resolve "new" "https://example.com/old/page") (isEqualTo (Ok "https://example.com/old/new")))
 
-// ============================================================================
-// resolve
-// ============================================================================
+          test ("resolve full uri preserves reference", fun _ ->
+                  assertThat (resolve "https://other.com/path" "https://example.com/base") (isEqualTo (Ok "https://other.com/path")))
 
-[<Fact>]
-let ``test resolve absolute path reference`` () =
-#if FABLE_COMPILER
-    resolve "/new" "https://example.com/old/page"
-    |> equal (Ok "https://example.com/new")
-#else
-    ()
-#endif
+          test ("dissect query parses key value pairs", fun _ ->
+                  assertThat (dissectQuery "q=hello&lang=en") (isEqualTo [ ("q", "hello"); ("lang", "en") ]))
 
-[<Fact>]
-let ``test resolve relative path reference`` () =
-#if FABLE_COMPILER
-    resolve "new" "https://example.com/old/page"
-    |> equal (Ok "https://example.com/old/new")
-#else
-    ()
-#endif
+          test ("dissect query empty string", fun _ ->
+                  assertThat (dissectQuery "") (isEqualTo []))
 
-[<Fact>]
-let ``test resolve full uri preserves reference`` () =
-#if FABLE_COMPILER
-    resolve "https://other.com/path" "https://example.com/base"
-    |> equal (Ok "https://other.com/path")
-#else
-    ()
-#endif
+          test ("compose query builds query string", fun _ ->
+                  assertThat (composeQuery [ ("q", "search"); ("page", "1") ]) (isEqualTo "q=search&page=1"))
 
-// ============================================================================
-// dissectQuery / composeQuery
-// ============================================================================
+          test ("compose query empty list", fun _ ->
+                  assertThat (composeQuery []) (isEqualTo ""))
 
-[<Fact>]
-let ``test dissect query parses key value pairs`` () =
-#if FABLE_COMPILER
-    dissectQuery "q=hello&lang=en" |> equal [ ("q", "hello"); ("lang", "en") ]
-#else
-    ()
-#endif
+          test ("dissect and compose query roundtrip", fun _ ->
+                  let original = "name=Alice&role=admin"
+                  assertThat (original |> dissectQuery |> composeQuery) (isEqualTo original))
 
-[<Fact>]
-let ``test dissect query empty string`` () =
-#if FABLE_COMPILER
-    dissectQuery "" |> equal []
-#else
-    ()
-#endif
+          test ("percent decode decodes encoded chars", fun _ ->
+                  assertThat (percentDecode "hello%20world") (isEqualTo (Ok "hello world")))
 
-[<Fact>]
-let ``test compose query builds query string`` () =
-#if FABLE_COMPILER
-    composeQuery [ ("q", "search"); ("page", "1") ] |> equal "q=search&page=1"
-#else
-    ()
-#endif
+          test ("percent decode passthrough for plain string", fun _ ->
+                  assertThat (percentDecode "hello") (isEqualTo (Ok "hello")))
 
-[<Fact>]
-let ``test compose query empty list`` () =
-#if FABLE_COMPILER
-    composeQuery [] |> equal ""
-#else
-    ()
-#endif
+          test ("percent decode returns error for malformed encoding", fun _ ->
+                  match percentDecode "invalid%GG" with
+                  | Error _ -> assertThat true (isTrue)
+                  | Ok _ -> failwith "expected a malformed-encoding error"
+                  )
 
-[<Fact>]
-let ``test dissect and compose query roundtrip`` () =
-#if FABLE_COMPILER
-    let original = "name=Alice&role=admin"
-    original |> dissectQuery |> composeQuery |> equal original
-#else
-    ()
-#endif
+          test ("quote encodes spaces and slashes", fun _ ->
+                  assertThat (quote "hello world") (isEqualTo "hello%20world"))
 
-// ============================================================================
-// percentDecode
-// ============================================================================
+          test ("quote with safe chars preserves slash", fun _ ->
+                  assertThat (quoteWith "hello/world" "/") (isEqualTo "hello/world"))
 
-[<Fact>]
-let ``test percent decode decodes encoded chars`` () =
-#if FABLE_COMPILER
-    percentDecode "hello%20world" |> equal (Ok "hello world")
-#else
-    ()
-#endif
+          test ("unquote decodes percent encoded string", fun _ ->
+                  assertThat (unquote "hello%20world") (isEqualTo "hello world"))
 
-[<Fact>]
-let ``test percent decode passthrough for plain string`` () =
-#if FABLE_COMPILER
-    percentDecode "hello" |> equal (Ok "hello")
-#else
-    ()
-#endif
-
-[<Fact>]
-let ``test percent decode returns error for malformed encoding`` () =
-#if FABLE_COMPILER
-    match percentDecode "invalid%GG" with
-    | Error _ -> true |> equal true
-    | Ok _ -> false |> equal true
-#else
-    ()
-#endif
-
-// ============================================================================
-// quote / quoteWith / unquote
-// ============================================================================
-
-[<Fact>]
-let ``test quote encodes spaces and slashes`` () =
-#if FABLE_COMPILER
-    quote "hello world" |> equal "hello%20world"
-#else
-    ()
-#endif
-
-[<Fact>]
-let ``test quote with safe chars preserves slash`` () =
-#if FABLE_COMPILER
-    quoteWith "hello/world" "/" |> equal "hello/world"
-#else
-    ()
-#endif
-
-[<Fact>]
-let ``test unquote decodes percent encoded string`` () =
-#if FABLE_COMPILER
-    unquote "hello%20world" |> equal "hello world"
-#else
-    ()
-#endif
-
-[<Fact>]
-let ``test unquote passthrough for plain string`` () =
-#if FABLE_COMPILER
-    unquote "hello" |> equal "hello"
-#else
-    ()
-#endif
+          test ("unquote passthrough for plain string", fun _ ->
+                  assertThat (unquote "hello") (isEqualTo "hello")) ]
+    )

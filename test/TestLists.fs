@@ -1,391 +1,232 @@
 module Fable.Beam.Tests.Lists
 
-open Fable.Beam.Testing
+open Scriptorium.Quill
+open Scriptorium.Nib.Assertion
+open type Scriptorium.Quill.Test
 
-#if FABLE_COMPILER
 open Fable.Core
 open Fable.Core.BeamInterop
 open Fable.Beam.Lists
 
 [<Emit("erlang:length($0)")>]
 let erlLength (xs: BeamList<'T>) : int = nativeOnly
-#endif
 
-[<Fact>]
-let ``test lists.reverse works`` () =
-#if FABLE_COMPILER
-    let xs: BeamList<int> = emitErlExpr () "[1, 2, 3]"
-    let expected: BeamList<int> = emitErlExpr () "[3, 2, 1]"
-    lists.reverse xs |> equal expected
-#else
-    ()
-#endif
+let tests =
+    testList (
+        "Lists",
+        [ test ("reverse works", fun _ ->
+                  let xs: BeamList<int> = emitErlExpr () "[1, 2, 3]"
+                  let expected: BeamList<int> = emitErlExpr () "[3, 2, 1]"
+                  assertThat (lists.reverse xs) (isEqualTo expected))
 
-[<Fact>]
-let ``test lists.member works`` () =
-#if FABLE_COMPILER
-    let xs: BeamList<int> = emitErlExpr () "[1, 2, 3]"
-    lists.``member`` (2, xs) |> equal true
-    lists.``member`` (4, xs) |> equal false
-#else
-    ()
-#endif
+          test ("member works", fun _ ->
+                  let xs: BeamList<int> = emitErlExpr () "[1, 2, 3]"
+                  assertThat (lists.``member`` (2, xs)) (isTrue)
+                  assertThat (lists.``member`` (4, xs)) (isFalse)
+                  )
 
-[<Fact>]
-let ``test lists.sort works`` () =
-#if FABLE_COMPILER
-    let xs: BeamList<int> = emitErlExpr () "[3, 1, 2]"
-    let expected: BeamList<int> = emitErlExpr () "[1, 2, 3]"
-    lists.sort xs |> equal expected
-#else
-    ()
-#endif
+          test ("sort works", fun _ ->
+                  let xs: BeamList<int> = emitErlExpr () "[3, 1, 2]"
+                  let expected: BeamList<int> = emitErlExpr () "[1, 2, 3]"
+                  assertThat (lists.sort xs) (isEqualTo expected))
 
-[<Fact>]
-let ``test lists.append works`` () =
-#if FABLE_COMPILER
-    let xs: BeamList<int> = emitErlExpr () "[1, 2]"
-    let ys: BeamList<int> = emitErlExpr () "[3, 4]"
-    let expected: BeamList<int> = emitErlExpr () "[1, 2, 3, 4]"
-    lists.append (xs, ys) |> equal expected
-#else
-    ()
-#endif
+          test ("append works", fun _ ->
+                  let xs: BeamList<int> = emitErlExpr () "[1, 2]"
+                  let ys: BeamList<int> = emitErlExpr () "[3, 4]"
+                  let expected: BeamList<int> = emitErlExpr () "[1, 2, 3, 4]"
+                  assertThat (lists.append (xs, ys)) (isEqualTo expected))
 
-[<Fact>]
-let ``test lists.last works`` () =
-#if FABLE_COMPILER
-    let xs: BeamList<int> = emitErlExpr () "[1, 2, 3]"
-    lists.last xs |> equal 3
-#else
-    ()
-#endif
+          test ("last works", fun _ ->
+                  let xs: BeamList<int> = emitErlExpr () "[1, 2, 3]"
+                  assertThat (lists.last xs) (isEqualTo 3))
 
-[<Fact>]
-let ``test lists.nth works`` () =
-#if FABLE_COMPILER
-    // Erlang lists:nth is 1-based
-    let xs: BeamList<int> = emitErlExpr () "[10, 20, 30]"
-    lists.nth (1, xs) |> equal 10
-#else
-    ()
-#endif
+          test ("nth works", fun _ ->
+                  // Erlang lists:nth is 1-based
+                  let xs: BeamList<int> = emitErlExpr () "[10, 20, 30]"
+                  assertThat (lists.nth (1, xs)) (isEqualTo 10))
 
-[<Fact>]
-let ``test lists.flatten works`` () =
-#if FABLE_COMPILER
-    let xs: BeamList<BeamList<int>> = emitErlExpr () "[[1, 2], [3, 4]]"
-    let expected: BeamList<int> = emitErlExpr () "[1, 2, 3, 4]"
-    lists.flatten xs |> equal expected
-#else
-    ()
-#endif
+          test ("flatten works", fun _ ->
+                  let xs: BeamList<BeamList<int>> = emitErlExpr () "[[1, 2], [3, 4]]"
+                  let expected: BeamList<int> = emitErlExpr () "[1, 2, 3, 4]"
+                  assertThat (lists.flatten xs) (isEqualTo expected))
 
-[<Fact>]
-let ``test lists.usort removes duplicates`` () =
-#if FABLE_COMPILER
-    let xs: BeamList<int> = emitErlExpr () "[3, 1, 2, 1, 3]"
-    let expected: BeamList<int> = emitErlExpr () "[1, 2, 3]"
-    lists.usort xs |> equal expected
-#else
-    ()
-#endif
+          test ("usort removes duplicates", fun _ ->
+                  let xs: BeamList<int> = emitErlExpr () "[3, 1, 2, 1, 3]"
+                  let expected: BeamList<int> = emitErlExpr () "[1, 2, 3]"
+                  assertThat (lists.usort xs) (isEqualTo expected))
 
-[<Fact>]
-let ``test lists.unzip returns tuple of two lists`` () =
-#if FABLE_COMPILER
-    let xs: BeamList<obj * obj> = emitErlExpr () "[{1, a}, {2, b}, {3, c}]"
-    let (list1, list2) = lists.unzip xs
-    erlLength list1 |> equal 3
-    erlLength list2 |> equal 3
-#else
-    ()
-#endif
+          test ("unzip returns tuple of two lists", fun _ ->
+                  let xs: BeamList<obj * obj> = emitErlExpr () "[{1, a}, {2, b}, {3, c}]"
+                  let (list1, list2) = lists.unzip xs
+                  assertThat (erlLength list1) (isEqualTo 3)
+                  assertThat (erlLength list2) (isEqualTo 3)
+                  )
 
-[<Fact>]
-let ``test lists.partition returns tuple of two lists`` () =
-#if FABLE_COMPILER
-    let xs: BeamList<int> = emitErlExpr () "[1, 2, 3, 4, 5]"
+          test ("partition returns tuple of two lists", fun _ ->
+                  let xs: BeamList<int> = emitErlExpr () "[1, 2, 3, 4, 5]"
 
-    let (matching, notMatching) = lists.partition ((fun x -> x > 3), xs)
+                  let (matching, notMatching) = lists.partition ((fun x -> x > 3), xs)
 
-    erlLength matching |> equal 2
-    erlLength notMatching |> equal 3
-#else
-    ()
-#endif
+                  assertThat (erlLength matching) (isEqualTo 2)
+                  assertThat (erlLength notMatching) (isEqualTo 3)
+                  )
 
-[<Fact>]
-let ``test lists.sum returns sum`` () =
-#if FABLE_COMPILER
-    let xs: BeamList<int> = emitErlExpr () "[1, 2, 3, 4]"
-    lists.sum xs |> equal 10
-#else
-    ()
-#endif
+          test ("sum returns sum", fun _ ->
+                  let xs: BeamList<int> = emitErlExpr () "[1, 2, 3, 4]"
+                  assertThat (lists.sum xs) (isEqualTo 10))
 
-[<Fact>]
-let ``test lists.sum returns float sum`` () =
-#if FABLE_COMPILER
-    let xs: BeamList<float> = emitErlExpr () "[1.5, 2.5, 3.0]"
-    lists.sum xs |> equal 7.0
-#else
-    ()
-#endif
+          test ("sum returns float sum", fun _ ->
+                  let xs: BeamList<float> = emitErlExpr () "[1.5, 2.5, 3.0]"
+                  assertThat (lists.sum xs) (isEqualTo 7.0))
 
-[<Fact>]
-let ``test lists.max returns maximum`` () =
-#if FABLE_COMPILER
-    let xs: BeamList<int> = emitErlExpr () "[3, 1, 4, 1, 5, 9, 2]"
-    lists.max xs |> equal 9
-#else
-    ()
-#endif
+          test ("max returns maximum", fun _ ->
+                  let xs: BeamList<int> = emitErlExpr () "[3, 1, 4, 1, 5, 9, 2]"
+                  assertThat (lists.max xs) (isEqualTo 9))
 
-[<Fact>]
-let ``test lists.min returns minimum`` () =
-#if FABLE_COMPILER
-    let xs: BeamList<int> = emitErlExpr () "[3, 1, 4, 1, 5, 9, 2]"
-    lists.min xs |> equal 1
-#else
-    ()
-#endif
+          test ("min returns minimum", fun _ ->
+                  let xs: BeamList<int> = emitErlExpr () "[3, 1, 4, 1, 5, 9, 2]"
+                  assertThat (lists.min xs) (isEqualTo 1))
 
-[<Fact>]
-let ``test lists.seq generates integer sequence`` () =
-#if FABLE_COMPILER
-    let xs = lists.seq (1, 5)
-    erlLength xs |> equal 5
-    lists.nth (1, xs) |> equal 1
-    lists.nth (5, xs) |> equal 5
-#else
-    ()
-#endif
+          test ("seq generates integer sequence", fun _ ->
+                  let xs = lists.seq (1, 5)
+                  assertThat (erlLength xs) (isEqualTo 5)
+                  assertThat (lists.nth (1, xs)) (isEqualTo 1)
+                  assertThat (lists.nth (5, xs)) (isEqualTo 5)
+                  )
 
-[<Fact>]
-let ``test lists.seq with step generates sequence`` () =
-#if FABLE_COMPILER
-    let xs = lists.seq (0, 10, 2)
-    erlLength xs |> equal 6
-    lists.nth (1, xs) |> equal 0
-    lists.nth (2, xs) |> equal 2
-#else
-    ()
-#endif
+          test ("seq with step generates sequence", fun _ ->
+                  let xs = lists.seq (0, 10, 2)
+                  assertThat (erlLength xs) (isEqualTo 6)
+                  assertThat (lists.nth (1, xs)) (isEqualTo 0)
+                  assertThat (lists.nth (2, xs)) (isEqualTo 2)
+                  )
 
-[<Fact>]
-let ``test lists.duplicate creates repeated list`` () =
-#if FABLE_COMPILER
-    let xs: BeamList<int> = lists.duplicate (3, 7)
-    erlLength xs |> equal 3
-    lists.nth (1, xs) |> equal 7
-    lists.nth (3, xs) |> equal 7
-#else
-    ()
-#endif
+          test ("duplicate creates repeated list", fun _ ->
+                  let xs: BeamList<int> = lists.duplicate (3, 7)
+                  assertThat (erlLength xs) (isEqualTo 3)
+                  assertThat (lists.nth (1, xs)) (isEqualTo 7)
+                  assertThat (lists.nth (3, xs)) (isEqualTo 7)
+                  )
 
-[<Fact>]
-let ``test lists.takewhile takes while predicate holds`` () =
-#if FABLE_COMPILER
-    let xs: BeamList<int> = emitErlExpr () "[1, 2, 3, 4, 5]"
-    let result = lists.takewhile ((fun x -> x < 4), xs)
-    erlLength result |> equal 3
-    lists.nth (3, result) |> equal 3
-#else
-    ()
-#endif
+          test ("takewhile takes while predicate holds", fun _ ->
+                  let xs: BeamList<int> = emitErlExpr () "[1, 2, 3, 4, 5]"
+                  let result = lists.takewhile ((fun x -> x < 4), xs)
+                  assertThat (erlLength result) (isEqualTo 3)
+                  assertThat (lists.nth (3, result)) (isEqualTo 3)
+                  )
 
-[<Fact>]
-let ``test lists.dropwhile drops while predicate holds`` () =
-#if FABLE_COMPILER
-    let xs: BeamList<int> = emitErlExpr () "[1, 2, 3, 4, 5]"
-    let result = lists.dropwhile ((fun x -> x < 4), xs)
-    erlLength result |> equal 2
-    lists.nth (1, result) |> equal 4
-#else
-    ()
-#endif
+          test ("dropwhile drops while predicate holds", fun _ ->
+                  let xs: BeamList<int> = emitErlExpr () "[1, 2, 3, 4, 5]"
+                  let result = lists.dropwhile ((fun x -> x < 4), xs)
+                  assertThat (erlLength result) (isEqualTo 2)
+                  assertThat (lists.nth (1, result)) (isEqualTo 4)
+                  )
 
-[<Fact>]
-let ``test lists.splitwith splits at predicate boundary`` () =
-#if FABLE_COMPILER
-    let xs: BeamList<int> = emitErlExpr () "[1, 2, 3, 4, 5]"
-    let (before, after) = lists.splitwith ((fun x -> x < 3), xs)
-    erlLength before |> equal 2
-    erlLength after |> equal 3
-#else
-    ()
-#endif
+          test ("splitwith splits at predicate boundary", fun _ ->
+                  let xs: BeamList<int> = emitErlExpr () "[1, 2, 3, 4, 5]"
+                  let (before, after) = lists.splitwith ((fun x -> x < 3), xs)
+                  assertThat (erlLength before) (isEqualTo 2)
+                  assertThat (erlLength after) (isEqualTo 3)
+                  )
 
-[<Fact>]
-let ``test lists.delete removes first occurrence`` () =
-#if FABLE_COMPILER
-    let xs: BeamList<int> = emitErlExpr () "[1, 2, 3, 2, 1]"
-    let result = lists.delete (2, xs)
-    erlLength result |> equal 4
-    lists.``member`` (2, result) |> equal true
-#else
-    ()
-#endif
+          test ("delete removes first occurrence", fun _ ->
+                  let xs: BeamList<int> = emitErlExpr () "[1, 2, 3, 2, 1]"
+                  let result = lists.delete (2, xs)
+                  assertThat (erlLength result) (isEqualTo 4)
+                  assertThat (lists.``member`` (2, result)) (isTrue)
+                  )
 
-[<Fact>]
-let ``test lists.subtract removes elements`` () =
-#if FABLE_COMPILER
-    let xs: BeamList<int> = emitErlExpr () "[1, 2, 3, 4, 5]"
-    let ys: BeamList<int> = emitErlExpr () "[2, 4]"
-    let result = lists.subtract (xs, ys)
-    erlLength result |> equal 3
-    lists.``member`` (2, result) |> equal false
-#else
-    ()
-#endif
+          test ("subtract removes elements", fun _ ->
+                  let xs: BeamList<int> = emitErlExpr () "[1, 2, 3, 4, 5]"
+                  let ys: BeamList<int> = emitErlExpr () "[2, 4]"
+                  let result = lists.subtract (xs, ys)
+                  assertThat (erlLength result) (isEqualTo 3)
+                  assertThat (lists.``member`` (2, result)) (isFalse)
+                  )
 
-[<Fact>]
-let ``test lists.keysort sorts by Nth element`` () =
-#if FABLE_COMPILER
-    let xs: BeamList<int * string> = emitErlExpr () "[{3, c}, {1, a}, {2, b}]"
-    let sorted = lists.keysort (1, xs)
-    let first: int * string = lists.nth (1, sorted)
-    fst first |> equal 1
-#else
-    ()
-#endif
+          test ("keysort sorts by Nth element", fun _ ->
+                  let xs: BeamList<int * string> = emitErlExpr () "[{3, c}, {1, a}, {2, b}]"
+                  let sorted = lists.keysort (1, xs)
+                  let first: int * string = lists.nth (1, sorted)
+                  assertThat (fst first) (isEqualTo 1))
 
-[<Fact>]
-let ``test lists.keydelete removes first matching tuple`` () =
-#if FABLE_COMPILER
-    let xs: BeamList<string * int> =
-        emitErlExpr () "[{<<\"a\">>, 1}, {<<\"b\">>, 2}, {<<\"a\">>, 3}]"
+          test ("keydelete removes first matching tuple", fun _ ->
+                  let xs: BeamList<string * int> =
+                      emitErlExpr () "[{<<\"a\">>, 1}, {<<\"b\">>, 2}, {<<\"a\">>, 3}]"
 
-    let result = lists.keydelete ("a", 1, xs)
-    erlLength result |> equal 2
-#else
-    ()
-#endif
+                  let result = lists.keydelete ("a", 1, xs)
+                  assertThat (erlLength result) (isEqualTo 2))
 
-[<Fact>]
-let ``test lists.keymember checks for key`` () =
-#if FABLE_COMPILER
-    let xs: BeamList<string * int> = emitErlExpr () "[{<<\"a\">>, 1}, {<<\"b\">>, 2}]"
-    lists.keymember ("a", 1, xs) |> equal true
-    lists.keymember ("c", 1, xs) |> equal false
-#else
-    ()
-#endif
+          test ("keymember checks for key", fun _ ->
+                  let xs: BeamList<string * int> = emitErlExpr () "[{<<\"a\">>, 1}, {<<\"b\">>, 2}]"
+                  assertThat (lists.keymember ("a", 1, xs)) (isTrue)
+                  assertThat (lists.keymember ("c", 1, xs)) (isFalse)
+                  )
 
-[<Fact>]
-let ``test keyFind returns Some for existing key`` () =
-#if FABLE_COMPILER
-    let xs: BeamList<string * int> =
-        emitErlExpr () "[{<<\"a\">>, 1}, {<<\"b\">>, 2}, {<<\"c\">>, 3}]"
+          test ("keyFind returns Some for existing key", fun _ ->
+                  let xs: BeamList<string * int> =
+                      emitErlExpr () "[{<<\"a\">>, 1}, {<<\"b\">>, 2}, {<<\"c\">>, 3}]"
 
-    keyFind "b" 1 xs |> equal (Some("b", 2))
-#else
-    ()
-#endif
+                  let found = keyFind "b" 1 xs
+                  assertThat found (isEqualTo (Some ("b", 2))))
 
-[<Fact>]
-let ``test keyFind returns None for missing key`` () =
-#if FABLE_COMPILER
-    let xs: BeamList<string * int> = emitErlExpr () "[{<<\"a\">>, 1}, {<<\"b\">>, 2}]"
-    keyFind "z" 1 xs |> equal None
-#else
-    ()
-#endif
+          test ("keyFind returns None for missing key", fun _ ->
+                  let xs: BeamList<string * int> = emitErlExpr () "[{<<\"a\">>, 1}, {<<\"b\">>, 2}]"
+                  assertThat (keyFind "z" 1 xs) (isEqualTo None))
 
-[<Fact>]
-let ``test lists.keyreplace replaces first matching tuple`` () =
-#if FABLE_COMPILER
-    let xs: BeamList<string * int> =
-        emitErlExpr () "[{<<\"a\">>, 1}, {<<\"b\">>, 2}, {<<\"a\">>, 3}]"
+          test ("keyreplace replaces first matching tuple", fun _ ->
+                  let xs: BeamList<string * int> =
+                      emitErlExpr () "[{<<\"a\">>, 1}, {<<\"b\">>, 2}, {<<\"a\">>, 3}]"
 
-    let result = lists.keyreplace ("a", 1, xs, ("a", 99))
-    lists.nth (1, result) |> equal ("a", 99)
-    erlLength result |> equal 3
-#else
-    ()
-#endif
+                  let result = lists.keyreplace ("a", 1, xs, ("a", 99))
+                  assertThat (lists.nth (1, result)) (isEqualTo ("a", 99))
+                  assertThat (erlLength result) (isEqualTo 3)
+                  )
 
-[<Fact>]
-let ``test lists.mapfoldl maps and folds left`` () =
-#if FABLE_COMPILER
-    let xs: BeamList<int> = emitErlExpr () "[1, 2, 3]"
+          test ("mapfoldl maps and folds left", fun _ ->
+                  let xs: BeamList<int> = emitErlExpr () "[1, 2, 3]"
 
-    let (mapped, acc) = lists.mapfoldl ((fun x s -> (x * 2, s + x)), 0, xs)
+                  let (mapped, acc) = lists.mapfoldl ((fun x s -> (x * 2, s + x)), 0, xs)
 
-    mapped |> equal (emitErlExpr () "[2, 4, 6]")
-    acc |> equal 6
-#else
-    ()
-#endif
+                  assertThat mapped (isEqualTo (emitErlExpr () "[2, 4, 6]"))
+                  assertThat acc (isEqualTo 6)
+                  )
 
-[<Fact>]
-let ``test lists.mapfoldr maps and folds right`` () =
-#if FABLE_COMPILER
-    let xs: BeamList<int> = emitErlExpr () "[1, 2, 3]"
+          test ("mapfoldr maps and folds right", fun _ ->
+                  let xs: BeamList<int> = emitErlExpr () "[1, 2, 3]"
 
-    let (mapped, acc) = lists.mapfoldr ((fun x s -> (x * 2, s + x)), 0, xs)
+                  let (mapped, acc) = lists.mapfoldr ((fun x s -> (x * 2, s + x)), 0, xs)
 
-    mapped |> equal (emitErlExpr () "[2, 4, 6]")
-    acc |> equal 6
-#else
-    ()
-#endif
+                  assertThat mapped (isEqualTo (emitErlExpr () "[2, 4, 6]"))
+                  assertThat acc (isEqualTo 6)
+                  )
 
-[<Fact>]
-let ``test lists.map applies a function to each element`` () =
-#if FABLE_COMPILER
-    let xs: BeamList<int> = emitErlExpr () "[1, 2, 3]"
-    lists.map ((fun x -> x * 2), xs) |> equal (emitErlExpr () "[2, 4, 6]")
-#else
-    ()
-#endif
+          test ("map applies a function to each element", fun _ ->
+                  let xs: BeamList<int> = emitErlExpr () "[1, 2, 3]"
+                  assertThat (lists.map ((fun x -> x * 2), xs)) (isEqualTo (emitErlExpr () "[2, 4, 6]")))
 
-[<Fact>]
-let ``test lists.filter keeps matching elements`` () =
-#if FABLE_COMPILER
-    let xs: BeamList<int> = emitErlExpr () "[1, 2, 3, 4]"
-    lists.filter ((fun x -> x % 2 = 0), xs) |> equal (emitErlExpr () "[2, 4]")
-#else
-    ()
-#endif
+          test ("filter keeps matching elements", fun _ ->
+                  let xs: BeamList<int> = emitErlExpr () "[1, 2, 3, 4]"
+                  assertThat (lists.filter ((fun x -> x % 2 = 0), xs)) (isEqualTo (emitErlExpr () "[2, 4]")))
 
-[<Fact>]
-let ``test lists.foldl folds from the left`` () =
-#if FABLE_COMPILER
-    let xs: BeamList<int> = emitErlExpr () "[1, 2, 3]"
-    lists.foldl ((fun x acc -> acc + x), 0, xs) |> equal 6
-#else
-    ()
-#endif
+          test ("foldl folds from the left", fun _ ->
+                  let xs: BeamList<int> = emitErlExpr () "[1, 2, 3]"
+                  assertThat (lists.foldl ((fun x acc -> acc + x), 0, xs)) (isEqualTo 6))
 
-[<Fact>]
-let ``test lists.foldr folds from the right`` () =
-#if FABLE_COMPILER
-    // Subtraction is not associative, so this pins the direction: 1-(2-(3-0)) = 2.
-    let xs: BeamList<int> = emitErlExpr () "[1, 2, 3]"
-    lists.foldr ((fun x acc -> x - acc), 0, xs) |> equal 2
-#else
-    ()
-#endif
+          test ("foldr folds from the right", fun _ ->
+                  // Subtraction is not associative, so this pins the direction: 1-(2-(3-0)) = 2.
+                  let xs: BeamList<int> = emitErlExpr () "[1, 2, 3]"
+                  assertThat (lists.foldr ((fun x acc -> x - acc), 0, xs)) (isEqualTo 2))
 
-[<Fact>]
-let ``test lists.all and lists.any check predicates`` () =
-#if FABLE_COMPILER
-    let xs: BeamList<int> = emitErlExpr () "[2, 4, 6]"
-    lists.all ((fun x -> x % 2 = 0), xs) |> equal true
-    lists.any ((fun x -> x > 5), xs) |> equal true
-    lists.any ((fun x -> x > 10), xs) |> equal false
-#else
-    ()
-#endif
+          test ("all and any check predicates", fun _ ->
+                  let xs: BeamList<int> = emitErlExpr () "[2, 4, 6]"
+                  assertThat (lists.all ((fun x -> x % 2 = 0), xs)) (isTrue)
+                  assertThat (lists.any ((fun x -> x > 5), xs)) (isTrue)
+                  assertThat (lists.any ((fun x -> x > 10), xs)) (isFalse)
+                  )
 
-[<Fact>]
-let ``test lists.sort with a comparison function`` () =
-#if FABLE_COMPILER
-    let xs: BeamList<int> = emitErlExpr () "[3, 1, 2]"
-    // Descending: the comparator returns true when A should come before B.
-    lists.sort ((fun a b -> a >= b), xs) |> equal (emitErlExpr () "[3, 2, 1]")
-#else
-    ()
-#endif
+          test ("sort with a comparison function", fun _ ->
+                  let xs: BeamList<int> = emitErlExpr () "[3, 1, 2]"
+                  // Descending: the comparator returns true when A should come before B.
+                  assertThat (lists.sort ((fun a b -> a >= b), xs)) (isEqualTo (emitErlExpr () "[3, 2, 1]"))) ]
+    )

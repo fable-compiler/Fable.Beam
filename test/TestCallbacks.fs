@@ -8,13 +8,15 @@
 /// `badarity` and the guide's recommendation needs revisiting.
 module Fable.Beam.Tests.Callbacks
 
-open Fable.Beam.Testing
+open Scriptorium.Quill
+open Scriptorium.Nib.Assertion
+open type Scriptorium.Quill.Test
 
-#if FABLE_COMPILER
 open Fable.Core
 open Fable.Core.BeamInterop
 open Fable.Beam
 
+#if FABLE_COMPILER
 /// Curried 2-argument callback, handed straight to lists:foldl/3.
 [<Emit("lists:foldl($0, $1, $2)")>]
 let private foldlCurried (f: 'T -> 'Acc -> 'Acc) (acc: 'Acc) (l: Lists.BeamList<'T>) : 'Acc = nativeOnly
@@ -47,70 +49,35 @@ let private add3 (a: int) (b: int) (c: int) : int = a + b + c
 let private nums () : Lists.BeamList<int> = emitErlExpr () "[1, 2, 3]"
 #endif
 
-[<Fact>]
-let ``test curried lambda literal reaches foldl as a 2-arity fun`` () =
-#if FABLE_COMPILER
-    foldlCurried (fun x acc -> x + acc) 0 (nums ()) |> equal 6
-#else
-    ()
-#endif
+let tests =
+    testList (
+        "Callbacks",
+        [ test ("curried lambda literal reaches foldl as a 2-arity fun", fun _ ->
+                  assertThat (foldlCurried (fun x acc -> x + acc) 0 (nums ())) (isEqualTo 6))
 
-[<Fact>]
-let ``test System.Func callback behaves identically to the curried form`` () =
-#if FABLE_COMPILER
-    foldlFunc (System.Func<_, _, _>(fun x acc -> x + acc)) 0 (nums ()) |> equal 6
-#else
-    ()
-#endif
+          test ("System.Func callback behaves identically to the curried form", fun _ ->
+                  assertThat (foldlFunc (System.Func<_, _, _>(fun x acc -> x + acc)) 0 (nums ())) (isEqualTo 6))
 
-[<Fact>]
-let ``test named curried function reaches foldl as a 2-arity fun`` () =
-#if FABLE_COMPILER
-    foldlCurried addFn 0 (nums ()) |> equal 6
-#else
-    ()
-#endif
+          test ("named curried function reaches foldl as a 2-arity fun", fun _ ->
+                  assertThat (foldlCurried addFn 0 (nums ())) (isEqualTo 6))
 
-[<Fact>]
-let ``test curried function returned from a function keeps its arity`` () =
-#if FABLE_COMPILER
-    // Arity is not syntactically visible at the call site.
-    foldlCurried (makeAdder ()) 0 (nums ()) |> equal 6
-#else
-    ()
-#endif
+          test ("curried function returned from a function keeps its arity", fun _ ->
+                  // Arity is not syntactically visible at the call site.
+                  assertThat (foldlCurried (makeAdder ()) 0 (nums ())) (isEqualTo 6))
 
-[<Fact>]
-let ``test partially applied function passes its remaining arity`` () =
-#if FABLE_COMPILER
-    // add3 10 has two arguments left, so it must arrive as a 2-arity fun.
-    foldlCurried (add3 10) 0 (nums ()) |> equal 36
-#else
-    ()
-#endif
+          test ("partially applied function passes its remaining arity", fun _ ->
+                  // add3 10 has two arguments left, so it must arrive as a 2-arity fun.
+                  assertThat (foldlCurried (add3 10) 0 (nums ())) (isEqualTo 36))
 
-[<Fact>]
-let ``test callback boxed through an obj-typed parameter keeps its arity`` () =
-#if FABLE_COMPILER
-    foldlObj (box (fun x acc -> x + acc)) 0 (nums ()) |> equal 6
-#else
-    ()
-#endif
+          test ("callback boxed through an obj-typed parameter keeps its arity", fun _ ->
+                  assertThat (foldlObj (box (fun x acc -> x + acc)) 0 (nums ())) (isEqualTo 6))
 
-[<Fact>]
-let ``test ImportAll interface member takes a curried 2-arg callback`` () =
-#if FABLE_COMPILER
-    probeLists.foldl ((fun x acc -> x + acc), 0, nums ()) |> equal 6
-#else
-    ()
-#endif
+          test ("ImportAll interface member takes a curried 2-arg callback", fun _ ->
+                  assertThat (probeLists.foldl ((fun x acc -> x + acc), 0, nums ())) (isEqualTo 6))
 
-[<Fact>]
-let ``test ImportAll interface member takes a curried 1-arg callback`` () =
-#if FABLE_COMPILER
-    let kept = probeLists.filter ((fun x -> x > 1), nums ())
-    let n: int = emitErlExpr kept "erlang:length($0)"
-    n |> equal 2
-#else
-    ()
-#endif
+          test ("ImportAll interface member takes a curried 1-arg callback", fun _ ->
+                  let kept = probeLists.filter ((fun x -> x > 1), nums ())
+                  let n: int = emitErlExpr kept "erlang:length($0)"
+                  assertThat n (isEqualTo 2)
+                  ) ]
+    )

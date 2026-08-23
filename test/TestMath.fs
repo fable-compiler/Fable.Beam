@@ -1,114 +1,51 @@
 module Fable.Beam.Tests.Math
 
-open Fable.Beam.Testing
+open Scriptorium.Quill
+open Scriptorium.Nib.Assertion
+open type Scriptorium.Quill.Test
 
-#if FABLE_COMPILER
 open Fable.Core
 open Fable.Core.BeamInterop
 open Fable.Beam.Math
-#endif
 
-[<Fact>]
-let ``test math.pi returns pi`` () =
-#if FABLE_COMPILER
-    let pi = math.pi ()
-    // pi is approximately 3.14159
-    (pi > 3.14 && pi < 3.15) |> equal true
-#else
-    ()
-#endif
+let tests =
+    testList (
+        "Math",
+        [ test ("pi returns pi", fun _ ->
+                let pi = math.pi ()
+                // pi is approximately 3.14159
+                assertThat (pi > 3.14 && pi < 3.15) (isTrue))
 
-[<Fact>]
-let ``test math.sin of zero is zero`` () =
-#if FABLE_COMPILER
-    math.sin 0.0 |> equal 0.0
-#else
-    ()
-#endif
+          test ("sin of zero is zero", fun _ -> assertThat (math.sin 0.0) (isEqualTo 0.0))
 
-[<Fact>]
-let ``test math.cos of zero is one`` () =
-#if FABLE_COMPILER
-    math.cos 0.0 |> equal 1.0
-#else
-    ()
-#endif
+          test ("cos of zero is one", fun _ -> assertThat (math.cos 0.0) (isEqualTo 1.0))
 
-[<Fact>]
-let ``test math.sqrt of four is two`` () =
-#if FABLE_COMPILER
-    math.sqrt 4.0 |> equal 2.0
-#else
-    ()
-#endif
+          test ("sqrt of four is two", fun _ -> assertThat (math.sqrt 4.0) (isEqualTo 2.0))
 
-[<Fact>]
-let ``test math.pow computes power`` () =
-#if FABLE_COMPILER
-    math.pow (2.0, 10.0) |> equal 1024.0
-#else
-    ()
-#endif
+          test ("pow computes power", fun _ -> assertThat (math.pow (2.0, 10.0)) (isEqualTo 1024.0))
 
-[<Fact>]
-let ``test math.exp of zero is one`` () =
-#if FABLE_COMPILER
-    math.exp 0.0 |> equal 1.0
-#else
-    ()
-#endif
+          test ("exp of zero is one", fun _ -> assertThat (math.exp 0.0) (isEqualTo 1.0))
 
-[<Fact>]
-let ``test math.log of e is one`` () =
-#if FABLE_COMPILER
-    let e = math.exp 1.0
-    let result = math.log e
-    // result should be approximately 1.0
-    (result > 0.9999 && result < 1.0001) |> equal true
-#else
-    ()
-#endif
+          test ("log of e is one", fun _ ->
+                  let e = math.exp 1.0
+                  let result = math.log e
+                  // result should be approximately 1.0
+                  assertThat (result > 0.9999 && result < 1.0001) (isTrue))
 
-[<Fact>]
-let ``test math.log2 of eight is three`` () =
-#if FABLE_COMPILER
-    let result = math.log2 8.0
-    (result > 2.9999 && result < 3.0001) |> equal true
-#else
-    ()
-#endif
+          test ("log2 of eight is three", fun _ ->
+                  let result = math.log2 8.0
+                  assertThat (result > 2.9999 && result < 3.0001) (isTrue))
 
-[<Fact>]
-let ``test math.log10 of one hundred is two`` () =
-#if FABLE_COMPILER
-    let result = math.log10 100.0
-    (result > 1.9999 && result < 2.0001) |> equal true
-#else
-    ()
-#endif
+          test ("log10 of one hundred is two", fun _ ->
+                  let result = math.log10 100.0
+                  assertThat (result > 1.9999 && result < 2.0001) (isTrue))
 
-[<Fact>]
-let ``test math.floor rounds down`` () =
-#if FABLE_COMPILER
-    math.floor 3.9 |> equal 3.0
-#else
-    ()
-#endif
+          test ("floor rounds down", fun _ -> assertThat (math.floor 3.9) (isEqualTo 3.0))
 
-[<Fact>]
-let ``test math.ceil rounds up`` () =
-#if FABLE_COMPILER
-    math.ceil 3.1 |> equal 4.0
-#else
-    ()
-#endif
+          test ("ceil rounds up", fun _ -> assertThat (math.ceil 3.1) (isEqualTo 4.0))
 
-[<Fact>]
-let ``test math.atan2 quadrant`` () =
-#if FABLE_COMPILER
-    // atan2(1, 1) = pi/4 approximately 0.785
-    let result = math.atan2 (1.0, 1.0)
-    (result > 0.78 && result < 0.79) |> equal true
-#else
-    ()
-#endif
+          test ("atan2 quadrant", fun _ ->
+                  // atan2(1, 1) = pi/4 approximately 0.785
+                  let result = math.atan2 (1.0, 1.0)
+                  assertThat (result > 0.78 && result < 0.79) (isTrue)) ]
+    )

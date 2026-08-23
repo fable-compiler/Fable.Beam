@@ -9,4 +9,30 @@ open type Scriptorium.Quill.Runner
 // Add more `.tests` below as each remaining file migrates over to Scriptorium.
 [<EntryPoint>]
 let main _ =
-    runTests [ Timer.tests; Maps.tests; GenServer.tests ]
+    runTests
+        [ Timer.tests
+          Maps.tests
+          GenServer.tests
+          Base64.tests
+          Math.tests
+          Io.tests
+          IoLib.tests
+          Rand.tests
+          Proplists.tests
+          Binary.tests
+          Calendar.tests
+          Queue.tests
+          Lists.tests
+          String.tests
+          Erlang.tests
+          Re.tests
+          Dynamic.tests
+          UriString.tests
+          Callbacks.tests
+          Os.tests
+          Port.tests
+          Supervisor.tests
+          Logger.tests
+          File.tests
+          Ets.tests
+          Jsx.tests ]

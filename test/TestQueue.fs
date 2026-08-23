@@ -1,298 +1,167 @@
 module Fable.Beam.Tests.Queue
 
-open Fable.Beam.Testing
+open Scriptorium.Quill
+open Scriptorium.Nib.Assertion
+open type Scriptorium.Quill.Test
 
-#if FABLE_COMPILER
 open Fable.Core
 open Fable.Core.BeamInterop
 open Fable.Beam
 open Fable.Beam.Queue
-#endif
 
-[<Fact>]
-let ``test new creates empty queue`` () =
-#if FABLE_COMPILER
-    let q = queue.``new`` ()
-    queue.is_empty q |> equal true
-#else
-    ()
-#endif
+let tests =
+    testList (
+        "Queue",
+        [ test ("new creates empty queue", fun _ ->
+                  let q = queue.``new`` ()
+                  assertThat (queue.is_empty q) (isTrue))
 
-[<Fact>]
-let ``test is_queue returns true for queue`` () =
-#if FABLE_COMPILER
-    let q = queue.``new`` ()
-    queue.is_queue q |> equal true
-#else
-    ()
-#endif
+          test ("is_queue returns true for queue", fun _ ->
+                  let q = queue.``new`` ()
+                  assertThat (queue.is_queue q) (isTrue))
 
-[<Fact>]
-let ``test is_queue returns false for non-queue`` () =
-#if FABLE_COMPILER
-    queue.is_queue (box 42) |> equal false
-#else
-    ()
-#endif
+          test ("is_queue returns false for non-queue", fun _ ->
+                  assertThat (queue.is_queue (box 42)) (isFalse))
 
-[<Fact>]
-let ``test len returns zero for empty queue`` () =
-#if FABLE_COMPILER
-    let q = queue.``new`` ()
-    queue.len q |> equal 0
-#else
-    ()
-#endif
+          test ("len returns zero for empty queue", fun _ ->
+                  let q = queue.``new`` ()
+                  assertThat (queue.len q) (isEqualTo 0))
 
-[<Fact>]
-let ``test in adds element at rear`` () =
-#if FABLE_COMPILER
-    let q = queue.``new`` ()
-    let q1 = queue.``in`` (1, q)
-    let q2 = queue.``in`` (2, q1)
-    queue.len q2 |> equal 2
-#else
-    ()
-#endif
+          test ("in adds element at rear", fun _ ->
+                  let q = queue.``new`` ()
+                  let q1 = queue.``in`` (1, q)
+                  let q2 = queue.``in`` (2, q1)
+                  assertThat (queue.len q2) (isEqualTo 2))
 
-[<Fact>]
-let ``test in_r adds element at front`` () =
-#if FABLE_COMPILER
-    let q = queue.``new`` ()
-    let q1 = queue.``in`` (1, q)
-    let q2 = queue.in_r (99, q1)
-    queue.head q2 |> equal 99
-#else
-    ()
-#endif
+          test ("in_r adds element at front", fun _ ->
+                  let q = queue.``new`` ()
+                  let q1 = queue.``in`` (1, q)
+                  let q2 = queue.in_r (99, q1)
+                  assertThat (queue.head q2) (isEqualTo 99))
 
-[<Fact>]
-let ``test head returns front element`` () =
-#if FABLE_COMPILER
-    let q = queue.``new`` ()
-    let q1 = queue.``in`` (10, q)
-    let q2 = queue.``in`` (20, q1)
-    queue.head q2 |> equal 10
-#else
-    ()
-#endif
+          test ("head returns front element", fun _ ->
+                  let q = queue.``new`` ()
+                  let q1 = queue.``in`` (10, q)
+                  let q2 = queue.``in`` (20, q1)
+                  assertThat (queue.head q2) (isEqualTo 10))
 
-[<Fact>]
-let ``test last returns rear element`` () =
-#if FABLE_COMPILER
-    let q = queue.``new`` ()
-    let q1 = queue.``in`` (10, q)
-    let q2 = queue.``in`` (20, q1)
-    queue.last q2 |> equal 20
-#else
-    ()
-#endif
+          test ("last returns rear element", fun _ ->
+                  let q = queue.``new`` ()
+                  let q1 = queue.``in`` (10, q)
+                  let q2 = queue.``in`` (20, q1)
+                  assertThat (queue.last q2) (isEqualTo 20))
 
-[<Fact>]
-let ``test tail removes front element`` () =
-#if FABLE_COMPILER
-    let q = queue.``new`` ()
-    let q1 = queue.``in`` (1, q)
-    let q2 = queue.``in`` (2, q1)
-    let q3 = queue.tail q2
-    queue.len q3 |> equal 1
-    queue.head q3 |> equal 2
-#else
-    ()
-#endif
+          test ("tail removes front element", fun _ ->
+                  let q = queue.``new`` ()
+                  let q1 = queue.``in`` (1, q)
+                  let q2 = queue.``in`` (2, q1)
+                  let q3 = queue.tail q2
+                  assertThat (queue.len q3) (isEqualTo 1)
+                  assertThat (queue.head q3) (isEqualTo 2))
 
-[<Fact>]
-let ``test init removes rear element`` () =
-#if FABLE_COMPILER
-    let q = queue.``new`` ()
-    let q1 = queue.``in`` (1, q)
-    let q2 = queue.``in`` (2, q1)
-    let q3 = queue.init q2
-    queue.len q3 |> equal 1
-    queue.last q3 |> equal 1
-#else
-    ()
-#endif
+          test ("init removes rear element", fun _ ->
+                  let q = queue.``new`` ()
+                  let q1 = queue.``in`` (1, q)
+                  let q2 = queue.``in`` (2, q1)
+                  let q3 = queue.init q2
+                  assertThat (queue.len q3) (isEqualTo 1)
+                  assertThat (queue.last q3) (isEqualTo 1))
 
-[<Fact>]
-let ``test to_list returns elements front first`` () =
-#if FABLE_COMPILER
-    let q = queue.``new`` ()
-    let q1 = queue.``in`` (1, q)
-    let q2 = queue.``in`` (2, q1)
-    let q3 = queue.``in`` (3, q2)
-    queue.to_list q3 |> equal [ 1; 2; 3 ]
-#else
-    ()
-#endif
+          test ("to_list returns elements front first", fun _ ->
+                  let q = queue.``new`` ()
+                  let q1 = queue.``in`` (1, q)
+                  let q2 = queue.``in`` (2, q1)
+                  let q3 = queue.``in`` (3, q2)
+                  assertThat (queue.to_list q3) (isEqualTo [ 1; 2; 3 ]))
 
-[<Fact>]
-let ``test from_list builds queue from list`` () =
-#if FABLE_COMPILER
-    let q = queue.from_list [ 1; 2; 3 ]
-    queue.len q |> equal 3
-    queue.head q |> equal 1
-    queue.last q |> equal 3
-#else
-    ()
-#endif
+          test ("from_list builds queue from list", fun _ ->
+                  let q = queue.from_list [ 1; 2; 3 ]
+                  assertThat (queue.len q) (isEqualTo 3)
+                  assertThat (queue.head q) (isEqualTo 1)
+                  assertThat (queue.last q) (isEqualTo 3))
 
-[<Fact>]
-let ``test member returns true when element present`` () =
-#if FABLE_COMPILER
-    let q = queue.from_list [ 1; 2; 3 ]
-    queue.``member`` (2, q) |> equal true
-#else
-    ()
-#endif
+          test ("member returns true when element present", fun _ ->
+                  let q = queue.from_list [ 1; 2; 3 ]
+                  assertThat (queue.``member`` (2, q)) (isTrue))
 
-[<Fact>]
-let ``test member returns false when element absent`` () =
-#if FABLE_COMPILER
-    let q = queue.from_list [ 1; 2; 3 ]
-    queue.``member`` (99, q) |> equal false
-#else
-    ()
-#endif
+          test ("member returns false when element absent", fun _ ->
+                  let q = queue.from_list [ 1; 2; 3 ]
+                  assertThat (queue.``member`` (99, q)) (isFalse))
 
-[<Fact>]
-let ``test reverse reverses order`` () =
-#if FABLE_COMPILER
-    let q = queue.from_list [ 1; 2; 3 ]
-    let r = queue.reverse q
-    queue.to_list r |> equal [ 3; 2; 1 ]
-#else
-    ()
-#endif
+          test ("reverse reverses order", fun _ ->
+                  let q = queue.from_list [ 1; 2; 3 ]
+                  let r = queue.reverse q
+                  assertThat (queue.to_list r) (isEqualTo [ 3; 2; 1 ]))
 
-[<Fact>]
-let ``test join appends two queues`` () =
-#if FABLE_COMPILER
-    let q1 = queue.from_list [ 1; 2 ]
-    let q2 = queue.from_list [ 3; 4 ]
-    let q3 = queue.join (q1, q2)
-    queue.to_list q3 |> equal [ 1; 2; 3; 4 ]
-#else
-    ()
-#endif
+          test ("join appends two queues", fun _ ->
+                  let q1 = queue.from_list [ 1; 2 ]
+                  let q2 = queue.from_list [ 3; 4 ]
+                  let q3 = queue.join (q1, q2)
+                  assertThat (queue.to_list q3) (isEqualTo [ 1; 2; 3; 4 ]))
 
-[<Fact>]
-let ``test filter keeps matching elements`` () =
-#if FABLE_COMPILER
-    let q = queue.from_list [ 1; 2; 3; 4; 5 ]
-    let evens = queue.filter ((fun x -> x % 2 = 0), q)
-    queue.to_list evens |> equal [ 2; 4 ]
-#else
-    ()
-#endif
+          test ("filter keeps matching elements", fun _ ->
+                  let q = queue.from_list [ 1; 2; 3; 4; 5 ]
+                  let evens = queue.filter ((fun x -> x % 2 = 0), q)
+                  assertThat (queue.to_list evens) (isEqualTo [ 2; 4 ]))
 
-[<Fact>]
-let ``test out removes front element`` () =
-#if FABLE_COMPILER
-    let q = queue.from_list [ 10; 20; 30 ]
-    let (item, q2) = out q
-    item |> equal (Some 10)
-    queue.len q2 |> equal 2
-#else
-    ()
-#endif
+          test ("out removes front element", fun _ ->
+                  let q = queue.from_list [ 10; 20; 30 ]
+                  let (item, q2) = out q
+                  assertThat item (isEqualTo (Some 10))
+                  assertThat (queue.len q2) (isEqualTo 2))
 
-[<Fact>]
-let ``test out returns None for empty queue`` () =
-#if FABLE_COMPILER
-    let q = queue.``new`` ()
-    let (item, _) = out q
-    item |> equal None
-#else
-    ()
-#endif
+          test ("out returns None for empty queue", fun _ ->
+                  let q = queue.``new`` ()
+                  let (item, _) = out q
+                  assertThat item (isEqualTo None))
 
-[<Fact>]
-let ``test outRear removes rear element`` () =
-#if FABLE_COMPILER
-    let q = queue.from_list [ 10; 20; 30 ]
-    let (item, q2) = outRear q
-    item |> equal (Some 30)
-    queue.len q2 |> equal 2
-#else
-    ()
-#endif
+          test ("outRear removes rear element", fun _ ->
+                  let q = queue.from_list [ 10; 20; 30 ]
+                  let (item, q2) = outRear q
+                  assertThat item (isEqualTo (Some 30))
+                  assertThat (queue.len q2) (isEqualTo 2))
 
-[<Fact>]
-let ``test outRear returns None for empty queue`` () =
-#if FABLE_COMPILER
-    let q = queue.``new`` ()
-    let (item, _) = outRear q
-    item |> equal None
-#else
-    ()
-#endif
+          test ("outRear returns None for empty queue", fun _ ->
+                  let q = queue.``new`` ()
+                  let (item, _) = outRear q
+                  assertThat item (isEqualTo None))
 
-[<Fact>]
-let ``test peek returns front element without removing`` () =
-#if FABLE_COMPILER
-    let q = queue.from_list [ 10; 20 ]
-    peek q |> equal (Some 10)
-    queue.len q |> equal 2
-#else
-    ()
-#endif
+          test ("peek returns front element without removing", fun _ ->
+                  let q = queue.from_list [ 10; 20 ]
+                  assertThat (peek q) (isEqualTo (Some 10))
+                  assertThat (queue.len q) (isEqualTo 2))
 
-[<Fact>]
-let ``test peek returns None for empty queue`` () =
-#if FABLE_COMPILER
-    let q = queue.``new`` ()
-    peek q |> equal None
-#else
-    ()
-#endif
+          test ("peek returns None for empty queue", fun _ ->
+                  let q = queue.``new`` ()
+                  assertThat (peek q) (isEqualTo None))
 
-[<Fact>]
-let ``test peekRear returns rear element without removing`` () =
-#if FABLE_COMPILER
-    let q = queue.from_list [ 10; 20; 30 ]
-    peekRear q |> equal (Some 30)
-    queue.len q |> equal 3
-#else
-    ()
-#endif
+          test ("peekRear returns rear element without removing", fun _ ->
+                  let q = queue.from_list [ 10; 20; 30 ]
+                  assertThat (peekRear q) (isEqualTo (Some 30))
+                  assertThat (queue.len q) (isEqualTo 3))
 
-[<Fact>]
-let ``test split divides queue at position`` () =
-#if FABLE_COMPILER
-    let q = queue.from_list [ 1; 2; 3; 4; 5 ]
-    let (q1, q2) = split 3 q
-    queue.to_list q1 |> equal [ 1; 2; 3 ]
-    queue.to_list q2 |> equal [ 4; 5 ]
-#else
-    ()
-#endif
+          test ("split divides queue at position", fun _ ->
+                  let q = queue.from_list [ 1; 2; 3; 4; 5 ]
+                  let (q1, q2) = split 3 q
+                  assertThat (queue.to_list q1) (isEqualTo [ 1; 2; 3 ])
+                  assertThat (queue.to_list q2) (isEqualTo [ 4; 5 ]))
 
-[<Fact>]
-let ``test split at zero yields empty front`` () =
-#if FABLE_COMPILER
-    let q = queue.from_list [ 1; 2; 3 ]
-    let (q1, q2) = split 0 q
-    queue.is_empty q1 |> equal true
-    queue.to_list q2 |> equal [ 1; 2; 3 ]
-#else
-    ()
-#endif
+          test ("split at zero yields empty front", fun _ ->
+                  let q = queue.from_list [ 1; 2; 3 ]
+                  let (q1, q2) = split 0 q
+                  assertThat (queue.is_empty q1) (isTrue)
+                  assertThat (queue.to_list q2) (isEqualTo [ 1; 2; 3 ]))
 
-[<Fact>]
-let ``test fifo ordering is preserved`` () =
-#if FABLE_COMPILER
-    // Enqueue 1, 2, 3 — dequeue should yield 1, 2, 3
-    let q0 = queue.``new`` ()
-    let q1 = queue.``in`` (1, q0)
-    let q2 = queue.``in`` (2, q1)
-    let q3 = queue.``in`` (3, q2)
-    let (a, q4) = out q3
-    let (b, q5) = out q4
-    let (c, _) = out q5
-    a |> equal (Some 1)
-    b |> equal (Some 2)
-    c |> equal (Some 3)
-#else
-    ()
-#endif
+          test ("fifo ordering is preserved", fun _ ->
+                  // Enqueue 1, 2, 3 — dequeue should yield 1, 2, 3
+                  let q0 = queue.``new`` ()
+                  let q1 = queue.``in`` (1, q0)
+                  let q2 = queue.``in`` (2, q1)
+                  let q3 = queue.``in`` (3, q2)
+                  let (a, q4) = out q3
+                  let (b, q5) = out q4
+                  let (c, _) = out q5
+                  assertThat a (isEqualTo (Some 1))
+                  assertThat b (isEqualTo (Some 2))
+                  assertThat c (isEqualTo (Some 3))) ]
+    )
