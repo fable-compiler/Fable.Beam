@@ -8,7 +8,8 @@ open Fable.Core
 open Fable.Core.BeamInterop
 open Fable.Beam
 open Fable.Beam.Binary
-open Fable.Beam.Lists
+
+module BLists = Fable.Beam.Lists
 
 let tests =
     testList (
@@ -110,16 +111,16 @@ let tests =
               fun _ ->
                   // "ABC" = [65, 66, 67]
                   let bytes = toByteList "ABC"
-                  assertThat (lists.nth (1, bytes)) (isEqualTo 65)
-                  assertThat (lists.nth (2, bytes)) (isEqualTo 66)
-                  assertThat (lists.nth (3, bytes)) (isEqualTo 67)
+                  assertThat (BLists.nth 1 bytes) (isEqualTo 65)
+                  assertThat (BLists.nth 2 bytes) (isEqualTo 66)
+                  assertThat (BLists.nth 3 bytes) (isEqualTo 67)
           )
 
           test (
               "list_to_bin converts bytes to binary",
               fun _ ->
                   // [104, 105] = "hi"
-                  let bytes: BeamList<int> = emitErlExpr () "[104, 105]"
+                  let bytes: BLists.BeamList<int> = emitErlExpr () "[104, 105]"
                   assertThat (ofByteList bytes) (isEqualTo "hi")
           )
 
@@ -175,16 +176,19 @@ let tests =
           test (
               "splitAllRaw returns the native list form of splitAll",
               fun _ ->
-                  let parts: BeamList<string> = splitAllRaw "a-b-c" "-"
-                  let expected: BeamList<string> = emitErlExpr () "[<<\"a\">>, <<\"b\">>, <<\"c\">>]"
+                  let parts: BLists.BeamList<string> = splitAllRaw "a-b-c" "-"
+
+                  let expected: BLists.BeamList<string> =
+                      emitErlExpr () "[<<\"a\">>, <<\"b\">>, <<\"c\">>]"
+
                   assertThat parts (isEqualTo expected)
           )
 
           test (
               "splitFirstRaw returns the native list form of splitFirst",
               fun _ ->
-                  let parts: BeamList<string> = splitFirstRaw "a-b-c" "-"
-                  let expected: BeamList<string> = emitErlExpr () "[<<\"a\">>, <<\"b-c\">>]"
+                  let parts: BLists.BeamList<string> = splitFirstRaw "a-b-c" "-"
+                  let expected: BLists.BeamList<string> = emitErlExpr () "[<<\"a\">>, <<\"b-c\">>]"
                   assertThat parts (isEqualTo expected)
           ) ]
     )

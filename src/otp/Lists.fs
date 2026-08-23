@@ -10,97 +10,123 @@ open Fable.Core
 [<Erase>]
 type BeamList<'T> = BeamList of obj
 
-[<Erase>]
-type IExports =
-    /// Appends two lists.
-    abstract append: list1: BeamList<'T> * list2: BeamList<'T> -> BeamList<'T>
-    /// Flattens a list of lists.
-    abstract flatten: deepList: BeamList<BeamList<'T>> -> BeamList<'T>
-    /// Returns the length of a flat list. Note: prefer erlang:length/1 for BIF performance.
-    abstract flatlength: list: BeamList<'T> -> int
-    /// Returns true if Elem is in the list.
-    abstract ``member``: elem: 'T * list: BeamList<'T> -> bool
-    /// Reverses a list.
-    abstract reverse: list: BeamList<'T> -> BeamList<'T>
-    /// Sorts a list.
-    abstract sort: list: BeamList<'T> -> BeamList<'T>
-    /// Sorts a list using a comparison function.
-    abstract sort: f: ('T -> 'T -> bool) * list: BeamList<'T> -> BeamList<'T>
-    /// Returns the Nth element (1-based).
-    abstract nth: n: int * list: BeamList<'T> -> 'T
-    /// Returns the last element.
-    abstract last: list: BeamList<'T> -> 'T
-    /// Applies a function to each element (map).
-    abstract map: f: ('T -> 'U) * list: BeamList<'T> -> BeamList<'U>
-    /// Filters elements by a predicate.
-    abstract filter: pred: ('T -> bool) * list: BeamList<'T> -> BeamList<'T>
-    /// Left fold over a list.
-    abstract foldl: f: ('T -> 'Acc -> 'Acc) * acc: 'Acc * list: BeamList<'T> -> 'Acc
-    /// Right fold over a list.
-    abstract foldr: f: ('T -> 'Acc -> 'Acc) * acc: 'Acc * list: BeamList<'T> -> 'Acc
-    /// Applies a function to each element for side effects.
-    abstract foreach: f: System.Action<'T> * list: BeamList<'T> -> unit
-    /// Zips two lists into a list of tuples.
-    abstract zip: list1: BeamList<'A> * list2: BeamList<'B> -> BeamList<'A * 'B>
-    /// Unzips a list of tuples into a tuple of two lists.
-    abstract unzip: list: BeamList<'A * 'B> -> BeamList<'A> * BeamList<'B>
-    /// Returns a tuple of {Satisfying, NotSatisfying} elements.
-    abstract partition: pred: ('T -> bool) * list: BeamList<'T> -> BeamList<'T> * BeamList<'T>
-    /// Removes duplicate elements.
-    abstract usort: list: BeamList<'T> -> BeamList<'T>
-    /// Returns a sublist (first N elements).
-    abstract sublist: list: BeamList<'T> * len: int -> BeamList<'T>
-    /// Returns true if all elements satisfy the predicate.
-    abstract all: pred: ('T -> bool) * list: BeamList<'T> -> bool
-    /// Returns true if any element satisfies the predicate.
-    abstract any: pred: ('T -> bool) * list: BeamList<'T> -> bool
+/// Appends two lists.
+[<Emit("lists:append($0, $1)")>]
+let append (list1: BeamList<'T>) (list2: BeamList<'T>) : BeamList<'T> = nativeOnly
 
-    /// Returns the sum of all numbers in the list.
-    abstract sum: list: BeamList<int> -> int
-    /// Returns the sum of all numbers in the list.
-    abstract sum: list: BeamList<float> -> float
-    /// Returns the maximum element of a non-empty list.
-    abstract max: list: BeamList<'T> -> 'T
-    /// Returns the minimum element of a non-empty list.
-    abstract min: list: BeamList<'T> -> 'T
+[<Emit("lists:flatten($0)")>]
+let flatten (deepList: BeamList<BeamList<'T>>) : BeamList<'T> = nativeOnly
 
-    /// Generates a sequence of integers from From to To (inclusive).
-    abstract seq: from: int * ``to``: int -> BeamList<int>
-    /// Generates a sequence of integers from From to To with the given increment.
-    abstract seq: from: int * ``to``: int * incr: int -> BeamList<int>
-    /// Returns a list containing N copies of Elem.
-    abstract duplicate: n: int * elem: 'T -> BeamList<'T>
+[<Emit("lists:flatlength($0)")>]
+let flatlength (list: BeamList<'T>) : int = nativeOnly
 
-    /// Returns elements from the front of the list as long as Pred returns true.
-    abstract takewhile: pred: ('T -> bool) * list: BeamList<'T> -> BeamList<'T>
-    /// Drops elements from the front of the list while Pred returns true.
-    abstract dropwhile: pred: ('T -> bool) * list: BeamList<'T> -> BeamList<'T>
-    /// Splits a list into {TakeWhile, Rest} at the first element for which Pred returns false.
-    abstract splitwith: pred: ('T -> bool) * list: BeamList<'T> -> BeamList<'T> * BeamList<'T>
+[<Emit("lists:member($0, $1)")>]
+let ``member`` (elem: 'T) (list: BeamList<'T>) : bool = nativeOnly
 
-    /// Deletes the first occurrence of Elem from the list.
-    abstract delete: elem: 'T * list: BeamList<'T> -> BeamList<'T>
-    /// Subtracts list2 from list1 by removing the first matching occurrence of each element in list2.
-    abstract subtract: list1: BeamList<'T> * list2: BeamList<'T> -> BeamList<'T>
+[<Emit("lists:reverse($0)")>]
+let reverse (list: BeamList<'T>) : BeamList<'T> = nativeOnly
 
-    /// Sorts a list of tuples by the Nth element (1-based).
-    abstract keysort: n: int * list: BeamList<'T> -> BeamList<'T>
-    /// Deletes the first tuple in List whose Nth element equals Key.
-    abstract keydelete: key: 'Key * n: int * list: BeamList<'T> -> BeamList<'T>
-    /// Returns true if any tuple in List has Key at position N (1-based).
-    abstract keymember: key: 'Key * n: int * list: BeamList<'T> -> bool
-    /// Replaces the first tuple whose Nth element equals Key with NewTuple.
-    abstract keyreplace: key: 'Key * n: int * list: BeamList<'T> * newTuple: 'T -> BeamList<'T>
+[<Emit("lists:sort($0)")>]
+let sort (list: BeamList<'T>) : BeamList<'T> = nativeOnly
 
-    /// Combines map and left fold: applies Fun to each element and an accumulator,
-    /// returning a new list of the first Fun results and the final accumulator.
-    abstract mapfoldl: f: ('T -> 'Acc -> 'U * 'Acc) * acc: 'Acc * list: BeamList<'T> -> BeamList<'U> * 'Acc
-    /// Combines map and right fold.
-    abstract mapfoldr: f: ('T -> 'Acc -> 'U * 'Acc) * acc: 'Acc * list: BeamList<'T> -> BeamList<'U> * 'Acc
+[<Emit("lists:sort($0, $1)")>]
+let sortWith (f: 'T -> 'T -> bool) (list: BeamList<'T>) : BeamList<'T> = nativeOnly
 
-/// lists module
-[<ImportAll("lists")>]
-let lists: IExports = nativeOnly
+[<Emit("lists:nth($0, $1)")>]
+let nth (n: int) (list: BeamList<'T>) : 'T = nativeOnly
+
+[<Emit("lists:last($0)")>]
+let last (list: BeamList<'T>) : 'T = nativeOnly
+
+[<Emit("lists:map($0, $1)")>]
+let map (f: 'T -> 'U) (list: BeamList<'T>) : BeamList<'U> = nativeOnly
+
+[<Emit("lists:filter($0, $1)")>]
+let filter (pred: 'T -> bool) (list: BeamList<'T>) : BeamList<'T> = nativeOnly
+
+[<Emit("lists:foldl($0, $1, $2)")>]
+let foldl (f: 'T -> 'Acc -> 'Acc) (acc: 'Acc) (list: BeamList<'T>) : 'Acc = nativeOnly
+
+[<Emit("lists:foldr($0, $1, $2)")>]
+let foldr (f: 'T -> 'Acc -> 'Acc) (acc: 'Acc) (list: BeamList<'T>) : 'Acc = nativeOnly
+
+[<Emit("lists:foreach($0, $1)")>]
+let foreach (f: System.Action<'T>) (list: BeamList<'T>) : unit = nativeOnly
+
+[<Emit("lists:zip($0, $1)")>]
+let zip (list1: BeamList<'A>) (list2: BeamList<'B>) : BeamList<'A * 'B> = nativeOnly
+
+[<Emit("lists:unzip($0)")>]
+let unzip (list: BeamList<'A * 'B>) : BeamList<'A> * BeamList<'B> = nativeOnly
+
+[<Emit("lists:partition($0, $1)")>]
+let partition (pred: 'T -> bool) (list: BeamList<'T>) : BeamList<'T> * BeamList<'T> = nativeOnly
+
+[<Emit("lists:usort($0)")>]
+let usort (list: BeamList<'T>) : BeamList<'T> = nativeOnly
+
+[<Emit("lists:sublist($0, $1)")>]
+let sublist (list: BeamList<'T>) (length: int) : BeamList<'T> = nativeOnly
+
+[<Emit("lists:all($0, $1)")>]
+let all (pred: 'T -> bool) (list: BeamList<'T>) : bool = nativeOnly
+
+[<Emit("lists:any($0, $1)")>]
+let any (pred: 'T -> bool) (list: BeamList<'T>) : bool = nativeOnly
+
+[<Emit("lists:sum($0)")>]
+let sumInt (list: BeamList<int>) : int = nativeOnly
+
+[<Emit("lists:sum($0)")>]
+let sumFloat (list: BeamList<float>) : float = nativeOnly
+
+[<Emit("lists:max($0)")>]
+let max (list: BeamList<'T>) : 'T = nativeOnly
+
+[<Emit("lists:min($0)")>]
+let min (list: BeamList<'T>) : 'T = nativeOnly
+
+[<Emit("lists:seq($0, $1)")>]
+let seq (from: int) (``to``: int) : BeamList<int> = nativeOnly
+
+[<Emit("lists:seq($0, $1, $2)")>]
+let seqStep (from: int) (``to``: int) (increment: int) : BeamList<int> = nativeOnly
+
+[<Emit("lists:duplicate($0, $1)")>]
+let duplicate (n: int) (elem: 'T) : BeamList<'T> = nativeOnly
+
+[<Emit("lists:takewhile($0, $1)")>]
+let takeWhile (pred: 'T -> bool) (list: BeamList<'T>) : BeamList<'T> = nativeOnly
+
+[<Emit("lists:dropwhile($0, $1)")>]
+let dropWhile (pred: 'T -> bool) (list: BeamList<'T>) : BeamList<'T> = nativeOnly
+
+[<Emit("lists:splitwith($0, $1)")>]
+let splitWith (pred: 'T -> bool) (list: BeamList<'T>) : BeamList<'T> * BeamList<'T> = nativeOnly
+
+[<Emit("lists:delete($0, $1)")>]
+let delete (elem: 'T) (list: BeamList<'T>) : BeamList<'T> = nativeOnly
+
+[<Emit("lists:subtract($0, $1)")>]
+let subtract (list1: BeamList<'T>) (list2: BeamList<'T>) : BeamList<'T> = nativeOnly
+
+[<Emit("lists:keysort($0, $1)")>]
+let keySort (n: int) (list: BeamList<'T>) : BeamList<'T> = nativeOnly
+
+[<Emit("lists:keydelete($0, $1, $2)")>]
+let keyDelete (key: 'Key) (n: int) (list: BeamList<'T>) : BeamList<'T> = nativeOnly
+
+[<Emit("lists:keymember($0, $1, $2)")>]
+let keyMember (key: 'Key) (n: int) (list: BeamList<'T>) : bool = nativeOnly
+
+[<Emit("lists:keyreplace($0, $1, $2, $3)")>]
+let keyReplace (key: 'Key) (n: int) (list: BeamList<'T>) (newTuple: 'T) : BeamList<'T> = nativeOnly
+
+[<Emit("lists:mapfoldl($0, $1, $2)")>]
+let mapFoldLeft (f: 'T -> 'Acc -> 'U * 'Acc) (acc: 'Acc) (list: BeamList<'T>) : BeamList<'U> * 'Acc = nativeOnly
+
+[<Emit("lists:mapfoldr($0, $1, $2)")>]
+let mapFoldRight (f: 'T -> 'Acc -> 'U * 'Acc) (acc: 'Acc) (list: BeamList<'T>) : BeamList<'U> * 'Acc = nativeOnly
 
 /// Searches a list of tuples for the first one whose Nth element (1-based) equals Key.
 /// Returns Some(tuple) if found, or None if not found.
