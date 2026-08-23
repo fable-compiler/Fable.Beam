@@ -1,5 +1,5 @@
 ---
-last_commit_released: 0b4f4912c8ff47f3a7d3561c59146626092d4e4f
+last_commit_released: 0b4f491a726d8a92ed3449f00f4ad7c6234a770b
 name: Fable.Beam.Jsx
 ---
 
