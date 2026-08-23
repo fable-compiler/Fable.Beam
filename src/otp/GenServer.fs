@@ -34,32 +34,49 @@ let viaName (``module``: Atom) (name: Atom) : ServerName = nativeOnly
 [<Erase>]
 type From = From of obj
 
-[<Erase>]
-type IExports =
-    /// Starts a gen_server process.
-    abstract start_link: ``module``: Atom * args: 'Args * options: obj list -> Result<Pid<'Msg>, Dynamic>
+/// Starts a gen_server process and links it to the caller.
+[<Emit("gen_server:start_link($0, $1, $2)")>]
+let startLink (``module``: Atom) (args: 'Args) (options: obj list) : Result<Pid<'Msg>, Dynamic> = nativeOnly
 
-    /// Starts a named gen_server process.
-    abstract start_link:
-        name: ServerName * ``module``: Atom * args: 'Args * options: obj list -> Result<Pid<'Msg>, Dynamic>
+/// Starts a named gen_server process and links it to the caller.
+[<Emit("gen_server:start_link($0, $1, $2, $3)")>]
+let startLinkNamed
+    (name: ServerName)
+    (``module``: Atom)
+    (args: 'Args)
+    (options: obj list)
+    : Result<Pid<'Msg>, Dynamic> =
+    nativeOnly
 
-    /// Starts a gen_server without linking.
-    abstract start: ``module``: Atom * args: 'Args * options: obj list -> Result<Pid<'Msg>, Dynamic>
-    /// Starts a named gen_server without linking.
-    abstract start: name: ServerName * ``module``: Atom * args: 'Args * options: obj list -> Result<Pid<'Msg>, Dynamic>
-    /// Makes a synchronous call to a gen_server.
-    abstract call: serverRef: ServerRef<'Call, 'Cast> * request: 'Call -> 'Reply
-    /// Makes a synchronous call with timeout (int ms or atom 'infinity').
-    abstract call: serverRef: ServerRef<'Call, 'Cast> * request: 'Call * timeout: U2<int, Atom> -> 'Reply
-    /// Sends an asynchronous request to a gen_server.
-    abstract cast: serverRef: ServerRef<'Call, 'Cast> * request: 'Cast -> unit
-    /// Sends a reply to a client that called call/2,3.
-    abstract reply: from: From * reply: 'Reply -> unit
-    /// Stops a gen_server.
-    abstract stop: serverRef: ServerRef<'Call, 'Cast> -> unit
-    /// Stops a gen_server with reason and timeout (int ms or atom 'infinity').
-    abstract stop: serverRef: ServerRef<'Call, 'Cast> * reason: Atom * timeout: U2<int, Atom> -> unit
+/// Starts a gen_server process without linking it to the caller.
+[<Emit("gen_server:start($0, $1, $2)")>]
+let start (``module``: Atom) (args: 'Args) (options: obj list) : Result<Pid<'Msg>, Dynamic> = nativeOnly
 
-/// gen_server module
-[<ImportAll("gen_server")>]
-let gen_server: IExports = nativeOnly
+/// Starts a named gen_server process without linking it to the caller.
+[<Emit("gen_server:start($0, $1, $2, $3)")>]
+let startNamed (name: ServerName) (``module``: Atom) (args: 'Args) (options: obj list) : Result<Pid<'Msg>, Dynamic> =
+    nativeOnly
+
+/// Makes a synchronous call to a gen_server.
+[<Emit("gen_server:call($0, $1)")>]
+let call (serverRef: ServerRef<'Call, 'Cast>) (request: 'Call) : 'Reply = nativeOnly
+
+/// Makes a synchronous call with a timeout in milliseconds or the `infinity` atom.
+[<Emit("gen_server:call($0, $1, $2)")>]
+let callWithTimeout (serverRef: ServerRef<'Call, 'Cast>) (request: 'Call) (timeout: U2<int, Atom>) : 'Reply = nativeOnly
+
+/// Sends an asynchronous request to a gen_server.
+[<Emit("gen_server:cast($0, $1)")>]
+let cast (serverRef: ServerRef<'Call, 'Cast>) (request: 'Cast) : unit = nativeOnly
+
+/// Sends a reply to a client that called `call`.
+[<Emit("gen_server:reply($0, $1)")>]
+let reply (from: From) (value: 'Reply) : unit = nativeOnly
+
+/// Stops a gen_server.
+[<Emit("gen_server:stop($0)")>]
+let stop (serverRef: ServerRef<'Call, 'Cast>) : unit = nativeOnly
+
+/// Stops a gen_server with a reason and timeout.
+[<Emit("gen_server:stop($0, $1, $2)")>]
+let stopWith (serverRef: ServerRef<'Call, 'Cast>) (reason: Atom) (timeout: U2<int, Atom>) : unit = nativeOnly

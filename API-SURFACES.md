@@ -1,7 +1,7 @@
 # RFC: Reduce the per-module API surface count
 
-Status: **in progress** — Option A is the v5.0 public-API direction. `String.fs` is the completed
-prototype; `Base64.fs`, `Binary.fs`, `Maps.fs`, and `Proplists.fs` have been migrated.
+Status: **in progress** — Option A is the v5.0 public-API direction. The public binding modules
+have been migrated; remaining work is documentation and downstream adoption.
 Prompted by review of #128 (the dual-API / `BeamChardata` work).
 
 ## The concern
@@ -256,10 +256,11 @@ wrapper on a curried `let`; B puts every wrapper on an interface member.
 - [x] Convert `src/otp/String.fs` and `test/TestString.fs` as the prototype.
 - [x] Verify the prototype's generated Erlang and BEAM behavior.
 - [x] Inventory the remaining public `ImportAll` surfaces and their downstream call sites.
-- [ ] Convert the remaining modules in reviewable commits while preserving intentional `*Raw` pairs.
+- [x] Convert the remaining modules in reviewable commits while preserving intentional `*Raw` pairs.
   - [x] `Base64.fs`, `Binary.fs`, `Maps.fs`, and `Proplists.fs`.
   - [x] `Lists.fs` and `Calendar.fs`.
-  - [ ] The remaining public `ImportAll` modules.
+  - [x] The remaining public `ImportAll` modules (`Timer`, `Io`, `GenServer`, `Supervisor`, `Ets`,
+    `Logger`, and `Jsx`).
   - [x] `Math.fs`, `Queue.fs`, and `Rand.fs`.
 - [ ] Update the bindings guide's general conventions, template, examples, and README call sites.
 - [ ] Migrate Synapse during the same release window and verify its build.

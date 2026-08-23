@@ -5,23 +5,6 @@ module Fable.Beam.Io
 open Fable.Core
 open Fable.Beam
 
-// fsharplint:disable MemberNames
-
-[<Erase>]
-type IExports =
-    /// Writes a formatted string to standard output.
-    abstract format: format: string * args: obj list -> unit
-    /// Writes a formatted string to a device.
-    abstract format: device: Pid<'Msg> * format: string * args: obj list -> unit
-    /// Reads a line from standard input (raw — returns eof atom on EOF).
-    abstract get_line: prompt: string -> string
-    /// Writes output to standard output.
-    abstract put_chars: chars: string -> unit
-
-/// io module (raw bindings)
-[<ImportAll("io")>]
-let io: IExports = nativeOnly
-
 // ============================================================================
 // Typed API with eof handling
 // ============================================================================

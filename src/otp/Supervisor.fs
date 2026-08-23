@@ -70,35 +70,34 @@ let fromName (name: Atom) : SupRef = nativeOnly
 // Bindings
 // ============================================================================
 
-[<Erase>]
-type IExports =
-    /// Starts a supervisor process. Returns the supervisor pid or an error term.
-    abstract start_link: ``module``: Atom * args: 'Args -> Result<Pid<obj>, Dynamic>
-    /// Starts a named supervisor process.
-    abstract start_link: name: ServerName * ``module``: Atom * args: 'Args -> Result<Pid<obj>, Dynamic>
-    /// Dynamically adds and starts a child. Returns the child pid or an error term.
-    abstract start_child: supRef: SupRef * childSpec: ChildSpec -> Result<Pid<obj>, Dynamic>
+/// Starts a supervisor process. Returns the supervisor pid or an error term.
+[<Emit("supervisor:start_link($0, $1)")>]
+let startLink (``module``: Atom) (args: 'Args) : Result<Pid<obj>, Dynamic> = nativeOnly
 
-    /// Terminates a running child by id. Error is an atom (e.g. 'not_found').
-    /// The Emit wrapper bridges OTP's bare `ok` into Fable's `{ok, ok}` Result form.
-    [<Emit("(fun() -> case supervisor:terminate_child($0, $1) of ok -> {ok, ok}; {error, SupTerminateChildReason__} -> {error, SupTerminateChildReason__} end end)()")>]
-    abstract terminate_child: supRef: SupRef * id: Atom -> Result<unit, Atom>
+/// Starts a named supervisor process.
+[<Emit("supervisor:start_link($0, $1, $2)")>]
+let startLinkNamed (name: ServerName) (``module``: Atom) (args: 'Args) : Result<Pid<obj>, Dynamic> = nativeOnly
 
-    /// Restarts a previously-terminated child by id. Returns the new child pid.
-    abstract restart_child: supRef: SupRef * id: Atom -> Result<Pid<obj>, Dynamic>
+/// Dynamically adds and starts a child.
+[<Emit("supervisor:start_child($0, $1)")>]
+let startChild (supRef: SupRef) (childSpec: ChildSpec) : Result<Pid<obj>, Dynamic> = nativeOnly
 
-    /// Deletes a child specification by id. Error is an atom (e.g. 'not_found').
-    /// The Emit wrapper bridges OTP's bare `ok` into Fable's `{ok, ok}` Result form.
-    [<Emit("(fun() -> case supervisor:delete_child($0, $1) of ok -> {ok, ok}; {error, SupDeleteChildReason__} -> {error, SupDeleteChildReason__} end end)()")>]
-    abstract delete_child: supRef: SupRef * id: Atom -> Result<unit, Atom>
+/// Terminates a running child by id.
+[<Emit("(fun() -> case supervisor:terminate_child($0, $1) of ok -> {ok, ok}; {error, SupTerminateChildReason__} -> {error, SupTerminateChildReason__} end end)()")>]
+let terminateChild (supRef: SupRef) (id: Atom) : Result<unit, Atom> = nativeOnly
 
-    /// Returns the children as a dynamic list of `{Id, Child, Type, Modules}`
-    /// tuples — decode with `Fable.Beam.Decode`.
-    abstract which_children: supRef: SupRef -> Dynamic
-    /// Returns child counts as a dynamic proplist
-    /// (`specs`, `active`, `supervisors`, `workers`) — decode with `Fable.Beam.Decode`.
-    abstract count_children: supRef: SupRef -> Dynamic
+/// Restarts a previously-terminated child by id.
+[<Emit("supervisor:restart_child($0, $1)")>]
+let restartChild (supRef: SupRef) (id: Atom) : Result<Pid<obj>, Dynamic> = nativeOnly
 
-/// supervisor module
-[<ImportAll("supervisor")>]
-let supervisor: IExports = nativeOnly
+/// Deletes a child specification by id.
+[<Emit("(fun() -> case supervisor:delete_child($0, $1) of ok -> {ok, ok}; {error, SupDeleteChildReason__} -> {error, SupDeleteChildReason__} end end)()")>]
+let deleteChild (supRef: SupRef) (id: Atom) : Result<unit, Atom> = nativeOnly
+
+/// Returns children as `{Id, Child, Type, Modules}` tuples.
+[<Emit("supervisor:which_children($0)")>]
+let children (supRef: SupRef) : Dynamic = nativeOnly
+
+/// Returns child counts (`specs`, `active`, `supervisors`, `workers`).
+[<Emit("supervisor:count_children($0)")>]
+let childCounts (supRef: SupRef) : Dynamic = nativeOnly

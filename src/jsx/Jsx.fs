@@ -59,7 +59,7 @@ let space (n: int) : JsxOpt = nativeOnly
 // ============================================================================
 
 [<Erase>]
-type IExports =
+type internal IExports =
     /// Decode a UTF-8 JSON binary into Erlang terms.
     abstract decode: json: string -> 'T
     /// Decode a UTF-8 JSON binary into Erlang terms with options.
@@ -85,6 +85,54 @@ type IExports =
     /// Check if an Erlang term is a valid JSON-representable term with options.
     abstract is_term: term: 'T * opts: JsxOpt list -> bool
 
-/// jsx module
+/// Raw jsx module binding used only to support implementation details.
 [<ImportAll("jsx")>]
-let jsx: IExports = nativeOnly
+let internal jsx: IExports = nativeOnly
+
+/// Decodes a UTF-8 JSON binary into Erlang terms.
+[<Emit("jsx:decode($0)")>]
+let decode (json: string) : 'T = nativeOnly
+
+/// Decodes a UTF-8 JSON binary with options.
+[<Emit("jsx:decode($0, $1)")>]
+let decodeWith (json: string) (options: JsxOpt list) : 'T = nativeOnly
+
+/// Encodes an Erlang term into a UTF-8 JSON binary.
+[<Emit("jsx:encode($0)")>]
+let encode (value: 'T) : string = nativeOnly
+
+/// Encodes an Erlang term into a UTF-8 JSON binary with options.
+[<Emit("jsx:encode($0, $1)")>]
+let encodeWith (value: 'T) (options: JsxOpt list) : string = nativeOnly
+
+/// Formats a JSON binary.
+[<Emit("jsx:format($0)")>]
+let format (json: string) : string = nativeOnly
+
+/// Formats a JSON binary with options.
+[<Emit("jsx:format($0, $1)")>]
+let formatWith (json: string) (options: JsxOpt list) : string = nativeOnly
+
+/// Removes whitespace from a JSON binary.
+[<Emit("jsx:minify($0)")>]
+let minify (json: string) : string = nativeOnly
+
+/// Adds readable whitespace to a JSON binary.
+[<Emit("jsx:prettify($0)")>]
+let prettify (json: string) : string = nativeOnly
+
+/// Checks whether a binary is valid JSON.
+[<Emit("jsx:is_json($0)")>]
+let isJson (json: string) : bool = nativeOnly
+
+/// Checks whether a binary is valid JSON with options.
+[<Emit("jsx:is_json($0, $1)")>]
+let isJsonWith (json: string) (options: JsxOpt list) : bool = nativeOnly
+
+/// Checks whether an Erlang term can be represented as JSON.
+[<Emit("jsx:is_term($0)")>]
+let isTerm (value: 'T) : bool = nativeOnly
+
+/// Checks whether an Erlang term can be represented as JSON with options.
+[<Emit("jsx:is_term($0, $1)")>]
+let isTermWith (value: 'T) (options: JsxOpt list) : bool = nativeOnly
