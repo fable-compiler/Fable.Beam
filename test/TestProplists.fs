@@ -8,8 +8,9 @@ open Fable.Core
 open Fable.Core.BeamInterop
 open Fable.Beam
 open Fable.Beam.Lists
-open Fable.Beam.Maps
-open Fable.Beam.Proplists
+
+module BMaps = Fable.Beam.Maps
+module BProplists = Fable.Beam.Proplists
 
 let tests =
     testList (
@@ -20,7 +21,7 @@ let tests =
                   // [{name, <<"alice">>}, {age, 30}]
                   let pl: BeamList<obj> = emitErlExpr () "[{name, <<\"alice\">>}, {age, 30}]"
                   let key = Erlang.binaryToAtom "name"
-                  assertThat (tryFind key pl) (isEqualTo (Some "alice"))
+                  assertThat (BProplists.tryFind key pl) (isEqualTo (Some "alice"))
           )
 
           test (
@@ -28,7 +29,7 @@ let tests =
               fun _ ->
                   let pl: BeamList<obj> = emitErlExpr () "[{name, <<\"alice\">>}]"
                   let key = Erlang.binaryToAtom "missing"
-                  let result: string option = tryFind key pl
+                  let result: string option = BProplists.tryFind key pl
                   assertThat result (isEqualTo None)
           )
 
@@ -38,8 +39,8 @@ let tests =
                   let pl: BeamList<obj> = emitErlExpr () "[{port, 443}]"
                   let portKey = Erlang.binaryToAtom "port"
                   let timeoutKey = Erlang.binaryToAtom "timeout"
-                  assertThat (getOrDefault portKey pl 80) (isEqualTo 443)
-                  assertThat (getOrDefault timeoutKey pl 5000) (isEqualTo 5000)
+                  assertThat (BProplists.getOrDefault portKey pl 80) (isEqualTo 443)
+                  assertThat (BProplists.getOrDefault timeoutKey pl 5000) (isEqualTo 5000)
           )
 
           test (
@@ -48,8 +49,8 @@ let tests =
                   let pl: BeamList<obj> = emitErlExpr () "[{ssl, true}, {port, 443}]"
                   let sslKey = Erlang.binaryToAtom "ssl"
                   let missingKey = Erlang.binaryToAtom "missing"
-                  assertThat (containsKey sslKey pl) (isEqualTo true)
-                  assertThat (containsKey missingKey pl) (isEqualTo false)
+                  assertThat (BProplists.containsKey sslKey pl) (isEqualTo true)
+                  assertThat (BProplists.containsKey missingKey pl) (isEqualTo false)
           )
 
           test (
@@ -58,9 +59,9 @@ let tests =
                   let pl: BeamList<obj> = emitErlExpr () "[{a, 1}, {b, 2}, {a, 3}]"
                   let aKey = Erlang.binaryToAtom "a"
                   let bKey = Erlang.binaryToAtom "b"
-                  let result = remove aKey pl
-                  assertThat (containsKey aKey result) (isEqualTo false)
-                  assertThat (containsKey bKey result) (isEqualTo true)
+                  let result = BProplists.remove aKey pl
+                  assertThat (BProplists.containsKey aKey result) (isEqualTo false)
+                  assertThat (BProplists.containsKey bKey result) (isEqualTo true)
           )
 
           test (
@@ -68,7 +69,7 @@ let tests =
               fun _ ->
                   let pl: BeamList<obj> = emitErlExpr () "[{x, 1}, {y, 2}, {x, 3}]"
                   let xKey = Erlang.binaryToAtom "x"
-                  let vs: BeamList<int> = getAllValues xKey pl
+                  let vs: BeamList<int> = BProplists.getAllValues xKey pl
                   let expected: BeamList<int> = emitErlExpr () "[1, 3]"
                   assertThat vs (isEqualTo expected)
           )
@@ -77,11 +78,11 @@ let tests =
               "to_map converts proplist to map",
               fun _ ->
                   let pl: BeamList<obj> = emitErlExpr () "[{a, 1}, {b, 2}]"
-                  let m: BeamMap<Atom, int> = toMap pl
+                  let m: BMaps.BeamMap<Atom, int> = BProplists.toMap pl
                   let aKey = Erlang.binaryToAtom "a"
                   let bKey = Erlang.binaryToAtom "b"
-                  assertThat (Maps.get aKey m) (isEqualTo 1)
-                  assertThat (Maps.get bKey m) (isEqualTo 2)
+                  assertThat (BMaps.get aKey m) (isEqualTo 1)
+                  assertThat (BMaps.get bKey m) (isEqualTo 2)
           )
 
           test (
@@ -89,7 +90,7 @@ let tests =
               fun _ ->
                   // [ssl, {port, 443}] -> [{ssl, true}, {port, 443}]
                   let pl: BeamList<obj> = emitErlExpr () "[ssl, {port, 443}]"
-                  let result = unfold pl
+                  let result = BProplists.unfold pl
                   let expected: BeamList<obj> = emitErlExpr () "[{ssl, true}, {port, 443}]"
                   assertThat result (isEqualTo expected)
           )
@@ -99,7 +100,7 @@ let tests =
               fun _ ->
                   // [{ssl, true}, {port, 443}] -> [ssl, {port, 443}]
                   let pl: BeamList<obj> = emitErlExpr () "[{ssl, true}, {port, 443}]"
-                  let result = compact pl
+                  let result = BProplists.compact pl
                   let expected: BeamList<obj> = emitErlExpr () "[ssl, {port, 443}]"
                   assertThat result (isEqualTo expected)
           )
@@ -109,7 +110,7 @@ let tests =
               fun _ ->
                   // [{a, 1}, {b, 2}, {a, 3}] -> [a, b] (unordered, no duplicates)
                   let pl: BeamList<obj> = emitErlExpr () "[{a, 1}, {b, 2}, {a, 3}]"
-                  let ks: Atom array = keys pl
+                  let ks: Atom array = BProplists.keys pl
                   assertThat (ks |> Array.length) (isEqualTo 2)
                   let aKey = Erlang.binaryToAtom "a"
                   let bKey = Erlang.binaryToAtom "b"
@@ -120,15 +121,15 @@ let tests =
           test (
               "from_map converts map to proplist",
               fun _ ->
-                  let m: BeamMap<Atom, int> = Maps.empty ()
+                  let m: BMaps.BeamMap<Atom, int> = BMaps.empty ()
                   let aKey = Erlang.binaryToAtom "a"
                   let bKey = Erlang.binaryToAtom "b"
-                  let m = Maps.put aKey 1 m
-                  let m = Maps.put bKey 2 m
-                  let pl: BeamList<obj> = ofMap m
-                  assertThat (containsKey aKey pl) (isEqualTo true)
-                  assertThat (containsKey bKey pl) (isEqualTo true)
-                  let aVal: int option = tryFind aKey pl
+                  let m = BMaps.put aKey 1 m
+                  let m = BMaps.put bKey 2 m
+                  let pl: BeamList<obj> = BProplists.ofMap m
+                  assertThat (BProplists.containsKey aKey pl) (isEqualTo true)
+                  assertThat (BProplists.containsKey bKey pl) (isEqualTo true)
+                  let aVal: int option = BProplists.tryFind aKey pl
                   assertThat aVal (isEqualTo (Some 1))
           ) ]
     )

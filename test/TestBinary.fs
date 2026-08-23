@@ -7,7 +7,8 @@ open type Scriptorium.Quill.Test
 open Fable.Core
 open Fable.Core.BeamInterop
 open Fable.Beam
-open Fable.Beam.Binary
+
+module BBinary = Fable.Beam.Binary
 
 module BLists = Fable.Beam.Lists
 
@@ -18,56 +19,56 @@ let tests =
               "copy makes a copy",
               fun _ ->
                   let b = "hello"
-                  assertThat (copy b) (isEqualTo "hello")
+                  assertThat (BBinary.copy b) (isEqualTo "hello")
           )
 
-          test ("copy N times concatenates", fun _ -> assertThat (copyN "ab" 3) (isEqualTo "ababab"))
+          test ("copy N times concatenates", fun _ -> assertThat (BBinary.copyN "ab" 3) (isEqualTo "ababab"))
 
           test (
               "at returns byte at position",
               fun _ ->
                   // 'A' = 65, 'B' = 66
-                  assertThat (at "AB" 0) (isEqualTo 65)
-                  assertThat (at "AB" 1) (isEqualTo 66)
+                  assertThat (BBinary.at "AB" 0) (isEqualTo 65)
+                  assertThat (BBinary.at "AB" 1) (isEqualTo 66)
           )
 
           test (
               "first returns first byte",
               fun _ ->
                   // 'h' = 104
-                  assertThat (first "hello") (isEqualTo 104)
+                  assertThat (BBinary.first "hello") (isEqualTo 104)
           )
 
           test (
               "last returns last byte",
               fun _ ->
                   // 'o' = 111
-                  assertThat (last "hello") (isEqualTo 111)
+                  assertThat (BBinary.last "hello") (isEqualTo 111)
           )
 
-          test ("part extracts subbinary", fun _ -> assertThat (part "hello world" 6 5) (isEqualTo "world"))
+          test ("part extracts subbinary", fun _ -> assertThat (BBinary.part "hello world" 6 5) (isEqualTo "world"))
 
           test (
               "matchFirst returns Some on match",
-              fun _ -> assertThat (matchFirst "hello" "ll") (isEqualTo (Some(2, 2)))
+              fun _ -> assertThat (BBinary.matchFirst "hello" "ll") (isEqualTo (Some(2, 2)))
           )
 
           test (
               "matchFirst returns None when not found",
-              fun _ -> assertThat (matchFirst "hello" "xyz") (isEqualTo None)
+              fun _ -> assertThat (BBinary.matchFirst "hello" "xyz") (isEqualTo None)
           )
 
           test (
               "matchAll returns all occurrences",
               fun _ ->
-                  let results = matchAll "abcabc" "b"
+                  let results = BBinary.matchAll "abcabc" "b"
                   assertThat (Array.length results) (isEqualTo 2)
           )
 
           test (
               "splitFirst splits on first occurrence",
               fun _ ->
-                  let parts = splitFirst "hello world" " "
+                  let parts = BBinary.splitFirst "hello world" " "
                   assertThat (Array.length parts) (isEqualTo 2)
                   assertThat (parts.[0]) (isEqualTo "hello")
                   assertThat (parts.[1]) (isEqualTo "world")
@@ -76,7 +77,7 @@ let tests =
           test (
               "splitAll splits on all occurrences",
               fun _ ->
-                  let parts = splitAll "a,b,c" ","
+                  let parts = BBinary.splitAll "a,b,c" ","
                   assertThat (Array.length parts) (isEqualTo 3)
                   assertThat (parts.[0]) (isEqualTo "a")
                   assertThat (parts.[1]) (isEqualTo "b")
@@ -85,12 +86,12 @@ let tests =
 
           test (
               "replaceFirst replaces first occurrence",
-              fun _ -> assertThat (replaceFirst "aabbaa" "aa" "XX") (isEqualTo "XXbbaa")
+              fun _ -> assertThat (BBinary.replaceFirst "aabbaa" "aa" "XX") (isEqualTo "XXbbaa")
           )
 
           test (
               "replaceAll replaces all occurrences",
-              fun _ -> assertThat (replaceAll "aabbaa" "aa" "XX") (isEqualTo "XXbbXX")
+              fun _ -> assertThat (BBinary.replaceAll "aabbaa" "aa" "XX") (isEqualTo "XXbbXX")
           )
 
           test (
@@ -98,19 +99,19 @@ let tests =
               fun _ ->
                   // "foo" is the longest prefix common to *all three* ("foobar"/"foobaz" share "fooba",
                   // but "fooqux" diverges at the 4th byte).
-                  assertThat (longestCommonPrefix [ "foobar"; "foobaz"; "fooqux" ]) (isEqualTo 3)
+                  assertThat (BBinary.longestCommonPrefix [ "foobar"; "foobaz"; "fooqux" ]) (isEqualTo 3)
           )
 
           test (
               "longest_common_suffix",
-              fun _ -> assertThat (longestCommonSuffix [ "foobar"; "bazbar"; "quuxbar" ]) (isEqualTo 3)
+              fun _ -> assertThat (BBinary.longestCommonSuffix [ "foobar"; "bazbar"; "quuxbar" ]) (isEqualTo 3)
           )
 
           test (
               "bin_to_list returns list of bytes",
               fun _ ->
                   // "ABC" = [65, 66, 67]
-                  let bytes = toByteList "ABC"
+                  let bytes = BBinary.toByteList "ABC"
                   assertThat (BLists.nth 1 bytes) (isEqualTo 65)
                   assertThat (BLists.nth 2 bytes) (isEqualTo 66)
                   assertThat (BLists.nth 3 bytes) (isEqualTo 67)
@@ -121,30 +122,30 @@ let tests =
               fun _ ->
                   // [104, 105] = "hi"
                   let bytes: BLists.BeamList<int> = emitErlExpr () "[104, 105]"
-                  assertThat (ofByteList bytes) (isEqualTo "hi")
+                  assertThat (BBinary.ofByteList bytes) (isEqualTo "hi")
           )
 
           test (
               "bin_to_list and list_to_bin roundtrip",
               fun _ ->
                   let original = "hello"
-                  let bytes = toByteList original
-                  assertThat (ofByteList bytes) (isEqualTo original)
+                  let bytes = BBinary.toByteList original
+                  assertThat (BBinary.ofByteList bytes) (isEqualTo original)
           )
 
           test (
               "encode_unsigned and decode_unsigned roundtrip",
               fun _ ->
                   let n = 12345
-                  let encoded = encodeUnsigned n
-                  assertThat (decodeUnsigned encoded) (isEqualTo n)
+                  let encoded = BBinary.encodeUnsigned n
+                  assertThat (BBinary.decodeUnsigned encoded) (isEqualTo n)
           )
 
           test (
               "encode_unsigned of zero roundtrips",
               fun _ ->
-                  let encoded = encodeUnsigned 0
-                  assertThat (decodeUnsigned encoded) (isEqualTo 0)
+                  let encoded = BBinary.encodeUnsigned 0
+                  assertThat (BBinary.decodeUnsigned encoded) (isEqualTo 0)
           )
 
           test (
@@ -154,11 +155,11 @@ let tests =
                   let big = Erlang.binaryToAtom "big"
                   // Big-endian encoding of 256 is <<1, 0>>.
                   // Decoded as little-endian, those bytes read as 1.
-                  let encoded_big = encodeUnsignedWithEndianness 256 big
-                  assertThat (decodeUnsignedWithEndianness encoded_big little) (isEqualTo 1)
+                  let encoded_big = BBinary.encodeUnsignedWithEndianness 256 big
+                  assertThat (BBinary.decodeUnsignedWithEndianness encoded_big little) (isEqualTo 1)
                   // Roundtrip via little endian preserves the value.
-                  let encoded_little = encodeUnsignedWithEndianness 256 little
-                  assertThat (decodeUnsignedWithEndianness encoded_little little) (isEqualTo 256)
+                  let encoded_little = BBinary.encodeUnsignedWithEndianness 256 little
+                  assertThat (BBinary.decodeUnsignedWithEndianness encoded_little little) (isEqualTo 256)
           )
 
           test (
@@ -169,14 +170,14 @@ let tests =
                   // with how the binary was constructed and the OTP release (5 on OTP 25, 40 on OTP 27, 256 for a
                   // shell literal). The only portable guarantee is that it references at least what it contains.
                   let s = "hello"
-                  assertThat (referencedByteSize s >= Erlang.byteSize s) (isTrue)
-                  assertThat (referencedByteSize "" >= 0) (isTrue)
+                  assertThat (BBinary.referencedByteSize s >= Erlang.byteSize s) (isTrue)
+                  assertThat (BBinary.referencedByteSize "" >= 0) (isTrue)
           )
 
           test (
               "splitAllRaw returns the native list form of splitAll",
               fun _ ->
-                  let parts: BLists.BeamList<string> = splitAllRaw "a-b-c" "-"
+                  let parts: BLists.BeamList<string> = BBinary.splitAllRaw "a-b-c" "-"
 
                   let expected: BLists.BeamList<string> =
                       emitErlExpr () "[<<\"a\">>, <<\"b\">>, <<\"c\">>]"
@@ -187,7 +188,7 @@ let tests =
           test (
               "splitFirstRaw returns the native list form of splitFirst",
               fun _ ->
-                  let parts: BLists.BeamList<string> = splitFirstRaw "a-b-c" "-"
+                  let parts: BLists.BeamList<string> = BBinary.splitFirstRaw "a-b-c" "-"
                   let expected: BLists.BeamList<string> = emitErlExpr () "[<<\"a\">>, <<\"b-c\">>]"
                   assertThat parts (isEqualTo expected)
           ) ]
