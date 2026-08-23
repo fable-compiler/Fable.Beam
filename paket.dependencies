@@ -4,6 +4,7 @@ source https://api.nuget.org/v3/index.json
 storage: none
 framework: netstandard2.0
 
+nuget Fable.Beam >= 5.0.0-rc.37 < 6.0 rc
 nuget FSharp.Core >= 5.0.0 lowest_matching: true
 nuget Fable.Core >= 5.0.0 lowest_matching: true
 

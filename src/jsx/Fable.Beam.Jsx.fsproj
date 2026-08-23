@@ -14,6 +14,9 @@
     <PackageProjectUrl>https://github.com/fable-compiler/Fable.Beam</PackageProjectUrl>
   </PropertyGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Fable.Beam.fsproj" />
+  </ItemGroup>
+  <ItemGroup>
     <Compile Include="Jsx.fs" />
   </ItemGroup>
   <ItemGroup>
