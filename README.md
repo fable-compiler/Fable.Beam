@@ -29,6 +29,12 @@ Libraries built on top of Fable.Beam:
 | `Fable.Beam.Cowboy` | Cowboy HTTP server bindings |
 | `Fable.Beam.Jsx` | jsx JSON library bindings |
 
+`Fable.Beam.Jsx` depends on `Fable.Beam`. During the 5.0 release-candidate
+series, install the paired versions: `Fable.Beam 5.0.0-rc.37` and
+`Fable.Beam.Jsx 5.0.0-rc.9`. The JSX package requires `Fable.Beam >=
+5.0.0-rc.37` and `< 6.0.0`, so NuGet reports an incompatible selection at
+restore time.
+
 ### Fable.Beam — OTP Modules
 
 | Module | Binding | Description |
@@ -89,17 +95,18 @@ paket add Fable.Beam.Jsx      # optional: JSON
 Then use the bindings in your F# code:
 
 ```fsharp
-open Fable.Core
 open Fable.Core.BeamInterop
+
 open Fable.Beam.Erlang
-open Fable.Beam.Timer
-open Fable.Beam.Maps
+
+module BeamMaps = Fable.Beam.Maps
+module BeamTimer = Fable.Beam.Timer
 
 // Process management
 let pid = self ()
 let ref = makeRef ()
 let child = spawn (fun () ->
-    Timer.sleep 1000
+    BeamTimer.sleep 1000
 )
 
 // Send and receive messages
@@ -116,13 +123,13 @@ match Erlang.receive<Msg> 5000 with
 | None -> printfn "Timeout"
 
 // Typed Erlang maps (generic — no box needed)
-let m: BeamMap<string, int> = maps.new_ ()
-let m = maps.put ("key", 42, m)
-let v = maps.get ("key", m)  // returns int
+let map: BeamMap<string, int> = BeamMaps.empty ()
+let map = BeamMaps.put "key" 42 map
+let value = BeamMaps.get "key" map  // returns int
 
 // Timers
-Timer.sleep 100
-let ms = Timer.seconds 30  // 30000
+BeamTimer.sleep 100
+let ms = BeamTimer.seconds 30  // 30000
 
 // Process monitoring
 let monRef = monitor child
@@ -132,6 +139,13 @@ demonitorFlush monRef
 put (box "my_key") (box 42) |> ignore
 let value = get (box "my_key")
 ```
+
+For modules that collide with FSharp.Core names, use a short explicit alias in
+examples and application code: `BeamMaps`, `BeamLists`, `BeamMath`, and
+`BString` for `Fable.Beam.String`. All public binding functions are curried;
+the evolving collection or value is the final argument, so they compose with
+pipelines. See [the curried API migration guide](MIGRATING-TO-CURRIED-API.md)
+for renamed and raw-value APIs.
 
 ### JSON with jsx
 
