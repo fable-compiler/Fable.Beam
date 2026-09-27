@@ -94,6 +94,12 @@ let secondsToTime (seconds: int) : Time = nativeOnly
 [<Emit("calendar:local_time_to_universal_time({$0, $1})")>]
 let localTimeToUniversalTime (datetime: DateTime) : DateTime = nativeOnly
 
+/// Converts a local datetime to every corresponding UTC datetime.
+/// Returns an empty list for a time skipped by a DST transition, two values for
+/// an ambiguous repeated time, and one value for an ordinary local time.
+[<Emit("calendar:local_time_to_universal_time_dst({$0, $1})")>]
+let localTimeToUniversalTimeDst (datetime: DateTime) : DateTime list = nativeOnly
+
 /// Converts a UTC datetime to local time.
 /// Note: The result depends on the system's time zone configuration.
 [<Emit("calendar:universal_time_to_local_time({$0, $1})")>]
