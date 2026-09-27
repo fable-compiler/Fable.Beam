@@ -90,7 +90,7 @@ release:
         if [ "$attempt" -eq 12 ]; then
             exit 1
         fi
-        sleep 10
+        sleep 60
     done
     dotnet pack src/jsx -c Release -o ./nupkgs -p:PackageVersion=$JSX_VERSION -p:InformationalVersion=$JSX_VERSION
     dotnet nuget push "./nupkgs/Fable.Beam.Jsx.$JSX_VERSION.nupkg" -s https://api.nuget.org/v3/index.json -k $NUGET_KEY --skip-duplicate

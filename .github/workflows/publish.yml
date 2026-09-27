@@ -36,7 +36,7 @@ jobs:
   release:
     name: Release
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 20
     if: "startsWith(github.event.head_commit.message, 'chore: release ')"
     steps:
       - name: Checkout code
