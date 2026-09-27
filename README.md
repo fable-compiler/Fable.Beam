@@ -54,6 +54,8 @@ selection at restore time.
 | `Fable.Beam.Rand` | `rand` | Pseudo-random number generation |
 | `Fable.Beam.Re` | `re` | Regular expressions (PCRE-compatible) |
 | `Fable.Beam.Calendar` | `calendar` | Date, time, and Gregorian conversions |
+| `Fable.Beam.NetKernel` | `net_kernel` | Distributed-node connections |
+| `Fable.Beam.Rpc` | `rpc` | Bounded remote calls and remote process lookup |
 | `Fable.Beam.UriString` | `uri_string` | URI parsing, normalization, and encoding |
 | `Fable.Beam.String` | `string` | Unicode string operations |
 | `Fable.Beam.Io` | `io` | I/O functions |
@@ -220,6 +222,32 @@ match connectLineClient "localhost" 30003 with
 | Error reason -> printfn "connect failed: %s" reason
 ```
 
+### Distributed nodes
+
+`NetKernel.connectNode` preserves OTP's three outcomes, including `NotAlive`
+when distribution has not been started. `Rpc.call` accepts explicitly widened
+`Dynamic` arguments and returns a value to decode; `Rpc.whereis` provides a
+typed shortcut for registered processes.
+
+```fsharp
+open Fable.Beam
+
+let peer = Atom.ofString "worker@example"
+
+match NetKernel.connectNode peer with
+| NetKernel.ConnectNodeResult.Connected ->
+    Rpc.call
+        peer
+        (Atom.ofString "erlang")
+        (Atom.ofString "is_atom")
+        [ Dynamic.ofValue (Atom.ofString "ok") ]
+        5000
+    |> Result.bind Decode.bool
+    |> ignore
+| NetKernel.ConnectNodeResult.ConnectionFailed -> ()
+| NetKernel.ConnectNodeResult.NotAlive -> ()
+```
+
 ## Prerequisites
 
 - [.NET SDK](https://dotnet.microsoft.com/) 10+
@@ -267,7 +295,7 @@ just pack
 ```text
 src/
   otp/             # Fable.Beam — OTP stdlib bindings
-    Erlang.fs, GenServer.fs, Supervisor.fs, Timer.fs,
+    Erlang.fs, GenServer.fs, Supervisor.fs, Timer.fs, NetKernel.fs, Rpc.fs,
     Ets.fs, Maps.fs, Lists.fs, Io.fs, Logger.fs,
     File.fs, Os.fs, Port.fs, GenTcp.fs, Httpc.fs, Application.fs, Init.fs,
     Binary.fs, Math.fs, Proplists.fs, String.fs, Queue.fs,

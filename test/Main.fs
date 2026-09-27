@@ -22,6 +22,7 @@ let main _ =
           Binary.tests
           Calendar.tests
           GenTcp.tests
+          Distribution.tests
           Queue.tests
           Lists.tests
           String.tests

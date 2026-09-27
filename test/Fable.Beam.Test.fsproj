@@ -37,6 +37,7 @@
     <Compile Include="TestBinary.fs" />
     <Compile Include="TestCalendar.fs" />
     <Compile Include="TestGenTcp.fs" />
+    <Compile Include="TestDistribution.fs" />
     <Compile Include="TestQueue.fs" />
     <Compile Include="TestLists.fs" />
     <Compile Include="TestString.fs" />
