@@ -38,7 +38,7 @@ build:
 build-beam:
     dotnet build {{test_path}}
     {{fable}} {{test_path}} --lang Erlang --outDir {{build_path}}/tests
-    cp {{test_path}}/test_counter_server.erl {{test_path}}/test_basic_sup.erl {{build_path}}/tests/src/
+    cp {{test_path}}/test_counter_server.erl {{test_path}}/test_basic_sup.erl {{test_path}}/test_tcp_server.erl {{build_path}}/tests/src/
     cp {{test_path}}/rebar.config {{build_path}}/tests/rebar.config
     cd {{build_path}}/tests && rebar3 compile
 
