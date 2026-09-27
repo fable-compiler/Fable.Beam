@@ -46,6 +46,29 @@ let internal file: IExports = nativeOnly
 // is inlined twice into one function. The wrappers are kept for explicitness and
 // are safe to remove.
 
+/// Kind of filesystem entry reported by OTP's `file_info` record.
+type FileKind =
+    | Device
+    | Directory
+    | Other
+    | Regular
+    | Symlink
+
+/// Selected portable metadata from OTP's `file_info` record.
+///
+/// Fields that OTP may report as `undefined` are represented as `None`.
+/// `majorDevice` identifies the filesystem; `minorDevice` is meaningful for
+/// Unix character devices; and `inode` is zero or unavailable on filesystems
+/// without Unix-style inode identity.
+type FileInfo =
+    {
+        kind: FileKind
+        mode: int option
+        majorDevice: int option
+        minorDevice: int option
+        inode: int option
+    }
+
 /// Reads the contents of a file. Handles binary_to_list conversion for path.
 /// Returns Ok with file contents as binary, or Error with reason as string.
 [<Emit("(fun() -> case file:read_file(binary_to_list($0)) of {ok, FileReadData__} -> {ok, FileReadData__}; {error, FileReadReason__} -> {error, erlang:atom_to_binary(FileReadReason__)} end end)()")>]
@@ -71,6 +94,16 @@ let delDir (path: string) : Result<unit, string> = nativeOnly
 /// Lists files in a directory. Converts charlist filenames to binaries.
 [<Emit("(fun() -> case file:list_dir(binary_to_list($0)) of {ok, FileListFiles__} -> {ok, [erlang:list_to_binary(FileListF__) || FileListF__ <- FileListFiles__]}; {error, FileListReason__} -> {error, erlang:atom_to_binary(FileListReason__)} end end)()")>]
 let listDir (path: string) : Result<string list, string> = nativeOnly
+
+/// Reads metadata for a filesystem entry, following symbolic links.
+[<Emit("(fun() -> case file:read_file_info(binary_to_list($0)) of {ok, {file_info, _, FileInfoType__, _, _, _, _, FileInfoMode__, _, FileInfoMajorDevice__, FileInfoMinorDevice__, FileInfoInode__, _, _}} -> {ok, #{kind_ => case FileInfoType__ of undefined -> other; FileInfoKind__ -> FileInfoKind__ end, mode_ => FileInfoMode__, major_device_ => FileInfoMajorDevice__, minor_device_ => FileInfoMinorDevice__, inode_ => FileInfoInode__}}; {error, FileInfoReason__} -> {error, erlang:atom_to_binary(FileInfoReason__)} end end)()")>]
+let readFileInfo (path: string) : Result<FileInfo, string> = nativeOnly
+
+/// Reads metadata for a filesystem entry without following a symbolic link.
+/// A missing path is returned as `Error "enoent"`, consistently with the other
+/// typed file functions.
+[<Emit("(fun() -> case file:read_link_info(binary_to_list($0)) of {ok, {file_info, _, FileLinkInfoType__, _, _, _, _, FileLinkInfoMode__, _, FileLinkInfoMajorDevice__, FileLinkInfoMinorDevice__, FileLinkInfoInode__, _, _}} -> {ok, #{kind_ => case FileLinkInfoType__ of undefined -> other; FileLinkInfoKind__ -> FileLinkInfoKind__ end, mode_ => FileLinkInfoMode__, major_device_ => FileLinkInfoMajorDevice__, minor_device_ => FileLinkInfoMinorDevice__, inode_ => FileLinkInfoInode__}}; {error, FileLinkInfoReason__} -> {error, erlang:atom_to_binary(FileLinkInfoReason__)} end end)()")>]
+let readLinkInfo (path: string) : Result<FileInfo, string> = nativeOnly
 
 /// Renames (moves) a file. Handles binary_to_list conversion for both paths.
 [<Emit("(fun() -> case file:rename(binary_to_list($0), binary_to_list($1)) of ok -> {ok, ok}; {error, FileRenameReason__} -> {error, erlang:atom_to_binary(FileRenameReason__)} end end)()")>]
