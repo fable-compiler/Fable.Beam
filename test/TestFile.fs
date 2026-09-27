@@ -4,7 +4,12 @@ open Scriptorium.Quill
 open Scriptorium.Nib.Assertion
 open type Scriptorium.Quill.Test
 
+open Fable.Core
+
 module BFile = Fable.Beam.File
+
+[<Emit("(fun() -> case file:make_symlink(binary_to_list($0), binary_to_list($1)) of ok -> {ok, ok}; {error, MakeSymlinkReason__} -> {error, erlang:atom_to_binary(MakeSymlinkReason__)} end end)()")>]
+let private makeSymlink (target: string) (link: string) : Result<unit, string> = nativeOnly
 
 let tests =
     testList (
@@ -113,5 +118,51 @@ let tests =
           test (
               "exists returns false for missing file",
               fun _ -> assertThat (BFile.exists "/tmp/fable_beam_no_such_file.txt") (isFalse)
+          )
+
+          test (
+              "readFileInfo exposes kind, mode, and stable identity fields",
+              fun _ ->
+                  let path = "/tmp/fable_beam_file_info_test.txt"
+                  BFile.writeFile path "metadata" |> ignore
+
+                  match BFile.readFileInfo path with
+                  | Ok info ->
+                      assertThat info.kind (isEqualTo BFile.FileKind.Regular)
+                      assertThat info.mode.IsSome (isTrue)
+                      assertThat info.majorDevice.IsSome (isTrue)
+                      assertThat info.minorDevice.IsSome (isTrue)
+                      assertThat info.inode.IsSome (isTrue)
+                  | Error reason -> failwithf "readFileInfo failed: %s" reason
+
+                  BFile.delete path |> ignore
+          )
+
+          test (
+              "readLinkInfo distinguishes symbolic links without following them",
+              fun _ ->
+                  let target = "/tmp/fable_beam_link_target.txt"
+                  let link = "/tmp/fable_beam_link_info_test"
+                  BFile.delete link |> ignore
+                  BFile.writeFile target "target" |> ignore
+
+                  match makeSymlink target link with
+                  | Error reason -> failwithf "could not create symlink fixture: %s" reason
+                  | Ok() ->
+                      match BFile.readLinkInfo link with
+                      | Ok info -> assertThat info.kind (isEqualTo BFile.FileKind.Symlink)
+                      | Error reason -> failwithf "readLinkInfo failed: %s" reason
+
+                  BFile.delete link |> ignore
+                  BFile.delete target |> ignore
+          )
+
+          test (
+              "readLinkInfo preserves missing-path errors",
+              fun _ ->
+                  let result =
+                      BFile.readLinkInfo "/tmp/fable_beam_no_such_link_info_entry"
+
+                  assertThat result (isEqualTo (Error "enoent"))
           ) ]
     )
