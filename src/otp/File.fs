@@ -69,6 +69,44 @@ type FileInfo =
         inode: int option
     }
 
+/// OTP's private `#file_info{}` record. Keep the native tuple opaque so callers
+/// cannot depend on its positional representation.
+[<Erase>]
+type private NativeFileInfo = NativeFileInfo of obj
+
+[<Emit("file:read_file_info(binary_to_list($0))")>]
+let private readFileInfoRaw (path: string) : Result<NativeFileInfo, Atom> = nativeOnly
+
+[<Emit("file:read_link_info(binary_to_list($0))")>]
+let private readLinkInfoRaw (path: string) : Result<NativeFileInfo, Atom> = nativeOnly
+
+[<Emit("erlang:element(3, $0)")>]
+let private fileInfoKind (info: NativeFileInfo) : FileKind option = nativeOnly
+
+[<Emit("erlang:element(8, $0)")>]
+let private fileInfoMode (info: NativeFileInfo) : int option = nativeOnly
+
+[<Emit("erlang:element(10, $0)")>]
+let private fileInfoMajorDevice (info: NativeFileInfo) : int option = nativeOnly
+
+[<Emit("erlang:element(11, $0)")>]
+let private fileInfoMinorDevice (info: NativeFileInfo) : int option = nativeOnly
+
+[<Emit("erlang:element(12, $0)")>]
+let private fileInfoInode (info: NativeFileInfo) : int option = nativeOnly
+
+let private toFileInfo (info: NativeFileInfo) : FileInfo =
+    {
+        kind = fileInfoKind info |> Option.defaultValue FileKind.Other
+        mode = fileInfoMode info
+        majorDevice = fileInfoMajorDevice info
+        minorDevice = fileInfoMinorDevice info
+        inode = fileInfoInode info
+    }
+
+let private mapFileInfoResult (result: Result<NativeFileInfo, Atom>) : Result<FileInfo, string> =
+    result |> Result.map toFileInfo |> Result.mapError Atom.toString
+
 /// Reads the contents of a file. Handles binary_to_list conversion for path.
 /// Returns Ok with file contents as binary, or Error with reason as string.
 [<Emit("(fun() -> case file:read_file(binary_to_list($0)) of {ok, FileReadData__} -> {ok, FileReadData__}; {error, FileReadReason__} -> {error, erlang:atom_to_binary(FileReadReason__)} end end)()")>]
@@ -96,14 +134,12 @@ let delDir (path: string) : Result<unit, string> = nativeOnly
 let listDir (path: string) : Result<string list, string> = nativeOnly
 
 /// Reads metadata for a filesystem entry, following symbolic links.
-[<Emit("(fun() -> case file:read_file_info(binary_to_list($0)) of {ok, {file_info, _, FileInfoType__, _, _, _, _, FileInfoMode__, _, FileInfoMajorDevice__, FileInfoMinorDevice__, FileInfoInode__, _, _}} -> {ok, #{kind_ => case FileInfoType__ of undefined -> other; FileInfoKind__ -> FileInfoKind__ end, mode_ => FileInfoMode__, major_device_ => FileInfoMajorDevice__, minor_device_ => FileInfoMinorDevice__, inode_ => FileInfoInode__}}; {error, FileInfoReason__} -> {error, erlang:atom_to_binary(FileInfoReason__)} end end)()")>]
-let readFileInfo (path: string) : Result<FileInfo, string> = nativeOnly
+let readFileInfo (path: string) : Result<FileInfo, string> = readFileInfoRaw path |> mapFileInfoResult
 
 /// Reads metadata for a filesystem entry without following a symbolic link.
 /// A missing path is returned as `Error "enoent"`, consistently with the other
 /// typed file functions.
-[<Emit("(fun() -> case file:read_link_info(binary_to_list($0)) of {ok, {file_info, _, FileLinkInfoType__, _, _, _, _, FileLinkInfoMode__, _, FileLinkInfoMajorDevice__, FileLinkInfoMinorDevice__, FileLinkInfoInode__, _, _}} -> {ok, #{kind_ => case FileLinkInfoType__ of undefined -> other; FileLinkInfoKind__ -> FileLinkInfoKind__ end, mode_ => FileLinkInfoMode__, major_device_ => FileLinkInfoMajorDevice__, minor_device_ => FileLinkInfoMinorDevice__, inode_ => FileLinkInfoInode__}}; {error, FileLinkInfoReason__} -> {error, erlang:atom_to_binary(FileLinkInfoReason__)} end end)()")>]
-let readLinkInfo (path: string) : Result<FileInfo, string> = nativeOnly
+let readLinkInfo (path: string) : Result<FileInfo, string> = readLinkInfoRaw path |> mapFileInfoResult
 
 /// Renames (moves) a file. Handles binary_to_list conversion for both paths.
 [<Emit("(fun() -> case file:rename(binary_to_list($0), binary_to_list($1)) of ok -> {ok, ok}; {error, FileRenameReason__} -> {error, erlang:atom_to_binary(FileRenameReason__)} end end)()")>]
