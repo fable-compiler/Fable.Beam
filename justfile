@@ -48,7 +48,7 @@ build-beam:
 # load unless their ebin dirs are on the path (an unloaded module shows up as an undef call).
 test: build-beam
     @echo ""
-    cd {{build_path}}/tests && erl -noshell \
+    cd {{build_path}}/tests && TZ=Europe/Oslo erl -noshell \
         -pa _build/default/lib/fable_beam_test/ebin \
         -pa _build/default/lib/fable_library_beam/ebin \
         -pa _build/default/lib/jsx/ebin \

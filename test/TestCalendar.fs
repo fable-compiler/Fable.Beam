@@ -253,30 +253,24 @@ let tests =
           test (
               "localTimeToUniversalTimeDst represents gaps and overlaps",
               fun _ ->
-                  let previousTimeZone = Fable.Beam.Os.getenv "TZ"
-                  Fable.Beam.Os.putenv "TZ" "Europe/Oslo"
+                  // The test runner starts the VM in Europe/Oslo because the
+                  // runtime resolves its time zone when the VM starts.
+                  let gap =
+                      BCalendar.localTimeToUniversalTimeDst ((2024, 3, 31), (2, 30, 0))
 
-                  try
-                      let gap =
-                          BCalendar.localTimeToUniversalTimeDst ((2024, 3, 31), (2, 30, 0))
+                  let ordinary =
+                      BCalendar.localTimeToUniversalTimeDst ((2024, 1, 15), (12, 0, 0))
 
-                      let ordinary =
-                          BCalendar.localTimeToUniversalTimeDst ((2024, 1, 15), (12, 0, 0))
+                  let overlap =
+                      BCalendar.localTimeToUniversalTimeDst ((2024, 10, 27), (2, 30, 0))
 
-                      let overlap =
-                          BCalendar.localTimeToUniversalTimeDst ((2024, 10, 27), (2, 30, 0))
+                  assertThat gap (isEqualTo [])
+                  assertThat ordinary (isEqualTo [ ((2024, 1, 15), (11, 0, 0)) ])
 
-                      assertThat gap (isEqualTo [])
-                      assertThat ordinary (isEqualTo [ ((2024, 1, 15), (11, 0, 0)) ])
-
-                      assertThat
-                          overlap
-                          (isEqualTo
-                              [ ((2024, 10, 27), (0, 30, 0))
-                                ((2024, 10, 27), (1, 30, 0)) ])
-                  finally
-                      match previousTimeZone with
-                      | Some timeZone -> Fable.Beam.Os.putenv "TZ" timeZone
-                      | None -> Fable.Beam.Os.unsetenv "TZ"
+                  assertThat
+                      overlap
+                      (isEqualTo
+                          [ ((2024, 10, 27), (0, 30, 0))
+                            ((2024, 10, 27), (1, 30, 0)) ])
           ) ]
     )
