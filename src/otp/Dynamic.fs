@@ -12,6 +12,13 @@ open Fable.Core
 [<Erase>]
 type Dynamic = Dynamic of obj
 
+/// Explicitly widens a typed value to an unknown Erlang term.
+[<RequireQualifiedAccess>]
+module Dynamic =
+    /// Wraps a value without changing its BEAM representation.
+    [<Emit("$0")>]
+    let ofValue (value: 'T) : Dynamic = nativeOnly
+
 /// Decoder combinators for extracting typed values from a `Dynamic`.
 /// Each decoder returns `Result<'T, string>` where the error is a human-readable message.
 ///
