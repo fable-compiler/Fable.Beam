@@ -248,5 +248,29 @@ let tests =
                   assertThat (h >= 0 && h <= 23) (isTrue)
                   assertThat (mi >= 0 && mi <= 59) (isTrue)
                   assertThat (s >= 0 && s <= 60) (isTrue)
+          )
+
+          test (
+              "localTimeToUniversalTimeDst represents gaps and overlaps",
+              fun _ ->
+                  // The test runner starts the VM in Europe/Oslo because the
+                  // runtime resolves its time zone when the VM starts.
+                  let gap =
+                      BCalendar.localTimeToUniversalTimeDst ((2024, 3, 31), (2, 30, 0))
+
+                  let ordinary =
+                      BCalendar.localTimeToUniversalTimeDst ((2024, 1, 15), (12, 0, 0))
+
+                  let overlap =
+                      BCalendar.localTimeToUniversalTimeDst ((2024, 10, 27), (2, 30, 0))
+
+                  assertThat gap (isEqualTo [])
+                  assertThat ordinary (isEqualTo [ ((2024, 1, 15), (11, 0, 0)) ])
+
+                  assertThat
+                      overlap
+                      (isEqualTo
+                          [ ((2024, 10, 27), (0, 30, 0))
+                            ((2024, 10, 27), (1, 30, 0)) ])
           ) ]
     )
