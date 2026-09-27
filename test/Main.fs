@@ -10,31 +10,33 @@ open type Scriptorium.Quill.Runner
 [<EntryPoint>]
 let main _ =
     runTests
-        [ Timer.tests
-          Maps.tests
-          GenServer.tests
-          Base64.tests
-          Math.tests
-          Io.tests
-          IoLib.tests
-          Rand.tests
-          Proplists.tests
-          Binary.tests
-          Calendar.tests
-          GenTcp.tests
-          Distribution.tests
-          Queue.tests
-          Lists.tests
-          String.tests
-          Erlang.tests
-          Re.tests
-          Dynamic.tests
-          UriString.tests
-          Callbacks.tests
-          Os.tests
-          Port.tests
-          Supervisor.tests
-          Logger.tests
-          File.tests
-          Ets.tests
-          Jsx.tests ]
+        [
+            Timer.tests
+            Maps.tests
+            GenServer.tests
+            Base64.tests
+            Math.tests
+            Io.tests
+            IoLib.tests
+            Rand.tests
+            Proplists.tests
+            Binary.tests
+            Calendar.tests
+            GenTcp.tests
+            Distribution.tests
+            Queue.tests
+            Lists.tests
+            String.tests
+            Erlang.tests
+            Re.tests
+            Dynamic.tests
+            UriString.tests
+            Callbacks.tests
+            Os.tests
+            Port.tests
+            Supervisor.tests
+            Logger.tests
+            File.tests
+            Ets.tests
+            Jsx.tests
+        ]

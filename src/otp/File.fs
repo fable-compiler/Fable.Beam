@@ -134,12 +134,14 @@ let delDir (path: string) : Result<unit, string> = nativeOnly
 let listDir (path: string) : Result<string list, string> = nativeOnly
 
 /// Reads metadata for a filesystem entry, following symbolic links.
-let readFileInfo (path: string) : Result<FileInfo, string> = readFileInfoRaw path |> mapFileInfoResult
+let readFileInfo (path: string) : Result<FileInfo, string> =
+    readFileInfoRaw path |> mapFileInfoResult
 
 /// Reads metadata for a filesystem entry without following a symbolic link.
 /// A missing path is returned as `Error "enoent"`, consistently with the other
 /// typed file functions.
-let readLinkInfo (path: string) : Result<FileInfo, string> = readLinkInfoRaw path |> mapFileInfoResult
+let readLinkInfo (path: string) : Result<FileInfo, string> =
+    readLinkInfoRaw path |> mapFileInfoResult
 
 /// Renames (moves) a file. Handles binary_to_list conversion for both paths.
 [<Emit("(fun() -> case file:rename(binary_to_list($0), binary_to_list($1)) of ok -> {ok, ok}; {error, FileRenameReason__} -> {error, erlang:atom_to_binary(FileRenameReason__)} end end)()")>]
