@@ -39,25 +39,28 @@ module ConnectOptions =
             connectTimeoutMs = None
         }
 
-[<Emit("(fun() -> case $3 of undefined -> gen_tcp:connect(binary_to_list($0), $1, [binary, {active, false}, {packet, $2}]); GenTcpConnectTimeout__ -> gen_tcp:connect(binary_to_list($0), $1, [binary, {active, false}, {packet, $2}], GenTcpConnectTimeout__) end end)()")>]
-let private connectRaw
+[<Emit("gen_tcp:connect(binary_to_list($0), $1, [binary, {active, false}, {packet, $2}])")>]
+let private connectDefaultRaw (host: string) (port: int) (packetMode: PacketMode) : Result<Socket, Dynamic> =
+    nativeOnly
+
+[<Emit("gen_tcp:connect(binary_to_list($0), $1, [binary, {active, false}, {packet, $2}], $3)")>]
+let private connectTimeoutRaw
     (host: string)
     (port: int)
     (packetMode: PacketMode)
-    (timeoutMs: int option)
-    : Result<Socket, obj> =
+    (timeoutMs: int)
+    : Result<Socket, Dynamic> =
     nativeOnly
 
 [<Emit("erlang:iolist_to_binary(io_lib:format(\"~p\", [$0]))")>]
-let private formatError (reason: obj) : string = nativeOnly
+let private formatError (reason: Dynamic) : string = nativeOnly
 
 /// Connects a passive binary TCP client to a hostname or textual IP address.
 let connect (host: string) (port: int) (options: ConnectOptions) : Result<Socket, string> =
     match options.connectTimeoutMs with
     | Some timeoutMs when timeoutMs < 0 -> Error "connect timeout must be non-negative"
-    | _ ->
-        connectRaw host port options.packetMode options.connectTimeoutMs
-        |> Result.mapError formatError
+    | Some timeoutMs -> connectTimeoutRaw host port options.packetMode timeoutMs |> Result.mapError formatError
+    | None -> connectDefaultRaw host port options.packetMode |> Result.mapError formatError
 
 /// Connects a passive binary, line-delimited client using OTP's default timeout.
 let connectLineClient (host: string) (port: int) : Result<Socket, string> =
@@ -66,8 +69,8 @@ let connectLineClient (host: string) (port: int) : Result<Socket, string> =
 /// Receives binary data from a passive socket.
 /// `length = 0` returns all currently available data in raw mode; packet modes
 /// such as `Line` determine their own returned packet boundary.
-[<Emit("(fun() -> case gen_tcp:recv($0, $1, $2) of {ok, GenTcpRecvData__} -> {ok, GenTcpRecvData__}; {error, GenTcpRecvReason__} -> {error, erlang:iolist_to_binary(io_lib:format(\"~p\", [GenTcpRecvReason__]))} end end)()")>]
-let private recvRaw (socket: Socket) (length: int) (timeoutMs: int) : Result<string, string> = nativeOnly
+[<Emit("gen_tcp:recv($0, $1, $2)")>]
+let private recvRaw (socket: Socket) (length: int) (timeoutMs: int) : Result<string, Dynamic> = nativeOnly
 
 /// Receives binary data from a passive socket.
 let recv (socket: Socket) (length: int) (timeoutMs: int) : Result<string, string> =
@@ -76,11 +79,15 @@ let recv (socket: Socket) (length: int) (timeoutMs: int) : Result<string, string
     elif timeoutMs < 0 then
         Error "receive timeout must be non-negative"
     else
-        recvRaw socket length timeoutMs
+        recvRaw socket length timeoutMs |> Result.mapError formatError
 
 /// Sends binary data on a connected socket.
-[<Emit("(fun() -> case gen_tcp:send($0, $1) of ok -> {ok, ok}; {error, GenTcpSendReason__} -> {error, erlang:iolist_to_binary(io_lib:format(\"~p\", [GenTcpSendReason__]))} end end)()")>]
-let send (socket: Socket) (data: string) : Result<unit, string> = nativeOnly
+[<Emit("case gen_tcp:send($0, $1) of ok -> {ok, ok}; {error, GenTcpSendReason__} -> {error, GenTcpSendReason__} end")>]
+let private sendRaw (socket: Socket) (data: string) : Result<unit, Dynamic> = nativeOnly
+
+/// Sends binary data on a connected socket.
+let send (socket: Socket) (data: string) : Result<unit, string> =
+    sendRaw socket data |> Result.mapError formatError
 
 /// Closes a TCP socket.
 [<Emit("gen_tcp:close($0)")>]
