@@ -121,4 +121,4 @@ watch:
 
 # Run EasyBuild.ShipIt for release management
 shipit *args:
-    dotnet shipit --pre-release rc {{args}}
+    dotnet shipit {{args}}
