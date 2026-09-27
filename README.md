@@ -61,6 +61,7 @@ selection at restore time.
 | `Fable.Beam.File` | `file` | File system operations |
 | `Fable.Beam.Os` | `os` | OS interaction, env vars, system time |
 | `Fable.Beam.Port` | `erlang:open_port` | Configurable external-process ports, lifecycle, and monitoring |
+| `Fable.Beam.GenTcp` | `gen_tcp` | Passive binary TCP clients and packet framing |
 | `Fable.Beam.Httpc` | `httpc` | HTTP client (inets) |
 | `Fable.Beam.Init` | `init` | Runtime system control |
 | `Fable.Beam.Testing` | - | Test helpers (Fact, assertions) |
@@ -200,6 +201,25 @@ Options also support a working directory, environment overrides, stderr
 redirection, owner linking, and independent `monitor`/`receiveDown` exit
 notifications.
 
+### Passive TCP clients
+
+`GenTcp` creates passive binary sockets, so callers explicitly receive data
+without mixing socket messages into an actor mailbox. Packet framing and the
+connect timeout are configured through `ConnectOptions`.
+
+```fsharp
+open Fable.Beam.GenTcp
+
+match connectLineClient "localhost" 30003 with
+| Ok socket ->
+    match recv socket 0 5000 with
+    | Ok line -> printfn "%s" line
+    | Error reason -> printfn "receive failed: %s" reason
+
+    close socket
+| Error reason -> printfn "connect failed: %s" reason
+```
+
 ## Prerequisites
 
 - [.NET SDK](https://dotnet.microsoft.com/) 10+
@@ -249,7 +269,7 @@ src/
   otp/             # Fable.Beam — OTP stdlib bindings
     Erlang.fs, GenServer.fs, Supervisor.fs, Timer.fs,
     Ets.fs, Maps.fs, Lists.fs, Io.fs, Logger.fs,
-    File.fs, Os.fs, Port.fs, Httpc.fs, Application.fs, Init.fs,
+    File.fs, Os.fs, Port.fs, GenTcp.fs, Httpc.fs, Application.fs, Init.fs,
     Binary.fs, Math.fs, Proplists.fs, String.fs, Queue.fs,
     Base64.fs, Rand.fs, Testing.fs
   cowboy/          # Fable.Beam.Cowboy — HTTP server bindings

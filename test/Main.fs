@@ -21,6 +21,7 @@ let main _ =
           Proplists.tests
           Binary.tests
           Calendar.tests
+          GenTcp.tests
           Queue.tests
           Lists.tests
           String.tests
