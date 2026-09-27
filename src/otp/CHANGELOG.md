@@ -1,11 +1,22 @@
 ---
-last_commit_released: 0b4f491a726d8a92ed3449f00f4ad7c6234a770b
+last_commit_released: 750e687e3d83e3a05c9435780bf957dc6fa6739e
 name: Fable.Beam
 ---
 
 # Changelog
 
 All notable changes to this project will be documented in this file.
+
+## 5.1.0 - 2026-09-27
+
+### 🚀 Features
+
+* Add DST-aware calendar conversion (#160) ([128377e](https://github.com/fable-compiler/Fable.Beam/commit/128377efbe6c4c38e37607f28e907bf3d29ac36b))
+* Add passive gen_tcp client bindings (#163) ([0be6a72](https://github.com/fable-compiler/Fable.Beam/commit/0be6a722404c1ec66e33f1b9c0d62acf1ae0024e))
+* Add typed file metadata bindings (#161) ([fed1a9c](https://github.com/fable-compiler/Fable.Beam/commit/fed1a9c0e1390ee142af0ef91f5f9fa5c69824c1))
+* Add distributed node bindings (#162) ([750e687](https://github.com/fable-compiler/Fable.Beam/commit/750e687e3d83e3a05c9435780bf957dc6fa6739e))
+
+<strong><small>[View changes on Github](https://github.com/fable-compiler/Fable.Beam/compare/0b4f491a726d8a92ed3449f00f4ad7c6234a770b..750e687e3d83e3a05c9435780bf957dc6fa6739e)</small></strong>
 
 ## 5.0.0 - 2026-08-24
 
