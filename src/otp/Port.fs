@@ -25,26 +25,30 @@ type PortMonitor = private PortMonitor of obj
 /// opts into OTP link semantics; it is false by default so an unexpected child
 /// exit cannot terminate the caller.
 type PortOptions =
-    { arguments: string list
-      maxLineLength: int
-      exitStatus: bool
-      useStdio: bool
-      stderrToStdout: bool
-      workingDirectory: string option
-      environment: (string * string) list
-      linkOwner: bool }
+    {
+        arguments: string list
+        maxLineLength: int
+        exitStatus: bool
+        useStdio: bool
+        stderrToStdout: bool
+        workingDirectory: string option
+        environment: (string * string) list
+        linkOwner: bool
+    }
 
 /// Safe defaults for a line-oriented stdin/stdout process connection.
 module PortOptions =
     let defaultOptions =
-        { arguments = []
-          maxLineLength = 8192
-          exitStatus = true
-          useStdio = true
-          stderrToStdout = false
-          workingDirectory = None
-          environment = []
-          linkOwner = false }
+        {
+            arguments = []
+            maxLineLength = 8192
+            exitStatus = true
+            useStdio = true
+            stderrToStdout = false
+            workingDirectory = None
+            environment = []
+            linkOwner = false
+        }
 
 /// A message delivered by a port opened with line mode. `ExitStatus` is
 /// delivered when `PortOptions.exitStatus` is enabled.
@@ -112,9 +116,11 @@ let private launchOptions (options: PortOptions) =
         | Some path -> [ workingDirectoryOption path ]
         | None -> []
 
-    [ binaryOption
-      lineOption options.maxLineLength
-      argumentsOption options.arguments ]
+    [
+        binaryOption
+        lineOption options.maxLineLength
+        argumentsOption options.arguments
+    ]
     @ optional options.exitStatus exitStatusOption
     @ optional options.useStdio useStdioOption
     @ optional options.stderrToStdout stderrToStdoutOption

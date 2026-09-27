@@ -40,8 +40,7 @@ module ConnectOptions =
         }
 
 [<Emit("gen_tcp:connect(binary_to_list($0), $1, [binary, {active, false}, {packet, $2}])")>]
-let private connectDefaultRaw (host: string) (port: int) (packetMode: PacketMode) : Result<Socket, Dynamic> =
-    nativeOnly
+let private connectDefaultRaw (host: string) (port: int) (packetMode: PacketMode) : Result<Socket, Dynamic> = nativeOnly
 
 [<Emit("gen_tcp:connect(binary_to_list($0), $1, [binary, {active, false}, {packet, $2}], $3)")>]
 let private connectTimeoutRaw
@@ -59,7 +58,9 @@ let private formatError (reason: Dynamic) : string = nativeOnly
 let connect (host: string) (port: int) (options: ConnectOptions) : Result<Socket, string> =
     match options.connectTimeoutMs with
     | Some timeoutMs when timeoutMs < 0 -> Error "connect timeout must be non-negative"
-    | Some timeoutMs -> connectTimeoutRaw host port options.packetMode timeoutMs |> Result.mapError formatError
+    | Some timeoutMs ->
+        connectTimeoutRaw host port options.packetMode timeoutMs
+        |> Result.mapError formatError
     | None -> connectDefaultRaw host port options.packetMode |> Result.mapError formatError
 
 /// Connects a passive binary, line-delimited client using OTP's default timeout.

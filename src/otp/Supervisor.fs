@@ -44,11 +44,13 @@ let shutdownInfinity: Shutdown = nativeOnly
 /// A child specification (map form). `Start` is the `{Module, Function, Args}`
 /// entry point that returns `{ok, Pid}`. Compiles to an Erlang child-spec map.
 type ChildSpec =
-    { Id: Atom
-      Start: Atom * Atom * obj list
-      Restart: Restart
-      Shutdown: Shutdown
-      Type: ChildType }
+    {
+        Id: Atom
+        Start: Atom * Atom * obj list
+        Restart: Restart
+        Shutdown: Shutdown
+        Type: ChildType
+    }
 
 // ============================================================================
 // Supervisor reference

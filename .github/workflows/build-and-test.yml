@@ -41,8 +41,8 @@ jobs:
           just setup
           just restore
 
-      #- name: Check formatting
-      #  run: just format-check
+      - name: Check formatting
+        run: just format-check
 
       - name: Build
         run: just build
