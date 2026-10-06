@@ -29,10 +29,7 @@ Libraries built on top of Fable.Beam:
 | `Fable.Beam.Cowboy` | Cowboy HTTP server bindings |
 | `Fable.Beam.Jsx` | jsx JSON library bindings |
 
-`Fable.Beam.Jsx` depends on `Fable.Beam`. Install the paired stable versions:
-`Fable.Beam 5.0.0` and `Fable.Beam.Jsx 5.0.0`. The JSX package requires
-`Fable.Beam >= 5.0.0` and `< 6.0.0`, so NuGet reports an incompatible
-selection at restore time.
+`Fable.Beam.Jsx` can be installed independently of `Fable.Beam`.
 
 ### Fable.Beam — OTP Modules
 
