@@ -1,11 +1,19 @@
 ---
-last_commit_released: 0b4f491a726d8a92ed3449f00f4ad7c6234a770b
+last_commit_released: f64ae76b5d110c8c40a099a55187764b2319326a
 name: Fable.Beam.Jsx
 ---
 
 # Changelog
 
 All notable changes to this project will be documented in this file.
+
+## 5.0.1 - 2026-10-10
+
+### 🐞 Bug Fixes
+
+* Remove unnecessary Fable.Beam dependency from JSX (#171) ([9a7b588](https://github.com/fable-compiler/Fable.Beam/commit/9a7b588b667957790a6f609c253597427bc26843))
+
+<strong><small>[View changes on Github](https://github.com/fable-compiler/Fable.Beam/compare/0b4f491a726d8a92ed3449f00f4ad7c6234a770b..f64ae76b5d110c8c40a099a55187764b2319326a)</small></strong>
 
 ## 5.0.0 - 2026-08-24
 
