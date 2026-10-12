@@ -1,11 +1,19 @@
 ---
-last_commit_released: 750e687e3d83e3a05c9435780bf957dc6fa6739e
+last_commit_released: b3769629592ccfeab008393cae55963e8faa7457
 name: Fable.Beam
 ---
 
 # Changelog
 
 All notable changes to this project will be documented in this file.
+
+## 5.2.0 - 2026-10-12
+
+### 🚀 Features
+
+* Add typed monitored spawning and process aliases (#178) ([6dc5636](https://github.com/fable-compiler/Fable.Beam/commit/6dc5636e1cd8dcc1aab8b9a52bdfefc88eab45f3))
+
+<strong><small>[View changes on Github](https://github.com/fable-compiler/Fable.Beam/compare/750e687e3d83e3a05c9435780bf957dc6fa6739e..b3769629592ccfeab008393cae55963e8faa7457)</small></strong>
 
 ## 5.1.0 - 2026-09-27
 
