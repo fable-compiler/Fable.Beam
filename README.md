@@ -35,7 +35,7 @@ Libraries built on top of Fable.Beam:
 
 | Module | Binding | Description |
 | --- | --- | --- |
-| `Fable.Beam.Erlang` | `erlang` | BIFs: processes, send/receive, monitors |
+| `Fable.Beam.Erlang` | `erlang` | BIFs: processes, send/receive, monitors, revocable aliases |
 | `Fable.Beam.GenServer` | `gen_server` | Generic server behaviour |
 | `Fable.Beam.Supervisor` | `supervisor` | Supervisor behaviour |
 | `Fable.Beam.Application` | `application` | OTP application management |
@@ -245,16 +245,48 @@ match NetKernel.connectNode peer with
 | NetKernel.ConnectNodeResult.NotAlive -> ()
 ```
 
+### Monitored spawning and process aliases
+
+`Erlang.spawnMonitor<'Msg>` accepts an ordinary `unit -> unit` callback and returns
+`Pid<'Msg> * Ref<Pid<'Msg>>`. It binds directly to
+[`erlang:spawn_monitor/1`](https://www.erlang.org/doc/apps/erts/erlang.html#spawn_monitor/1),
+so spawn and monitor creation are atomic and even an immediate exit produces a
+`{'DOWN', MonitorRef, process, Pid, Reason}` message. Receive that message with a
+DU whose case has `[<CompiledName("DOWN")>]`, using Fable.Core's receive intrinsic.
+
+[`Erlang.alias<'Msg> ()`](https://www.erlang.org/doc/apps/erts/erlang.html#alias/0)
+creates a revocable address for the calling process. `Alias<'Msg>` is an erased,
+opaque handle distinct from `Pid<'Msg>` and `Ref<'Tag>`; `Erlang.sendAlias alias msg`
+enforces the alias's message type. `Erlang.aliasWithOptions<'Msg>` accepts a typed
+`Erlang.AliasOption list`:
+
+- `ExplicitUnalias` keeps the alias active until explicitly deactivated (the default).
+- `Reply` deactivates it when the first message through it reaches the mailbox,
+  before that message is consumed. It can also be explicitly deactivated beforehand.
+
+`Erlang.unalias alias` returns `true` when the calling process deactivates its
+active alias, and `false` if already inactive or owned by another process.
+Revocation drops subsequent alias delivery; it leaves already queued messages,
+including unrelated mailbox traffic, intact. These alias operations and options
+require OTP 24+, so they preserve the BEAM target's OTP 25 minimum and work on
+the project's OTP 27 toolchain.
+The newer OTP 28 `priority` option is not exposed. Lifecycle ownership and
+cancellation policy belong to the consumer.
+
 ## Prerequisites
 
 - [.NET SDK](https://dotnet.microsoft.com/) 10+
 - [Erlang/OTP](https://www.erlang.org/)
 - [rebar3](https://rebar3.org/)
 - [just](https://github.com/casey/just) (command runner)
+- [mise](https://mise.jdx.dev/) (pins Erlang/OTP 27 and rebar3 for `just` recipes)
 
 ## Getting Started
 
 ```bash
+# Install the pinned Erlang/OTP and rebar3 tools
+mise install
+
 # Install .NET tools (Fable, Paket, Fantomas)
 just setup
 

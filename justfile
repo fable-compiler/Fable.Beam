@@ -2,6 +2,7 @@
 # Install just: https://github.com/casey/just
 
 set dotenv-load
+set shell := ["mise", "exec", "--", "sh", "-cu"]
 
 build_path := "build"
 src_path := "src"
