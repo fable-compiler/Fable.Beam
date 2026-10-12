@@ -28,6 +28,7 @@ let main _ =
             Lists.tests
             String.tests
             Erlang.tests
+            Process.tests
             Re.tests
             Dynamic.tests
             UriString.tests

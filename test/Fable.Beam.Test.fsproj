@@ -42,6 +42,7 @@
     <Compile Include="TestLists.fs" />
     <Compile Include="TestString.fs" />
     <Compile Include="TestErlang.fs" />
+    <Compile Include="TestProcess.fs" />
     <Compile Include="TestRe.fs" />
     <Compile Include="TestDynamic.fs" />
     <Compile Include="TestUriString.fs" />

@@ -9,6 +9,11 @@ open Fable.Core
 [<Erase>]
 type Pid<'Msg> = Pid of obj
 
+/// Revocable Erlang process alias (OTP 24+), addressing its creating process.
+/// The phantom parameter 'Msg captures the accepted message type. Erased at runtime.
+[<Erase>]
+type Alias<'Msg> = private Alias of obj
+
 /// Erlang reference (from make_ref, monitor, etc.).
 /// The phantom parameter 'Tag identifies what the ref refers to — e.g., a
 /// monitor ref is Ref<Pid>, a request/response tag is Ref<Reply>. Erased at runtime.

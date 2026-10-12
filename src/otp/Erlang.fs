@@ -26,9 +26,52 @@ let spawn<'Msg> (f: unit -> unit) : Pid<'Msg> = nativeOnly
 [<Emit("erlang:spawn_link(fun() -> $0(ok) end)")>]
 let spawnLink<'Msg> (f: unit -> unit) : Pid<'Msg> = nativeOnly
 
+/// Atomically spawn and monitor a process executing an ordinary F# callback.
+/// Its exit delivers {'DOWN', MonitorRef, process, Pid, Reason} to the caller,
+/// including when the callback exits immediately.
+/// See https://www.erlang.org/doc/apps/erts/erlang.html#spawn_monitor/1
+///
+/// invariant: spawn and monitor creation are one OTP operation so immediate exits remain observable
+[<Emit("erlang:spawn_monitor(fun() -> $0(ok) end)")>]
+let spawnMonitor<'Msg> (f: unit -> unit) : Pid<'Msg> * Ref<Pid<'Msg>> = nativeOnly
+
 /// Send a typed message to a process (Pid ! Msg).
 [<Emit("$0 ! $1")>]
 let send (pid: Pid<'Msg>) (msg: 'Msg) : unit = nativeOnly
+
+/// Options for erlang:alias/1 (OTP 24+). Choose at most one deactivation mode.
+/// OTP 28's priority option is not exposed, preserving compatibility with older runtimes.
+///
+/// decision: expose only OTP 24 alias options so callers on OTP 25 and 27 need no runtime gate
+type AliasOption =
+    /// Deactivate only through unalias (also the default with no options).
+    | [<CompiledName("explicit_unalias")>] ExplicitUnalias
+    /// Automatically deactivate on delivery of the first message through the alias.
+    /// Explicit unalias is still allowed before that message arrives.
+    | Reply
+
+/// Create an alias addressing the calling process, active until unalias or process exit (OTP 24+).
+/// See https://www.erlang.org/doc/apps/erts/erlang.html#alias/0
+[<Emit("erlang:alias()")>]
+let alias<'Msg> () : Alias<'Msg> = nativeOnly
+
+/// Create an alias addressing the calling process with typed options (OTP 24+).
+/// An empty list uses explicit deactivation; pass one option to select a deactivation mode.
+/// See https://www.erlang.org/doc/apps/erts/erlang.html#alias/1
+[<Emit("erlang:alias($0)")>]
+let aliasWithOptions<'Msg> (options: AliasOption list) : Alias<'Msg> = nativeOnly
+
+/// Send a typed message to an alias (OTP 24+). Inactive aliases silently drop new messages.
+[<Emit("$0 ! $1")>]
+let sendAlias (alias: Alias<'Msg>) (msg: 'Msg) : unit = nativeOnly
+
+/// Deactivate an alias owned by the calling process (OTP 24+).
+/// Returns true only when this call deactivates an active alias owned by the caller;
+/// otherwise false, including for an already inactive alias or another process's alias.
+/// Messages already in the mailbox remain there.
+/// See https://www.erlang.org/doc/apps/erts/erlang.html#unalias/1
+[<Emit("erlang:unalias($0)")>]
+let unalias (alias: Alias<'Msg>) : bool = nativeOnly
 
 /// Enable trap_exit so EXIT signals become messages. Returns the old value.
 [<Emit("erlang:process_flag(trap_exit, true)")>]
