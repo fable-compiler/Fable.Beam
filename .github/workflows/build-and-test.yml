@@ -21,7 +21,7 @@ jobs:
           cache-dependency-path: 'paket.lock'
 
       - name: Setup mise (Erlang/OTP and rebar3)
-        uses: jdx/mise-action@v4
+        uses: jdx/mise-action@v5
 
       - name: Cache rebar3 dependencies
         uses: actions/cache@v6
