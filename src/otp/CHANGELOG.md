@@ -1,11 +1,19 @@
 ---
-last_commit_released: b3769629592ccfeab008393cae55963e8faa7457
+last_commit_released: 67c2efee519215fda69720cbbb6c031ecdf1151c
 name: Fable.Beam
 ---
 
 # Changelog
 
 All notable changes to this project will be documented in this file.
+
+## 5.3.0 - 2026-10-18
+
+### 🚀 Features
+
+* Add Erlang binary and number predicates (#187) ([67c2efe](https://github.com/fable-compiler/Fable.Beam/commit/67c2efee519215fda69720cbbb6c031ecdf1151c))
+
+<strong><small>[View changes on Github](https://github.com/fable-compiler/Fable.Beam/compare/b3769629592ccfeab008393cae55963e8faa7457..67c2efee519215fda69720cbbb6c031ecdf1151c)</small></strong>
 
 ## 5.2.0 - 2026-10-12
 
