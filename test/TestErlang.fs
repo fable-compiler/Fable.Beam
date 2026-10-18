@@ -41,6 +41,35 @@ let tests =
             )
 
             test (
+                "isBinary accepts binaries and rejects other terms",
+                fun _ ->
+                    assertThat (Erlang.isBinary "hello") (isTrue)
+                    assertThat (Erlang.isBinary "") (isTrue)
+                    assertThat (Erlang.isBinary 42) (isFalse)
+                    assertThat (Erlang.isBinary (Atom.ofString "hello")) (isFalse)
+
+                    let charlist: Dynamic = emitErlExpr () "[104, 101, 108, 108, 111]"
+                    let partialByte: Dynamic = emitErlExpr () "<<7:12>>"
+                    assertThat (Erlang.isBinary charlist) (isFalse)
+                    assertThat (Erlang.isBinary partialByte) (isFalse)
+            )
+
+            test (
+                "isNumber accepts integers and floats without accepting other terms",
+                fun _ ->
+                    assertThat (Erlang.isNumber 42) (isTrue)
+                    assertThat (Erlang.isNumber 1.5) (isTrue)
+                    assertThat (Erlang.isNumber -2) (isTrue)
+                    assertThat (Erlang.isNumber "42") (isFalse)
+                    assertThat (Erlang.isNumber (Atom.ofString "forty_two")) (isFalse)
+
+                    let list: Dynamic = emitErlExpr () "[1, 2]"
+                    let tuple: Dynamic = emitErlExpr () "{1, 2}"
+                    assertThat (Erlang.isNumber list) (isFalse)
+                    assertThat (Erlang.isNumber tuple) (isFalse)
+            )
+
+            test (
                 "spawn creates a process",
                 fun _ ->
                     let pid = Erlang.spawn (fun () -> ())

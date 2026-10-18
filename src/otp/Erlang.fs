@@ -138,6 +138,14 @@ let exactEquals (a: 'T) (b: 'T) : bool = nativeOnly
 [<Emit("erlang:is_list($0)")>]
 let isList (term: 'T) : bool = nativeOnly
 
+/// Returns true if Term is an Erlang binary (a bitstring of whole bytes).
+[<Emit("erlang:is_binary($0)")>]
+let isBinary (term: 'T) : bool = nativeOnly
+
+/// Returns true if Term is an Erlang integer or float, without converting it.
+[<Emit("erlang:is_number($0)")>]
+let isNumber (term: 'T) : bool = nativeOnly
+
 // ============================================================================
 // Time
 // ============================================================================
