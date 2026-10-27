@@ -13,7 +13,7 @@ NUGET
   remote: https://api.nuget.org/v3/index.json
     Fable.Core (5.0)
       FSharp.Core (>= 4.7.2)
-    FSharp.Core (10.1.402)
+    FSharp.Core (10.1.403)
     Microsoft.CodeCoverage (18.11)
     Microsoft.NET.Test.Sdk (17.14.1)
       Microsoft.CodeCoverage (>= 17.14.1)
